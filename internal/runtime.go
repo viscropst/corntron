@@ -1,0 +1,174 @@
+package internal
+
+import "os"
+
+type ValueScope struct {
+	scopeReady bool
+	Top        *ValueScope
+	Vars       map[string]string
+	Env        map[string]string
+}
+
+const valueRefFormat = "#{%s}"
+
+func (v ValueScope) mappingScope(key string) string {
+	var result string
+
+	if v0, ok := v.Vars[key]; ok {
+		result = v0
+	}
+
+	if v0, ok := v.Env[key]; ok {
+		result = v0
+	}
+
+	if v.Top != nil && result == "" {
+		v.Top.PrepareScope()
+		result = v.Top.mappingScope(key)
+	}
+
+	if result == "" {
+		return key
+	}
+
+	return result
+}
+
+func (v ValueScope) expandValue(str string) string {
+	idx := 0
+	var buf []byte
+
+	for i := 0; i < len(str); i++ {
+		if str[i] != valueRefFormat[0] && (i+1) >= len(str) {
+			continue
+		}
+		name := ""
+		offset := 0
+
+		if buf == nil {
+			buf = make([]byte, 0, 2*len(str))
+		}
+		buf = append(buf, str[idx:i]...)
+
+		if str[i+1] == valueRefFormat[1] {
+			inner := str[i+1:]
+			for j := 1; j < len(inner); j++ {
+				if inner[j] == valueRefFormat[4] && j > 1 {
+					name = inner[1:j]
+					offset = j + 1
+				}
+				if inner[j] == valueRefFormat[4] {
+					if j == 1 {
+						offset = 2
+					}
+					break
+				}
+			}
+		}
+
+		if name == "" && offset > 0 {
+		} else if name == "" {
+			buf = append(buf, str[i])
+		} else {
+			scopeValue := v.mappingScope(name)
+			buf = append(buf, scopeValue...)
+			if scopeValue == name {
+				buf = nil
+			}
+		}
+		i = i + offset
+		idx = i + 1
+	}
+
+	if buf == nil {
+		return str
+	}
+	return string(buf) + str[idx:]
+}
+
+func (v *ValueScope) PrepareScope() {
+	if v.scopeReady {
+		return
+	}
+
+	if v.Top != nil && !v.Top.scopeReady {
+		v.Top.PrepareScope()
+	}
+
+	for k, v0 := range v.Vars {
+		v.Vars[k] = v.expandValue(v0)
+	}
+
+	for k, v0 := range v.Env {
+		v.Env[k] = v.expandValue(v0)
+	}
+
+	v.scopeReady = true
+}
+
+func (v *ValueScope) modifyMap(from, to map[string]string,
+	beforeAdd ...func(k, a, b string) string) map[string]string {
+	if from == nil || len(from) == 0 {
+		return to
+	}
+	if to == nil {
+		to = make(map[string]string)
+	}
+	for k, v1 := range from {
+		v0, ok := to[k]
+
+		if ok && len(beforeAdd) > 0 {
+			to[k] = beforeAdd[0](k, v0, v1)
+		} else if !ok {
+			to[k] = v1
+		} else {
+			to[k] = v0
+		}
+	}
+	return to
+}
+
+func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
+	v.PrepareScope()
+	if environ == nil || len(environ) == 0 {
+		return v
+	}
+	v.Env = v.modifyMap(environ, v.Env, func(k, a, b string) string {
+		if k == "PATH" {
+			var buf []byte
+			buf = append(buf, a...)
+			buf = append(buf, os.PathListSeparator)
+			buf = append(buf, b...)
+			return string(buf)
+		}
+		if a == "" {
+			return v.expandValue(b)
+		}
+		return a
+	})
+	v.scopeReady = false
+	return v
+}
+
+func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
+	v.PrepareScope()
+	v.Vars = v.modifyMap(varToAdd, v.Vars)
+	v.scopeReady = false
+	return v
+}
+
+func (v *ValueScope) EnvStrList() []string {
+	result := make([]string, 0)
+	for k, v0 := range v.Env {
+		result = append(result, k+"="+v0)
+	}
+	return result
+}
+
+func (v *ValueScope) Expand(str string) string {
+	v.PrepareScope()
+	if len(str) > 0 {
+		str = v.expandValue(str)
+	}
+	return str
+}

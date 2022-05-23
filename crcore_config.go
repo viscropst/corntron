@@ -1,0 +1,116 @@
+package cryphtron
+
+import (
+	"fmt"
+	"github.com/pelletier/go-toml/v2"
+	"io/fs"
+	"os"
+	"path"
+	"path/filepath"
+)
+
+type CoreConfig struct {
+	CurrentDir string
+	RuntimeDir string
+	EditorDir  string
+	MirrorType string
+	WithEditor bool
+}
+
+func (c CoreConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
+	rootDir := c.CurrentDir
+	if len(DirNames) > 0 {
+		tmp := path.Join(DirNames...)
+		rootDir = path.Join(rootDir, tmp)
+	}
+	return filepath.Walk(rootDir, walkFunc)
+}
+
+func (c CoreConfig) FsWalkDir(walkFunc fs.WalkDirFunc, DirNames ...string) error {
+	rootDir := path.Base(c.CurrentDir)
+	if len(DirNames) > 0 {
+		tmp := path.Join(DirNames...)
+		rootDir = path.Join(rootDir, tmp)
+	}
+	return filepath.WalkDir(rootDir, walkFunc)
+}
+
+func (c CoreConfig) UnwrapMirrorType() MirrorType {
+	return MirrorType(c.MirrorType).Convert()
+}
+
+const execDirWithoutLink = "${dp0}"
+
+var defaultCoreConfig = CoreConfig{
+	CurrentDir: execDirWithoutLink,
+	RuntimeDir: "runtimes",
+	EditorDir:  "editors",
+}
+
+func loadConfigRegular(config string, value interface{}, altBases ...string) error {
+	errFmt := fs.PathError{
+		Op:   "loadConfig",
+		Path: config,
+	}
+
+	if len(config) == 0 {
+		errFmt.Err = fmt.Errorf("could not load config by empty name")
+		return &errFmt
+	}
+
+	basePath := ""
+	if len(altBases) > 0 {
+		basePath = altBases[0]
+	} else {
+		basePath, _ = os.Getwd()
+	}
+	if len(basePath) == 0 {
+		return fmt.Errorf("could not load workdir")
+	}
+
+	tomlFilename := path.Join(basePath, config+".toml")
+	stat, _ := os.Stat(tomlFilename)
+	if stat == nil || !stat.Mode().IsRegular() {
+		errFmt.Path = tomlFilename
+		errFmt.Err = fmt.Errorf("could not stat that file")
+		return &errFmt
+	}
+
+	tomlFile, _ := os.Open(tomlFilename)
+	tomlDecoder := toml.NewDecoder(tomlFile)
+	//tomlDecoder.DisallowUnknownFields()
+	err := tomlDecoder.Decode(value)
+	if err != nil {
+		errFmt.Path = tomlFilename
+		errFmt.Err = err
+		return &errFmt
+	}
+	return nil
+}
+
+func LoadCoreConfig(altBases ...string) CoreConfig {
+	basePath, _ := os.Getwd()
+	if len(basePath) == 0 && len(altBases) == 0 {
+		panic("Could not load workdir,use altBase instead")
+	}
+
+	if len(altBases) > 0 {
+		basePath = altBases[0]
+	}
+
+	var result = defaultCoreConfig
+	err := loadConfigRegular("core", &result, basePath)
+	if err != nil {
+		fmt.Println("WARN:>", err.Error())
+	}
+
+	if result.CurrentDir == execDirWithoutLink {
+		result.CurrentDir = basePath
+	}
+
+	if len(result.EditorDir) == 0 {
+		result.EditorDir = defaultCoreConfig.EditorDir
+	}
+
+	return result
+}

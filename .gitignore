@@ -48,3 +48,7 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Miscs
+go.sum
+cr_testf
+
