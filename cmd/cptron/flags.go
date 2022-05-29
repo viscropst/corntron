@@ -34,9 +34,9 @@ func (f CmdFlag) Prepare(actions map[string]CmdActionFn) *CmdFlag {
 	result.actions = actions
 	result.argLen = 4
 	result.host.Usage = func() {
-		fmt.Println(path.Base(f.host.Name()) + " [options] <actions> [args]")
+		fmt.Println(path.Base(result.host.Name()) + " [options] <actions> [args]")
 		actKeys := make([]string, 0)
-		for k, _ := range f.actions {
+		for k, _ := range result.actions {
 			actKeys = append(actKeys, k)
 		}
 		fmt.Printf("actions was: %v \n", actKeys)
