@@ -25,7 +25,7 @@ func (c *Core) fillEnviron() {
 }
 
 func (c *Core) assignWithEnviron(key string) {
-	if v,ok:=c.Environ[key]; key != "" && ok {
+	if v, ok := c.Environ[key]; key != "" && ok {
 		c.Env[key] = v
 	}
 }
@@ -44,6 +44,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
 		c.assignWithEnviron("LANG")
+	default:
 	}
 
 }

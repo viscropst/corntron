@@ -13,8 +13,6 @@ type FlagInfo struct {
 	CmdName string
 }
 
-
-
 type CmdFlag struct {
 	host        *flag.FlagSet
 	argLen      int
@@ -50,14 +48,14 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 	return result
 }
 
-func (f *CmdFlag) Parse() (CmdAction,error) {
+func (f *CmdFlag) Parse() (CmdAction, error) {
 	err := f.host.Parse(os.Args[1:])
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	f.argLen = f.host.NFlag() * 2
 	if len(os.Args) < f.argLen+2 {
-		return nil,fmt.Errorf("invalid length of args,use '-help' for usage")
+		return nil, fmt.Errorf("invalid length of args,use '-help' for usage")
 	}
 	idxArgAct := f.argLen + 1
 	info := FlagInfo{
@@ -66,7 +64,7 @@ func (f *CmdFlag) Parse() (CmdAction,error) {
 		CmdName: f.host.Name(),
 	}
 	if action, ok := f.actions[os.Args[idxArgAct]]; ok {
-		return action,action.ParseArg(info)
+		return action, action.ParseArg(info)
 	}
-	return nil,fmt.Errorf("invalid action,use '-help' for actions ")
+	return nil, fmt.Errorf("invalid action,use '-help' for actions ")
 }

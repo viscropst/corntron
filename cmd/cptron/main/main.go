@@ -21,7 +21,7 @@ func (f cliFlags) Init() *cliFlags {
 func main() {
 
 	flags := cliFlags{}.Init()
-	action,err := flags.Parse()
+	action, err := flags.Parse()
 	if err != nil {
 		fmt.Printf("error:%s\n", err.Error())
 		return

@@ -2,17 +2,18 @@ package core
 
 import (
 	"fmt"
-	"github.com/pelletier/go-toml/v2"
 	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
+
+	"github.com/pelletier/go-toml/v2"
 )
 
 type CoreConfig struct {
 	CurrentDir string
 	RuntimeDir string
-	AppDir  string
+	AppDir     string
 	MirrorType string
 	WithEditor bool
 }
@@ -44,7 +45,7 @@ const execDirWithoutLink = "${dp0}"
 var defaultCoreConfig = CoreConfig{
 	CurrentDir: execDirWithoutLink,
 	RuntimeDir: "runtimes",
-	AppDir:  "apps",
+	AppDir:     "apps",
 }
 
 func loadConfigRegular(config string, value interface{}, altBases ...string) error {

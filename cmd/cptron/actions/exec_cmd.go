@@ -2,16 +2,16 @@ package actions
 
 import (
 	"cryphtron"
-	ct_core "cryphtron/core"
 	"cryphtron/cmd/cptron"
+	ct_core "cryphtron/core"
 	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
 )
 
-type execCmd struct{
-	Execute string
+type execCmd struct {
+	Execute  string
 	ExecArgs []string
 }
 
@@ -32,6 +32,7 @@ func (c *execCmd) ParseArg(info cptron.FlagInfo) error {
 			if len(c.Execute) == 0 {
 				c.Execute = "/bin/sh"
 			}
+		default:
 		}
 		fmt.Println("warn:no command to exec,will use default shell or cmd")
 	}
@@ -61,7 +62,6 @@ func (c *execCmd) Exec(core *cryphtron.Core) error {
 		err = fmt.Errorf("error while processing mirror %s", err.Error())
 		return err
 	}
-
 
 	cmd := ct_core.Command{
 		Exec: c.Execute,

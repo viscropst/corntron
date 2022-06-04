@@ -78,8 +78,8 @@ func (c *envConfig) ExecuteBootstrap() error {
 
 type RtEnvConfig struct {
 	envConfig
-	MirrorEnv map[MirrorType]map[string]string `toml:"mirror_env"`
-	MirrorExec map[MirrorType][]Command `toml:"mirror_exec"`
+	MirrorEnv  map[MirrorType]map[string]string `toml:"mirror_env"`
+	MirrorExec map[MirrorType][]Command         `toml:"mirror_exec"`
 }
 
 func (c *RtEnvConfig) UnwrapMirrorsEnv(key MirrorType) map[string]string {
@@ -91,7 +91,7 @@ func (c *RtEnvConfig) UnwrapMirrorsEnv(key MirrorType) map[string]string {
 }
 
 func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
-	mirrorExec,ok := c.MirrorExec[mirrorType]
+	mirrorExec, ok := c.MirrorExec[mirrorType]
 	if !ok {
 		return nil
 	}

@@ -16,7 +16,7 @@ type Core struct {
 	internal.Core
 	Config      core.CoreConfig
 	Environ     map[string]string
-	AppsEnv  	map[string]core.AppEnvConfig
+	AppsEnv     map[string]core.AppEnvConfig
 	RuntimesEnv []core.RtEnvConfig
 }
 
@@ -47,9 +47,10 @@ func (c Core) ProcessRtMirror() error {
 	c.Prepare()
 	for _, config := range c.RuntimesEnv {
 		config.PrepareScope()
+		config.AppendEnv(c.Env)
 		err := config.ExecuteMirrors(mirrorType)
 		if err != nil {
-			return fmt.Errorf("mirror[%s]:%s",mirrorType,err.Error())
+			return fmt.Errorf("mirror[%s]:%s", mirrorType, err.Error())
 		}
 	}
 	return nil

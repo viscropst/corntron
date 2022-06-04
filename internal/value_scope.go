@@ -108,7 +108,7 @@ func (v *ValueScope) PrepareScope() {
 
 func (v *ValueScope) modifyMap(from, to map[string]string,
 	beforeAdd ...func(k, a, b string) string) map[string]string {
-	if from == nil || len(from) == 0 {
+	if len(from) == 0 {
 		return to
 	}
 	if to == nil {
@@ -130,7 +130,7 @@ func (v *ValueScope) modifyMap(from, to map[string]string,
 
 func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 	v.PrepareScope()
-	if environ == nil || len(environ) == 0 {
+	if len(environ) == 0 {
 		return v
 	}
 	v.Env = v.modifyMap(environ, v.Env, func(k, a, b string) string {

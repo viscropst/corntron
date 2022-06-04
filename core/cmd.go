@@ -9,7 +9,7 @@ import (
 
 type Command struct {
 	cmd  exec.Cmd
-	Exec string `toml:"exec"`
+	Exec string   `toml:"exec"`
 	Args []string `toml:"args"`
 	internal.ValueScope
 	WithEnviron bool `toml:"with-environ"`
@@ -48,7 +48,9 @@ func (c *Command) Execute(vars ...map[string]string) error {
 	cmd.Path = c.Exec
 	if filepath.Base(c.Exec) == c.Exec {
 		var err0 error
+		os.Setenv("PATH", c.Env["PATH"])
 		cmd.Path, err0 = exec.LookPath(c.Exec)
+		os.Unsetenv("PATH")
 		if err0 != nil {
 			return err0
 		}
