@@ -1,4 +1,4 @@
-package cryphtron
+package core
 
 import (
 	"cryphtron/internal"
@@ -9,10 +9,10 @@ import (
 
 type Command struct {
 	cmd  exec.Cmd
-	Exec string
-	Args []string
+	Exec string `toml:"exec"`
+	Args []string `toml:"args"`
 	internal.ValueScope
-	WithEnviron bool
+	WithEnviron bool `toml:"with-environ"`
 }
 
 func (c *Command) SetEnv(environ map[string]string) *Command {

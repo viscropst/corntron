@@ -1,7 +1,8 @@
-package cryphtron
+package core
 
 import (
 	"cryphtron/internal"
+	"fmt"
 	"path"
 )
 
@@ -33,9 +34,11 @@ const (
 type envConfig struct {
 	coreConfig *CoreConfig
 	internal.ValueScope
-	envDirname string
-	ID         string
-	CacheDir   string
+	envDirname    string
+	ID            string    `toml:"-"`
+	CacheDir      string    `toml:"cache_dir"`
+	DirName       string    `toml:"dir_name"`
+	BootstrapExec []Command `toml:"bootstrap_exec"`
 }
 
 func (c envConfig) setCore(coreConfig CoreConfig) envConfig {
@@ -54,16 +57,29 @@ func (c *envConfig) setEnvDirname(altEnvDirname ...string) {
 
 func (c *envConfig) setCacheDirname(altCacheDirname ...string) {
 	if len(altCacheDirname) > 0 {
-		c.envDirname = altCacheDirname[0]
+		c.CacheDir = altCacheDirname[0]
 	}
 	if c.CacheDir == "" {
 		c.CacheDir = "_cache"
 	}
 }
 
+func (c *envConfig) ExecuteBootstrap() error {
+	c.PrepareScope()
+	for _, command := range c.BootstrapExec {
+		err := command.Prepare().
+			SetEnv(c.Env).Execute()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 type RtEnvConfig struct {
 	envConfig
-	MirrorEnv map[MirrorType]map[string]string
+	MirrorEnv map[MirrorType]map[string]string `toml:"mirror_env"`
+	MirrorExec map[MirrorType][]Command `toml:"mirror_exec"`
 }
 
 func (c *RtEnvConfig) UnwrapMirrorsEnv(key MirrorType) map[string]string {
@@ -72,6 +88,23 @@ func (c *RtEnvConfig) UnwrapMirrorsEnv(key MirrorType) map[string]string {
 		result[k] = v
 	}
 	return result
+}
+
+func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
+	mirrorExec,ok := c.MirrorExec[mirrorType]
+	if !ok {
+		return nil
+	}
+	c.PrepareScope()
+	fmt.Println(c.Env)
+	for _, command := range mirrorExec {
+		err := command.Prepare().
+			SetEnv(c.Env).Execute()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func LoadRtEnv(name string, coreConfig CoreConfig, altEnvDirname ...string) (RtEnvConfig, error) {
@@ -92,14 +125,16 @@ func LoadRtEnv(name string, coreConfig CoreConfig, altEnvDirname ...string) (RtE
 	return c, nil
 }
 
-type EditEnvConfig struct {
+type AppEnvConfig struct {
 	envConfig
-	EditorExec []Command
+	DependApps []string  `toml:"depend-app"`
+	ConfigExec []Command `toml:"config-exec"`
+	Exec       Command   `toml:"exec"`
 }
 
-func (c EditEnvConfig) ExecuteAll() error {
+func (c AppEnvConfig) ExecuteConfig() error {
 	c.PrepareScope()
-	for _, command := range c.EditorExec {
+	for _, command := range c.ConfigExec {
 		err := command.Prepare().
 			SetEnv(c.Env).Execute()
 		if err != nil {
@@ -109,24 +144,36 @@ func (c EditEnvConfig) ExecuteAll() error {
 	return nil
 }
 
-func LoadEditEnv(name string, coreConfig CoreConfig, altEnvDirname ...string) (EditEnvConfig, error) {
-	result := EditEnvConfig{}
+func LoadAppEnv(name string, coreConfig CoreConfig, altEnvDirname ...string) (AppEnvConfig, error) {
+	result := AppEnvConfig{}
 	result.setEnvDirname(altEnvDirname...)
-	result.setCacheDirname()
-	result.AppendVars(map[string]string{
-		"ed_dir":   path.Join(coreConfig.CurrentDir, coreConfig.EditorDir),
-		"ed_cache": path.Join(coreConfig.CurrentDir, coreConfig.EditorDir, result.CacheDir),
-	})
-	loadPath := path.Join(coreConfig.CurrentDir, coreConfig.EditorDir, result.envDirname)
+
+	loadPath := path.Join(coreConfig.CurrentDir, coreConfig.AppDir, result.envDirname)
 	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
 		result.setCore(coreConfig)
 		return result, err
 	}
 
-	for idx := range result.EditorExec {
-		result.EditorExec[idx].Top = &result.ValueScope
+	result.setCacheDirname()
+	result.AppendVars(map[string]string{
+		"app_dir":   path.Join(coreConfig.CurrentDir, coreConfig.AppDir),
+		"app_cache": path.Join(coreConfig.CurrentDir, coreConfig.AppDir, result.CacheDir),
+	})
+	if result.DirName == "" {
+		result.DirName = name
 	}
+
+	for idx := range result.BootstrapExec {
+		result.BootstrapExec[idx].Top = &result.ValueScope
+	}
+
+	for idx := range result.ConfigExec {
+		result.ConfigExec[idx].Top = &result.ValueScope
+	}
+
+	result.Exec.Top = &result.ValueScope
+
 	result.envConfig = result.setCore(coreConfig)
 	return result, nil
 }

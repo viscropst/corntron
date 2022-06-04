@@ -1,4 +1,4 @@
-package cryphtron
+package core
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 type CoreConfig struct {
 	CurrentDir string
 	RuntimeDir string
-	EditorDir  string
+	AppDir  string
 	MirrorType string
 	WithEditor bool
 }
@@ -44,7 +44,7 @@ const execDirWithoutLink = "${dp0}"
 var defaultCoreConfig = CoreConfig{
 	CurrentDir: execDirWithoutLink,
 	RuntimeDir: "runtimes",
-	EditorDir:  "editors",
+	AppDir:  "apps",
 }
 
 func loadConfigRegular(config string, value interface{}, altBases ...string) error {
@@ -108,8 +108,8 @@ func LoadCoreConfig(altBases ...string) CoreConfig {
 		result.CurrentDir = basePath
 	}
 
-	if len(result.EditorDir) == 0 {
-		result.EditorDir = defaultCoreConfig.EditorDir
+	if len(result.AppDir) == 0 {
+		result.AppDir = defaultCoreConfig.AppDir
 	}
 
 	return result

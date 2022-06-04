@@ -17,13 +17,16 @@ func (c *Core) fillEnviron() {
 	}
 	for _, s := range os.Environ() {
 		pairs := strings.SplitN(s, "=", 2)
+		if pairs[1] == "" {
+			continue
+		}
 		c.Environ[pairs[0]] = pairs[1]
 	}
 }
 
 func (c *Core) assignWithEnviron(key string) {
-	if key != "" {
-		c.Env[key] = c.Environ[key]
+	if v,ok:=c.Environ[key]; key != "" && ok {
+		c.Env[key] = v
 	}
 }
 

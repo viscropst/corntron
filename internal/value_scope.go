@@ -4,9 +4,9 @@ import "os"
 
 type ValueScope struct {
 	scopeReady bool
-	Top        *ValueScope
-	Vars       map[string]string
-	Env        map[string]string
+	Top        *ValueScope       `toml:"-"`
+	Vars       map[string]string `toml:"vars"`
+	Env        map[string]string `toml:"envs"`
 }
 
 const valueRefFormat = "#{%s}"

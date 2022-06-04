@@ -1,17 +1,23 @@
 package cryphtron
 
 import (
+	"cryphtron/core"
 	"cryphtron/internal"
+	"fmt"
 	"io/fs"
 	"strings"
 )
 
+func LoadCoreConfig(altBases ...string) core.CoreConfig {
+	return core.LoadCoreConfig(altBases...)
+}
+
 type Core struct {
 	internal.Core
-	Config      CoreConfig
+	Config      core.CoreConfig
 	Environ     map[string]string
-	EditorsEnv  []EditEnvConfig
-	RuntimesEnv []RtEnvConfig
+	AppsEnv  	map[string]core.AppEnvConfig
+	RuntimesEnv []core.RtEnvConfig
 }
 
 func (c Core) ComposeRtEnv() *internal.ValueScope {
@@ -28,15 +34,28 @@ func (c Core) ComposeRtEnv() *internal.ValueScope {
 	return c.ValueScope
 }
 
-func (c Core) ComposeEdEnv() *internal.ValueScope {
+func (c Core) ComposeAppEnv() *internal.ValueScope {
 	c.Prepare()
-	for _, config := range c.EditorsEnv {
+	for _, config := range c.AppsEnv {
 		c.ValueScope.AppendEnv(config.Env)
 	}
 	return c.ValueScope
 }
 
-func LoadCore(coreConfig CoreConfig, altNames ...string) (Core, error) {
+func (c Core) ProcessRtMirror() error {
+	mirrorType := c.Config.UnwrapMirrorType()
+	c.Prepare()
+	for _, config := range c.RuntimesEnv {
+		config.PrepareScope()
+		err := config.ExecuteMirrors(mirrorType)
+		if err != nil {
+			return fmt.Errorf("mirror[%s]:%s",mirrorType,err.Error())
+		}
+	}
+	return nil
+}
+
+func LoadCore(coreConfig core.CoreConfig, altNames ...string) (Core, error) {
 	result := Core{
 		Config: coreConfig,
 	}
@@ -62,7 +81,7 @@ func LoadCore(coreConfig CoreConfig, altNames ...string) (Core, error) {
 				return nil
 			}
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			env, envErr := LoadRtEnv(configName, coreConfig, envDirName)
+			env, envErr := core.LoadRtEnv(configName, coreConfig, envDirName)
 			if envErr != nil {
 				return envErr
 			}
@@ -89,16 +108,16 @@ func LoadCore(coreConfig CoreConfig, altNames ...string) (Core, error) {
 				return nil
 			}
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			env, envErr := LoadEditEnv(configName, coreConfig, envDirName)
+			env, envErr := core.LoadAppEnv(configName, coreConfig, envDirName)
 			if envErr != nil {
 				return envErr
 			}
-			env.ID = "ed_" + configName
+			env.ID = "app_" + configName
 			env.Top = result.ValueScope
-			result.EditorsEnv = append(result.EditorsEnv, env)
+			result.AppsEnv[configName] = env
 			return nil
 		},
-		coreConfig.EditorDir, envDirName)
+		coreConfig.AppDir, envDirName)
 	if err != nil {
 		return result, err
 	}

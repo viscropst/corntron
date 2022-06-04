@@ -13,19 +13,19 @@ type FlagInfo struct {
 	CmdName string
 }
 
-type CmdActionFn func(info FlagInfo) error
+
 
 type CmdFlag struct {
 	host        *flag.FlagSet
 	argLen      int
-	actions     map[string]CmdActionFn
+	actions     map[string]CmdAction
 	ConfigBase  string
 	EnvDirname  string
 	RuntimeBase string
 	EditorBase  string
 }
 
-func (f CmdFlag) Prepare(actions map[string]CmdActionFn) *CmdFlag {
+func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 	result := &CmdFlag{}
 	if len(actions) == 0 && actions != nil {
 		return nil
@@ -36,28 +36,28 @@ func (f CmdFlag) Prepare(actions map[string]CmdActionFn) *CmdFlag {
 	result.host.Usage = func() {
 		fmt.Println(path.Base(result.host.Name()) + " [options] <actions> [args]")
 		actKeys := make([]string, 0)
-		for k, _ := range result.actions {
+		for k := range result.actions {
 			actKeys = append(actKeys, k)
 		}
 		fmt.Printf("actions was: %v \n", actKeys)
 		fmt.Println("options has:")
 		result.host.PrintDefaults()
 	}
-	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<config folder>")
-	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profile folder>")
-	result.host.StringVar(&result.EditorBase, "ed-base", "", "/path/to/your/<editor profile folder>")
+	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<cryphtron config folder>")
+	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")
+	result.host.StringVar(&result.EditorBase, "app-base", "", "/path/to/your/<editor profiles folder>")
 	result.host.StringVar(&result.EnvDirname, "env-dirname", "", "<folder name of env files to store>")
 	return result
 }
 
-func (f *CmdFlag) Parse() error {
+func (f *CmdFlag) Parse() (CmdAction,error) {
 	err := f.host.Parse(os.Args[1:])
 	if err != nil {
-		return err
+		return nil,err
 	}
 	f.argLen = f.host.NFlag() * 2
 	if len(os.Args) < f.argLen+2 {
-		return fmt.Errorf("invalid length of args,use '-help' for usage")
+		return nil,fmt.Errorf("invalid length of args,use '-help' for usage")
 	}
 	idxArgAct := f.argLen + 1
 	info := FlagInfo{
@@ -65,8 +65,8 @@ func (f *CmdFlag) Parse() error {
 		Index:   idxArgAct,
 		CmdName: f.host.Name(),
 	}
-	if fn, ok := f.actions[os.Args[idxArgAct]]; ok {
-		return fn(info)
+	if action, ok := f.actions[os.Args[idxArgAct]]; ok {
+		return action,action.ParseArg(info)
 	}
-	return fmt.Errorf("invalid action,use '-help' for actions ")
+	return nil,fmt.Errorf("invalid action,use '-help' for actions ")
 }
