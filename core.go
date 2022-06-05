@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func LoadCoreConfig(altBases ...string) core.CoreConfig {
+func LoadCoreConfig(altBases ...string) core.MainConfig {
 	return core.LoadCoreConfig(altBases...)
 }
 
@@ -56,7 +56,7 @@ func (c Core) ProcessRtMirror() error {
 	return nil
 }
 
-func LoadCore(coreConfig core.CoreConfig, altNames ...string) (Core, error) {
+func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	result := Core{
 		Config:  coreConfig,
 		AppsEnv: make(map[string]core.AppEnvConfig),
