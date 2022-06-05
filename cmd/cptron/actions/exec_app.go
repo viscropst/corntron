@@ -44,7 +44,7 @@ func (c *execApp) execApp(name string, core *cryphtron.Core) error {
 	}
 	scope := core.ComposeRtEnv()
 
-	app.Env = scope.Env
+	app.AppendEnv(scope.Env)
 
 	bootStrapDir := filepath.Join(core.Config.CurrentDir, core.Config.AppDir)
 	bootStrapDir = filepath.Join(bootStrapDir, app.DirName)
