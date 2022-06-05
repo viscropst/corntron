@@ -32,7 +32,7 @@ const (
 )
 
 type envConfig struct {
-	coreConfig *CoreConfig
+	coreConfig *MainConfig
 	internal.ValueScope
 	envDirname    string
 	ID            string    `toml:"-"`
@@ -41,7 +41,7 @@ type envConfig struct {
 	BootstrapExec []Command `toml:"bootstrap_exec"`
 }
 
-func (c envConfig) setCore(coreConfig CoreConfig) envConfig {
+func (c envConfig) setCore(coreConfig MainConfig) envConfig {
 	c.coreConfig = &coreConfig
 	return c
 }
@@ -107,7 +107,7 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 	return nil
 }
 
-func LoadRtEnv(name string, coreConfig CoreConfig, altEnvDirname ...string) (RtEnvConfig, error) {
+func LoadRtEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (RtEnvConfig, error) {
 	c := RtEnvConfig{}
 	c.setEnvDirname(altEnvDirname...)
 	c.setCacheDirname()
@@ -144,7 +144,7 @@ func (c AppEnvConfig) ExecuteConfig() error {
 	return nil
 }
 
-func LoadAppEnv(name string, coreConfig CoreConfig, altEnvDirname ...string) (AppEnvConfig, error) {
+func LoadAppEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (AppEnvConfig, error) {
 	result := AppEnvConfig{}
 	result.setEnvDirname(altEnvDirname...)
 

@@ -10,7 +10,7 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
-type CoreConfig struct {
+type MainConfig struct {
 	CurrentDir string
 	RuntimeDir string
 	AppDir     string
@@ -18,7 +18,7 @@ type CoreConfig struct {
 	WithApp    bool
 }
 
-func (c CoreConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
+func (c MainConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
 	rootDir := c.CurrentDir
 	if len(DirNames) > 0 {
 		tmp := path.Join(DirNames...)
@@ -27,7 +27,7 @@ func (c CoreConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error
 	return filepath.Walk(rootDir, walkFunc)
 }
 
-func (c CoreConfig) FsWalkDir(walkFunc fs.WalkDirFunc, DirNames ...string) error {
+func (c MainConfig) FsWalkDir(walkFunc fs.WalkDirFunc, DirNames ...string) error {
 	rootDir := path.Base(c.CurrentDir)
 	if len(DirNames) > 0 {
 		tmp := path.Join(DirNames...)
@@ -36,13 +36,13 @@ func (c CoreConfig) FsWalkDir(walkFunc fs.WalkDirFunc, DirNames ...string) error
 	return filepath.WalkDir(rootDir, walkFunc)
 }
 
-func (c CoreConfig) UnwrapMirrorType() MirrorType {
+func (c MainConfig) UnwrapMirrorType() MirrorType {
 	return MirrorType(c.MirrorType).Convert()
 }
 
 const execDirWithoutLink = "${dp0}"
 
-var defaultCoreConfig = CoreConfig{
+var defaultCoreConfig = MainConfig{
 	CurrentDir: execDirWithoutLink,
 	RuntimeDir: "runtimes",
 	AppDir:     "apps",
@@ -89,7 +89,7 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	return nil
 }
 
-func LoadCoreConfig(altBases ...string) CoreConfig {
+func LoadCoreConfig(altBases ...string) MainConfig {
 	basePath, _ := os.Getwd()
 	if len(basePath) == 0 && len(altBases) == 0 {
 		panic("Could not load workdir,use altBase instead")

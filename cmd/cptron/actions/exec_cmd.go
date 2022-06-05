@@ -53,7 +53,7 @@ func (c *execCmd) ParseArg(info cptron.FlagInfo) error {
 	return nil
 }
 
-func (c *execCmd) BeforeCore(coreConfig *ct_core.CoreConfig) error {
+func (c *execCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
 	return nil
 }
 

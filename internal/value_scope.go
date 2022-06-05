@@ -2,6 +2,7 @@ package internal
 
 import (
 	"os"
+	"strings"
 )
 
 type ValueScope struct {
@@ -137,6 +138,8 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 	}
 	v.Env = v.modifyMap(environ, v.Env, func(k, a, b string) string {
 		if k == "PATH" {
+			a = strings.ReplaceAll(a, ";", string(os.PathListSeparator))
+			b = strings.ReplaceAll(b, ";", string(os.PathListSeparator))
 			var buf []byte
 			buf = append(buf, a...)
 			buf = append(buf, os.PathListSeparator)

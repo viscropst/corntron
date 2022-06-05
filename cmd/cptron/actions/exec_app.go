@@ -26,7 +26,7 @@ func (c *execApp) ParseArg(info cptron.FlagInfo) error {
 	return nil
 }
 
-func (c *execApp) BeforeCore(coreConfig *core.CoreConfig) error {
+func (c *execApp) BeforeCore(coreConfig *core.MainConfig) error {
 	coreConfig.WithApp = true
 	return nil
 }
