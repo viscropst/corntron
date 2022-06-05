@@ -14,7 +14,7 @@ func LoadCoreConfig(altBases ...string) core.MainConfig {
 
 type Core struct {
 	internal.Core
-	Config      core.CoreConfig
+	Config      core.MainConfig
 	Environ     map[string]string
 	AppsEnv     map[string]core.AppEnvConfig
 	RuntimesEnv []core.RtEnvConfig
