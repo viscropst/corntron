@@ -1,6 +1,8 @@
 package internal
 
-import "os"
+import (
+	"os"
+)
 
 type ValueScope struct {
 	scopeReady bool
@@ -71,10 +73,10 @@ func (v ValueScope) expandValue(str string) string {
 			buf = append(buf, str[i])
 		} else {
 			scopeValue := v.mappingScope(name)
-			buf = append(buf, scopeValue...)
 			if scopeValue == name {
-				buf = nil
+				scopeValue = str[i : offset+1]
 			}
+			buf = append(buf, scopeValue...)
 		}
 		i = i + offset
 		idx = i + 1
