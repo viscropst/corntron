@@ -53,6 +53,10 @@ func (c *execCmd) ParseArg(info cptron.FlagInfo) error {
 	return nil
 }
 
+func (c *execCmd) BeforeCore(coreConfig *ct_core.CoreConfig) error {
+	return nil
+}
+
 func (c *execCmd) Exec(core *cryphtron.Core) error {
 	var err error
 	scope := core.ComposeRtEnv()

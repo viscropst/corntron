@@ -58,7 +58,8 @@ func (c Core) ProcessRtMirror() error {
 
 func LoadCore(coreConfig core.CoreConfig, altNames ...string) (Core, error) {
 	result := Core{
-		Config: coreConfig,
+		Config:  coreConfig,
+		AppsEnv: make(map[string]core.AppEnvConfig),
 	}
 
 	result.ValueScope = &internal.ValueScope{
@@ -98,7 +99,7 @@ func LoadCore(coreConfig core.CoreConfig, altNames ...string) (Core, error) {
 
 	err = coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {
-			if !coreConfig.WithEditor {
+			if !coreConfig.WithApp {
 				return nil
 			}
 			if info == nil {

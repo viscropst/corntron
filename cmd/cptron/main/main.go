@@ -33,6 +33,12 @@ func main() {
 	}
 	coreConfig := cryphtron.LoadCoreConfig(confBase...)
 
+	err = action.BeforeCore(&coreConfig)
+	if err != nil {
+		fmt.Println("error before load core", err)
+		return
+	}
+
 	var core cryphtron.Core
 	core, err = cryphtron.LoadCore(coreConfig)
 	if err != nil {

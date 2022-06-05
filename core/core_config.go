@@ -15,7 +15,7 @@ type CoreConfig struct {
 	RuntimeDir string
 	AppDir     string
 	MirrorType string
-	WithEditor bool
+	WithApp    bool
 }
 
 func (c CoreConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {

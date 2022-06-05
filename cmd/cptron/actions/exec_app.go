@@ -3,6 +3,7 @@ package actions
 import (
 	"cryphtron"
 	"cryphtron/cmd/cptron"
+	"cryphtron/core"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,6 +23,11 @@ func (c *execApp) ParseArg(info cptron.FlagInfo) error {
 		return nil
 	}
 	c.appName = os.Args[argCmdIdx]
+	return nil
+}
+
+func (c *execApp) BeforeCore(coreConfig *core.CoreConfig) error {
+	coreConfig.WithApp = true
 	return nil
 }
 
