@@ -44,10 +44,13 @@ func (c *Core) Prepare() {
 	case "windows":
 		c.assignWithEnviron("USERNAME")
 		c.assignWithEnviron("APPDATA")
+		c.assignWithEnviron("TEMP")
+		c.assignWithEnviron("TMP")
 	case "linux", "freebsd", "openbsd", "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
 		c.assignWithEnviron("LANG")
+		c.assignWithEnviron("TMPDIR")
 	default:
 	}
 
