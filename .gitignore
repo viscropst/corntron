@@ -48,6 +48,9 @@ Thumbs.db
 *.mov
 *.wmv
 
+# vscode related
+.vscode
+
 # Miscs
 go.sum
 cr_testf
