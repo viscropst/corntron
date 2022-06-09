@@ -47,6 +47,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("TEMP")
 		c.assignWithEnviron("TMP")
 		c.assignWithEnviron("WINDIR")
+		c.assignWithEnviron("LOCALAPPDATA")
 	case "linux", "freebsd", "openbsd", "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
