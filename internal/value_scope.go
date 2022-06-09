@@ -60,10 +60,10 @@ func (v ValueScope) expandValue(str string) string {
 					name = inner[1:j]
 					offset = j + 1
 				}
+				if inner[j] == valueRefFormat[4] && j == 1 {
+					offset = 2
+				}
 				if inner[j] == valueRefFormat[4] {
-					if j == 1 {
-						offset = 2
-					}
 					break
 				}
 			}
