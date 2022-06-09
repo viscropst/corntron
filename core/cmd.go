@@ -38,8 +38,7 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 	return c
 }
 
-func (c *Command) Execute(vars ...map[string]string) error {
-	c.Prepare(vars...)
+func (c *Command) prepareCmd(vars ...map[string]string) (*exec.Cmd, error) {
 	cmd := exec.Cmd{
 		Stdin:  c.cmd.Stdin,
 		Stdout: c.cmd.Stdout,
@@ -52,7 +51,7 @@ func (c *Command) Execute(vars ...map[string]string) error {
 		cmd.Path, err0 = exec.LookPath(c.Exec)
 		os.Unsetenv("PATH")
 		if err0 != nil {
-			return err0
+			return nil, err0
 		}
 	}
 
@@ -63,10 +62,27 @@ func (c *Command) Execute(vars ...map[string]string) error {
 	if c.WithEnviron {
 		cmd.Env = append(cmd.Env, os.Environ()...)
 	}
+	return &cmd, nil
+}
 
-	err := cmd.Start()
+func (c *Command) Execute(vars ...map[string]string) error {
+	c.Prepare(vars...)
+	cmd, err := c.prepareCmd(vars...)
+	if err != nil {
+		return err
+	}
+	err = cmd.Start()
 	if err != nil {
 		return err
 	}
 	return cmd.Wait()
+}
+
+func (c *Command) ExecuteNoWait(vars ...map[string]string) error {
+	c.Prepare(vars...)
+	cmd, err := c.prepareCmd(vars...)
+	if err != nil {
+		return err
+	}
+	return cmd.Start()
 }
