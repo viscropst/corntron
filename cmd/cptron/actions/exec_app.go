@@ -11,6 +11,7 @@ import (
 
 type execApp struct {
 	appName string
+	args    []string
 }
 
 func (c *execApp) ActionName() string {
@@ -23,6 +24,9 @@ func (c *execApp) ParseArg(info cptron.FlagInfo) error {
 		return nil
 	}
 	c.appName = os.Args[argCmdIdx]
+	if len(os.Args) > argCmdIdx+1 {
+		c.args = os.Args[argCmdIdx+1:]
+	}
 	return nil
 }
 
@@ -32,15 +36,19 @@ func (c *execApp) BeforeCore(coreConfig *core.MainConfig) error {
 }
 
 func (c *execApp) Exec(core *cryphtron.Core) error {
-
+	err := core.ProcessRtMirror()
+	if err != nil {
+		err = fmt.Errorf("error while processing mirror %s", err.Error())
+		return err
+	}
 	return c.execApp(c.appName, core)
 }
 
-func (c *execApp) execApp(name string, core *cryphtron.Core) error {
+func (c *execApp) prepareApp(name string, core *cryphtron.Core) (*core.AppEnvConfig, error) {
 	var err error
 	app, ok := core.AppsEnv[name]
 	if !ok {
-		return fmt.Errorf("could not found the app named %s", c.appName)
+		return nil, fmt.Errorf("could not found the app named %s", c.appName)
 	}
 	scope := core.ComposeRtEnv()
 
@@ -54,25 +62,34 @@ func (c *execApp) execApp(name string, core *cryphtron.Core) error {
 		err = app.ExecuteBootstrap()
 		if err != nil {
 			err = fmt.Errorf("error while bootstrap app["+app.ID+"]:%S", err.Error())
-			return err
+			return nil, err
 		}
 	}
 
 	err = app.ExecuteConfig()
 	if err != nil {
 		err = fmt.Errorf("error while configure app["+app.ID+"]:%S", err.Error())
-		return err
+		return nil, err
 	}
 
 	for _, depend := range app.DependApps {
-		err = c.execApp(depend, core)
+		_, err = c.prepareApp(depend, core)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
-	scope = core.ComposeAppEnv()
+	return &app, nil
+}
+
+func (c *execApp) execApp(name string, core *cryphtron.Core) error {
+	app, err := c.prepareApp(name, core)
+	if err != nil {
+		return err
+	}
+	scope := core.ComposeAppEnv()
 	cmd := &app.Exec
-	err = cmd.SetEnv(scope.Env).Execute(scope.Vars)
+	cmd.Args = append(cmd.Args, c.args...)
+	err = cmd.SetEnv(scope.Env).ExecuteNoWait(scope.Vars)
 	if err != nil {
 		err = fmt.Errorf("error while exec %s", err.Error())
 		return err
