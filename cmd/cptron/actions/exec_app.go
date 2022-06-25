@@ -46,25 +46,26 @@ func (c *execApp) Exec(core *cryphtron.Core) error {
 	return c.execApp(c.appName, core)
 }
 
-func (c *execApp) prepareApp(name string, core *cryphtron.Core) (*core.AppEnvConfig, error) {
+func (c *execApp) prepareApp(name string, coreObj *cryphtron.Core) (*core.AppEnvConfig, error) {
 	var err error
-	app, ok := core.AppsEnv[name]
+	app, ok := coreObj.AppsEnv[name]
 	if !ok {
 		return nil, fmt.Errorf("could not found the app named %s", c.appName)
 	}
-	scope := core.ComposeRtEnv()
 
-	app.AppendEnv(scope.Env)
-
-	bootStrapDir := filepath.Join(core.Config.CurrentDir, core.Config.AppDir)
-	bootStrapDir = filepath.Join(bootStrapDir, app.DirName)
-	stat, _ := os.Stat(bootStrapDir)
-	if stat == nil || (stat != nil && !stat.IsDir()) {
-		_ = os.Mkdir(bootStrapDir, os.ModeDir|0o666)
-		err = app.ExecuteBootstrap()
-		if err != nil {
-			err = fmt.Errorf("error while bootstrap app["+app.ID+"]:%S", err.Error())
-			return nil, err
+	if !app.MetaOnly {
+		scope := coreObj.ComposeRtEnv()
+		app.AppendEnv(scope.Env)
+		bootStrapDir := filepath.Join(coreObj.Config.CurrentDir, coreObj.Config.AppDir)
+		bootStrapDir = filepath.Join(bootStrapDir, app.DirName)
+		stat, _ := os.Stat(bootStrapDir)
+		if stat == nil || (stat != nil && !stat.IsDir()) {
+			_ = os.Mkdir(bootStrapDir, os.ModeDir|0o666)
+			err = app.ExecuteBootstrap()
+			if err != nil {
+				err = fmt.Errorf("error while bootstrap app["+app.ID+"]:%S", err.Error())
+				return nil, err
+			}
 		}
 	}
 
@@ -75,10 +76,12 @@ func (c *execApp) prepareApp(name string, core *cryphtron.Core) (*core.AppEnvCon
 	}
 
 	for _, depend := range app.DependApps {
-		_, err = c.prepareApp(depend, core)
+		var cfg *core.AppEnvConfig
+		cfg, err = c.prepareApp(depend, coreObj)
 		if err != nil {
 			return nil, err
 		}
+		app.AppendVars(cfg.Vars)
 	}
 	return &app, nil
 }
@@ -88,7 +91,7 @@ func (c *execApp) execApp(name string, core *cryphtron.Core) error {
 	if err != nil {
 		return err
 	}
-	scope := core.ComposeAppEnv()
+	scope := core.ComposeAppEnv(app)
 
 	pthVal := scope.Env["PATH"]
 	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, core.Environ["PATH"], 1)

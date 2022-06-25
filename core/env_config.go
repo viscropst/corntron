@@ -137,6 +137,7 @@ func LoadRtEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (RtE
 
 type AppEnvConfig struct {
 	envConfig
+	MetaOnly   bool      `toml:"meta-only"`
 	DependApps []string  `toml:"depend-app"`
 	ConfigExec []Command `toml:"config-exec"`
 	Exec       Command   `toml:"exec"`

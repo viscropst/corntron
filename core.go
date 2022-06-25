@@ -39,12 +39,19 @@ func (c Core) ComposeRtEnv() *internal.ValueScope {
 	return c.ValueScope
 }
 
-func (c Core) ComposeAppEnv() *internal.ValueScope {
+func (c Core) ComposeAppEnv(app *core.AppEnvConfig) *internal.ValueScope {
 	c.Prepare()
-	for _, config := range c.AppsEnv {
-		c.ValueScope.AppendEnv(config.Env)
+	if app == nil {
+		return c.ValueScope
 	}
-	return c.ValueScope
+	for _, depends := range app.DependApps {
+		config := c.AppsEnv[depends]
+		config.AppendVars(app.Vars)
+		config.PrepareScope()
+		app.AppendEnv(config.Env)
+		app.AppendVars(config.Vars)
+	}
+	return &app.ValueScope
 }
 
 func (c Core) ProcessRtMirror() error {
