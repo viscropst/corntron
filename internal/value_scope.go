@@ -17,17 +17,22 @@ const valueRefFormat = "#{%s}"
 func (v ValueScope) mappingScope(key string) string {
 	var result string
 
-	if v0, ok := v.Vars[key]; ok {
+	keyFn := strings.Split(key, ":")
+	if v0, ok := v.Vars[keyFn[0]]; ok {
 		result = v0
 	}
 
-	if v0, ok := v.Env[key]; ok {
+	if v0, ok := v.Env[keyFn[0]]; ok {
 		result = v0
 	}
 
 	if v.Top != nil && result == "" {
 		v.Top.PrepareScope()
 		result = v.Top.mappingScope(key)
+	}
+
+	if len(keyFn) > 1 && !(result == "" || result == key) {
+		result = v.resolveFn(keyFn, result)
 	}
 
 	if result == "" {
