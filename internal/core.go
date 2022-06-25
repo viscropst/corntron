@@ -20,9 +20,10 @@ func (c *Core) fillEnviron() {
 		if pairs[1] == "" {
 			continue
 		}
-		if runtime.GOOS == "windows" {
+		switch runtime.GOOS {
+		case "windows":
 			pairs[0] = strings.ToUpper(pairs[0])
-		} else {
+		default:
 			pairs[0] = pairs[0]
 		}
 		c.Environ[pairs[0]] = pairs[1]
@@ -56,6 +57,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("TMP")
 		c.assignWithEnviron("WINDIR")
 		c.assignWithEnviron("LOCALAPPDATA")
+		c.assignWithEnviron("USERPROFILE")
 	case "linux", "freebsd", "openbsd", "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
