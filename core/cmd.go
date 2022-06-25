@@ -106,5 +106,9 @@ func (c *Command) ExecuteNoWait(vars ...map[string]string) error {
 		return err
 	}
 	fmt.Println(cmd.String())
-	return cmd.Start()
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+	return cmd.Process.Release()
 }
