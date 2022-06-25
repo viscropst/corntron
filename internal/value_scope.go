@@ -31,7 +31,7 @@ func (v ValueScope) mappingScope(key string) string {
 	}
 
 	if result == "" {
-		return key
+		result = key
 	}
 
 	return result
@@ -53,7 +53,7 @@ func (v ValueScope) expandValue(str string) string {
 		}
 		buf = append(buf, str[idx:i]...)
 
-		if str[i+1] == valueRefFormat[1] {
+		if str[i] == valueRefFormat[0] && str[i+1] == valueRefFormat[1] {
 			inner := str[i+1:]
 			for j := 1; j < len(inner); j++ {
 				if inner[j] == valueRefFormat[4] && j > 1 {
@@ -75,7 +75,7 @@ func (v ValueScope) expandValue(str string) string {
 		} else {
 			scopeValue := v.mappingScope(name)
 			if scopeValue == name {
-				scopeValue = str[i : offset+1]
+				scopeValue = str[i : i+offset+1]
 			}
 			buf = append(buf, scopeValue...)
 		}
@@ -137,13 +137,18 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 		return v
 	}
 	v.Env = v.modifyMap(environ, v.Env, func(k, a, b string) string {
+		if a == b {
+			return ""
+		}
 		if k == "PATH" {
 			a = strings.ReplaceAll(a, ";", string(os.PathListSeparator))
 			b = strings.ReplaceAll(b, ";", string(os.PathListSeparator))
+			a = strings.ReplaceAll(a, "/", string(os.PathSeparator))
+			b = strings.ReplaceAll(b, "/", string(os.PathSeparator))
 			var buf []byte
-			buf = append(buf, a...)
-			buf = append(buf, os.PathListSeparator)
 			buf = append(buf, b...)
+			buf = append(buf, os.PathListSeparator)
+			buf = append(buf, a...)
 			return string(buf)
 		}
 		if a == "" {

@@ -5,6 +5,7 @@ import (
 	"cryphtron/internal"
 	"fmt"
 	"io/fs"
+	"os"
 	"strings"
 )
 
@@ -15,7 +16,6 @@ func LoadCoreConfig(altBases ...string) core.MainConfig {
 type Core struct {
 	internal.Core
 	Config      core.MainConfig
-	Environ     map[string]string
 	AppsEnv     map[string]core.AppEnvConfig
 	RuntimesEnv []core.RtEnvConfig
 }
@@ -27,6 +27,11 @@ func (c Core) ComposeRtEnv() *internal.ValueScope {
 		mirrorEnv := config.UnwrapMirrorsEnv(c.Config.UnwrapMirrorType())
 		for k, v := range mirrorEnv {
 			mirrorEnv[k] = config.Expand(v)
+		}
+		pthArr := strings.SplitN(config.Env["PATH"], string(os.PathListSeparator), 2)
+		if len(pthArr) > 1 && pthArr[0] == internal.PathPlaceHolder {
+			idxAfter := strings.Index(internal.PathPlaceHolder, pthArr[0])
+			config.Env["PATH"] = config.Env["PATH"][idxAfter+len(pthArr[0])+1:]
 		}
 		c.AppendEnv(config.Env).AppendEnv(mirrorEnv)
 	}
@@ -48,6 +53,7 @@ func (c Core) ProcessRtMirror() error {
 	for _, config := range c.RuntimesEnv {
 		config.PrepareScope()
 		config.AppendEnv(c.Env)
+		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteMirrors(mirrorType)
 		if err != nil {
 			return fmt.Errorf("mirror[%s]:%s", mirrorType, err.Error())

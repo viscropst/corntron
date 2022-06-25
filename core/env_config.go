@@ -2,8 +2,8 @@ package core
 
 import (
 	"cryphtron/internal"
-	"fmt"
-	"path"
+	"path/filepath"
+	"strings"
 )
 
 type MirrorType string
@@ -96,10 +96,20 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 		return nil
 	}
 	c.PrepareScope()
-	fmt.Println(c.Env)
+	env := make(map[string]string)
+	env["PATH"] = c.Env["PATH"]
+	for k, v := range c.Env {
+		if k == "PATH" {
+			continue
+		}
+		env[k] = v
+	}
 	for _, command := range mirrorExec {
-		err := command.Prepare().
-			SetEnv(c.Env).Execute()
+		c0 := command.Prepare().
+			SetEnv(env)
+		c0.Env["PATH"] = strings.Replace(
+			c0.Env["PATH"], internal.PathPlaceHolder, c.Vars["pth_environ"], 1)
+		err := c0.Execute()
 		if err != nil {
 			return err
 		}
@@ -112,10 +122,10 @@ func LoadRtEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (RtE
 	c.setEnvDirname(altEnvDirname...)
 	c.setCacheDirname()
 	c.AppendVars(map[string]string{
-		"rt_dir":   path.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir),
-		"rt_cache": path.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir, c.CacheDir),
+		"rt_dir":   filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir),
+		"rt_cache": filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir, c.CacheDir),
 	})
-	loadPath := path.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir, c.envDirname)
+	loadPath := filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir, c.envDirname)
 	err := loadConfigRegular(name, &c, loadPath)
 	if err != nil {
 		c.setCore(coreConfig)
@@ -148,7 +158,7 @@ func LoadAppEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (Ap
 	result := AppEnvConfig{}
 	result.setEnvDirname(altEnvDirname...)
 
-	loadPath := path.Join(coreConfig.CurrentDir, coreConfig.AppDir, result.envDirname)
+	loadPath := filepath.Join(coreConfig.CurrentDir, coreConfig.AppDir, result.envDirname)
 	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
 		result.setCore(coreConfig)
@@ -157,8 +167,8 @@ func LoadAppEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (Ap
 
 	result.setCacheDirname()
 	result.AppendVars(map[string]string{
-		"app_dir":   path.Join(coreConfig.CurrentDir, coreConfig.AppDir),
-		"app_cache": path.Join(coreConfig.CurrentDir, coreConfig.AppDir, result.CacheDir),
+		"app_dir":   filepath.Join(coreConfig.CurrentDir, coreConfig.AppDir),
+		"app_cache": filepath.Join(coreConfig.CurrentDir, coreConfig.AppDir, result.CacheDir),
 	})
 	if result.DirName == "" {
 		result.DirName = name

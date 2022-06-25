@@ -22,13 +22,21 @@ func (c *Core) fillEnviron() {
 		}
 		if runtime.GOOS == "windows" {
 			pairs[0] = strings.ToUpper(pairs[0])
+		} else {
+			pairs[0] = pairs[0]
 		}
 		c.Environ[pairs[0]] = pairs[1]
 	}
 }
 
+const PathPlaceHolder = "+{PATH}"
+
 func (c *Core) assignWithEnviron(key string) {
 	if v, ok := c.Environ[key]; key != "" && ok {
+		if key == "PATH" {
+			c.Env[key] = PathPlaceHolder
+			return
+		}
 		c.Env[key] = v
 	}
 }

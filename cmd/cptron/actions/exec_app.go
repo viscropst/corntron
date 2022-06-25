@@ -4,9 +4,11 @@ import (
 	"cryphtron"
 	"cryphtron/cmd/cptron"
 	"cryphtron/core"
+	"cryphtron/internal"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type execApp struct {
@@ -87,9 +89,14 @@ func (c *execApp) execApp(name string, core *cryphtron.Core) error {
 		return err
 	}
 	scope := core.ComposeAppEnv()
+
+	pthVal := scope.Env["PATH"]
+	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, core.Environ["PATH"], 1)
+	scope.Env["PATH"] = pthVal
+
 	cmd := &app.Exec
 	cmd.Args = append(cmd.Args, c.args...)
-	err = cmd.SetEnv(scope.Env).ExecuteNoWait(scope.Vars)
+	err = cmd.SetEnv(app.Env).ExecuteNoWait(scope.Vars)
 	if err != nil {
 		err = fmt.Errorf("error while exec %s", err.Error())
 		return err

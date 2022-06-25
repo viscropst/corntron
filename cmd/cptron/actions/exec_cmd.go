@@ -4,10 +4,12 @@ import (
 	"cryphtron"
 	"cryphtron/cmd/cptron"
 	ct_core "cryphtron/core"
+	"cryphtron/internal"
 	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
 type execCmd struct {
@@ -71,6 +73,11 @@ func (c *execCmd) Exec(core *cryphtron.Core) error {
 		Exec: c.Execute,
 		Args: c.ExecArgs,
 	}
+
+	pthVal := scope.Env["PATH"]
+	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, core.Environ["PATH"], 1)
+	scope.Env["PATH"] = pthVal
+
 	err = cmd.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
 		err = fmt.Errorf("error while exec %s", err.Error())

@@ -2,6 +2,7 @@ package core
 
 import (
 	"cryphtron/internal"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,7 +18,7 @@ type Command struct {
 
 func (c *Command) SetEnv(environ map[string]string) *Command {
 	if environ != nil {
-		c.AppendEnv(environ)
+		c.Env = environ
 	}
 	return c
 }
@@ -84,5 +85,6 @@ func (c *Command) ExecuteNoWait(vars ...map[string]string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(cmd.String())
 	return cmd.Start()
 }
