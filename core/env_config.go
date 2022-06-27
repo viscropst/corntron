@@ -21,8 +21,9 @@ func (m MirrorType) Convert() MirrorType {
 		fallthrough
 	case MirrorTypCN:
 		return m
+	default:
+		return MirrorTypDefault
 	}
-	return MirrorTypDefault
 }
 
 const (
