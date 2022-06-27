@@ -44,6 +44,8 @@ func (v ValueScope) resolveFn(keyFn []string, result string) string {
 				args[0] = argReplace(args[0])
 				args[1] = argReplace(args[1])
 				result = strings.ReplaceAll(result, args[0], args[1])
+			default:
+				continue
 			}
 		}
 	}
