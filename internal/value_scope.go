@@ -143,7 +143,7 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 	}
 	v.Env = v.modifyMap(environ, v.Env, func(k, a, b string) string {
 		if a == b {
-			return ""
+			return a
 		}
 		if k == "PATH" {
 			a = strings.ReplaceAll(a, ";", string(os.PathListSeparator))
