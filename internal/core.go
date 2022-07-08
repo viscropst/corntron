@@ -20,13 +20,14 @@ func (c *Core) fillEnviron() {
 		if pairs[1] == "" {
 			continue
 		}
+		key := ""
 		switch runtime.GOOS {
 		case "windows":
-			pairs[0] = strings.ToUpper(pairs[0])
+			key = strings.ToUpper(pairs[0])
 		default:
-			pairs[0] = pairs[0]
+			key = pairs[0]
 		}
-		c.Environ[pairs[0]] = pairs[1]
+		c.Environ[key] = pairs[1]
 	}
 }
 
@@ -58,6 +59,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("WINDIR")
 		c.assignWithEnviron("LOCALAPPDATA")
 		c.assignWithEnviron("USERPROFILE")
+		c.assignWithEnviron("PROGRAMW6432")
 	case "linux", "freebsd", "openbsd", "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
