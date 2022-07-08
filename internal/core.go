@@ -60,6 +60,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("LOCALAPPDATA")
 		c.assignWithEnviron("USERPROFILE")
 		c.assignWithEnviron("PROGRAMW6432")
+		c.assignWithEnviron("PATHEXT")
 	case "linux", "freebsd", "openbsd", "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
