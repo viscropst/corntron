@@ -61,6 +61,8 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("USERPROFILE")
 		c.assignWithEnviron("PROGRAMW6432")
 		c.assignWithEnviron("PATHEXT")
+		c.assignWithEnviron("SYSTEMDRIVE")
+		c.Env["PSExecutionPolicyPreference"] = "RemoteSigned"
 	case "linux", "freebsd", "openbsd", "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
