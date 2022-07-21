@@ -63,7 +63,9 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	if len(altBases) > 0 {
 		basePath = altBases[0]
 	} else {
-		basePath, _ = os.Getwd()
+		basePath, _ = os.Executable()
+		basePath, _ = filepath.EvalSymlinks(basePath)
+		basePath = filepath.Dir(basePath)
 	}
 	if len(basePath) == 0 {
 		return fmt.Errorf("could not load workdir")
@@ -90,10 +92,12 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 }
 
 func LoadCoreConfig(altBases ...string) MainConfig {
-	basePath, _ := os.Getwd()
+	basePath, _ := os.Executable()
+	basePath, _ = filepath.EvalSymlinks(basePath)
 	if len(basePath) == 0 && len(altBases) == 0 {
 		panic("Could not load workdir,use altBase instead")
 	}
+	basePath = filepath.Dir(basePath)
 
 	if len(altBases) > 0 {
 		basePath = altBases[0]
