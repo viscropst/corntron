@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -22,8 +23,10 @@ type Core struct {
 
 func (c Core) ComposeRtEnv() *internal.ValueScope {
 	c.Prepare()
+	cacheDir := ""
 	for _, config := range c.RuntimesEnv {
 		config.PrepareScope()
+		cacheDir = config.CacheDir
 		mirrorEnv := config.UnwrapMirrorsEnv(c.Config.UnwrapMirrorType())
 		for k, v := range mirrorEnv {
 			mirrorEnv[k] = config.Expand(v)
@@ -35,7 +38,10 @@ func (c Core) ComposeRtEnv() *internal.ValueScope {
 		}
 		c.AppendEnv(config.Env).AppendEnv(mirrorEnv)
 	}
-
+	c.Vars = map[string]string{
+		"rt_dir":   filepath.Join(c.Config.CurrentDir, c.Config.RuntimeDir),
+		"rt_cache": filepath.Join(c.Config.CurrentDir, c.Config.RuntimeDir, cacheDir),
+	}
 	return c.ValueScope
 }
 
@@ -50,6 +56,10 @@ func (c Core) ComposeAppEnv(app *core.AppEnvConfig) *internal.ValueScope {
 		config.PrepareScope()
 		app.AppendEnv(config.Env)
 		app.AppendVars(config.Vars)
+	}
+	c.Vars = map[string]string{
+		"app_dir":   filepath.Join(c.Config.CurrentDir, c.Config.AppDir),
+		"app_cache": filepath.Join(c.Config.CurrentDir, c.Config.AppDir, app.CacheDir),
 	}
 	return &app.ValueScope
 }
