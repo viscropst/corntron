@@ -38,7 +38,13 @@ func (c *execApp) BeforeCore(coreConfig *core.MainConfig) error {
 }
 
 func (c *execApp) Exec(core *cryphtron.Core) error {
-	err := core.ProcessRtMirror()
+	err := core.ProcessRtBootstrap()
+	if err != nil {
+		err = fmt.Errorf("error while bootstrapping %s", err.Error())
+		return err
+	}
+
+	err = core.ProcessRtMirror()
 	if err != nil {
 		err = fmt.Errorf("error while processing mirror %s", err.Error())
 		return err

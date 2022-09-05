@@ -63,6 +63,12 @@ func (c *execCmd) Exec(core *cryphtron.Core) error {
 	var err error
 	scope := core.ComposeRtEnv()
 
+	err = core.ProcessRtBootstrap()
+	if err != nil {
+		err = fmt.Errorf("error while bootstrapping %s", err.Error())
+		return err
+	}
+
 	err = core.ProcessRtMirror()
 	if err != nil {
 		err = fmt.Errorf("error while processing mirror %s", err.Error())

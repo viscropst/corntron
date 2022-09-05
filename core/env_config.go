@@ -66,10 +66,19 @@ func (c *envConfig) setCacheDirname(altCacheDirname ...string) {
 }
 
 func (c *envConfig) ExecuteBootstrap() error {
+	if len(c.BootstrapExec) == 0 {
+		return nil
+	}
 	c.PrepareScope()
 	for _, command := range c.BootstrapExec {
-		err := command.Prepare().
-			SetEnv(c.Env).Execute()
+		cmd := command.Prepare().
+			SetEnv(c.Env)
+		cmd.Env["PATH"] = strings.Replace(
+			cmd.Env["PATH"],
+			internal.PathPlaceHolder,
+			c.Vars["pth_environ"], 1)
+
+		err := cmd.Execute()
 		if err != nil {
 			return err
 		}
@@ -122,6 +131,9 @@ func LoadRtEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (RtE
 	c := RtEnvConfig{}
 	c.setEnvDirname(altEnvDirname...)
 	c.setCacheDirname()
+	if c.DirName == "" {
+		c.DirName = name
+	}
 	c.AppendVars(map[string]string{
 		"rt_dir":   filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir),
 		"rt_cache": filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir, c.CacheDir),
@@ -131,6 +143,9 @@ func LoadRtEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (RtE
 	if err != nil {
 		c.setCore(coreConfig)
 		return c, err
+	}
+	for idx := range c.BootstrapExec {
+		c.BootstrapExec[idx].Top = &c.ValueScope
 	}
 	c.envConfig = c.setCore(coreConfig)
 	return c, nil

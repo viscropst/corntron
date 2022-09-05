@@ -79,6 +79,31 @@ func (c Core) ProcessRtMirror() error {
 	return nil
 }
 
+func (c Core) ProcessRtBootstrap() error {
+	c.Prepare()
+	currentRtDir := filepath.Join(
+		c.Config.CurrentDir, c.Config.RuntimeDir)
+	for _, config := range c.RuntimesEnv {
+		bootstrapDir := filepath.Join(currentRtDir,
+			config.DirName)
+		stat, _ := os.Stat(bootstrapDir)
+		if stat != nil || (stat != nil && stat.IsDir()) {
+
+			continue
+		}
+		_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
+		config.PrepareScope()
+		config.AppendEnv(c.Env)
+		config.Vars["pth_environ"] = c.Environ["PATH"]
+		err := config.ExecuteBootstrap()
+		if err != nil {
+			return fmt.Errorf("bootstrsp[%s]:%s",
+				config.DirName, err.Error())
+		}
+	}
+	return nil
+}
+
 func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	result := Core{
 		Config:  coreConfig,
