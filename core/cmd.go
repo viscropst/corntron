@@ -98,6 +98,11 @@ func (c *Command) prepareCmd() (*exec.Cmd, error) {
 
 func (c *Command) Execute(vars ...map[string]string) error {
 	c.Prepare(vars...)
+
+	if v, ok := internal.Commands[c.Exec]; ok {
+		return v(c.Args)
+	}
+
 	cmd, err := c.prepareCmd()
 	if err != nil {
 		return err
