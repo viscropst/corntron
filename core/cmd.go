@@ -33,8 +33,18 @@ type Command struct {
 }
 
 func (c *Command) SetEnv(environ map[string]string) *Command {
-	if environ != nil {
-		c.Env = environ
+	if environ == nil {
+		return c
+	}
+	tmpEnv := c.Env
+	c.Env = environ
+	for k, v := range tmpEnv {
+		_, ok := c.Env[k]
+		if ok && len(v) > 0 {
+			c.Env[k] = v
+		} else if !ok && len(v) > 0 {
+			c.Env[k] = v
+		}
 	}
 	return c
 }
