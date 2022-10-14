@@ -97,6 +97,7 @@ func (c Core) ProcessRtBootstrap() error {
 		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteBootstrap()
 		if err != nil {
+			_ = os.RemoveAll(bootstrapDir)
 			return fmt.Errorf("bootstrsp[%s]:%s",
 				config.DirName, err.Error())
 		}
