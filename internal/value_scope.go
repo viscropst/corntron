@@ -44,54 +44,72 @@ func (v ValueScope) mappingScope(key string) string {
 
 func (v ValueScope) expandValue(str string) string {
 	idx := 0
-	var buf []byte
+	var buf = make([]byte, 0, 2*len(str))
 
 	for i := 0; i < len(str); i++ {
-		if str[i] != valueRefFormat[0] && (i+1) >= len(str) {
+		hasValueRef :=
+			str[i] != valueRefFormat[0] &&
+				(i+1) >= len(str)
+		if hasValueRef {
 			continue
 		}
 		name := ""
 		offset := 0
-
-		if buf == nil {
-			buf = make([]byte, 0, 2*len(str))
-		}
 		buf = append(buf, str[idx:i]...)
 
-		if str[i] == valueRefFormat[0] && str[i+1] == valueRefFormat[1] {
+		hasInner :=
+			str[i] == valueRefFormat[0] &&
+				str[i+1] == valueRefFormat[1]
+		if hasInner {
 			inner := str[i+1:]
-			for j := 1; j < len(inner); j++ {
-				if inner[j] == valueRefFormat[4] && j > 1 {
-					name = inner[1:j]
-					offset = j + 1
-				}
-				if inner[j] == valueRefFormat[4] && j == 1 {
-					offset = 2
-				}
-				if inner[j] == valueRefFormat[4] {
-					break
-				}
-			}
+			name, offset = v.innerResolve(inner)
 		}
 
 		if name == "" && offset > 0 {
 		} else if name == "" {
 			buf = append(buf, str[i])
 		} else {
-			scopeValue := v.mappingScope(name)
-			if scopeValue == name {
-				scopeValue = str[i : i+offset+1]
-			}
-			buf = append(buf, scopeValue...)
+			buf = append(buf,
+				v.selectScopeVal(
+					name, str[i:i+offset+1])...)
 		}
+
 		i = i + offset
 		idx = i + 1
 	}
 
-	if buf == nil {
+	if len(buf) == 0 {
+		buf = nil
 		return str
+	} else {
+		return string(buf) + str[idx:]
 	}
-	return string(buf) + str[idx:]
+}
+
+func (v *ValueScope) innerResolve(inner string) (string, int) {
+	offset := 0
+	name := ""
+	for j := 1; j < len(inner); j++ {
+		if inner[j] == valueRefFormat[4] && j > 1 {
+			name = inner[1:j]
+			offset = j + 1
+		}
+		if inner[j] == valueRefFormat[4] && j == 1 {
+			offset = 2
+		}
+		if inner[j] == valueRefFormat[4] {
+			break
+		}
+	}
+	return name, offset
+}
+
+func (v *ValueScope) selectScopeVal(name, alt string) string {
+	scopeValue := v.mappingScope(name)
+	if scopeValue != "" && scopeValue == name {
+		return alt
+	}
+	return scopeValue
 }
 
 func (v *ValueScope) PrepareScope() {
