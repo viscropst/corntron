@@ -24,10 +24,11 @@ func (sp *splitString) ToArray() []string {
 }
 
 type Command struct {
-	cmd    exec.Cmd
-	Exec   string      `toml:"exec"`
-	Args   []string    `toml:"args"`
-	ArgStr splitString `toml:"arg-str"`
+	cmd     exec.Cmd
+	Exec    string      `toml:"exec"`
+	Args    []string    `toml:"args"`
+	ArgStr  splitString `toml:"arg-str"`
+	WorkDir string      `toml:"work-dir"`
 	internal.ValueScope
 	WithEnviron bool `toml:"with-environ"`
 }
@@ -62,6 +63,10 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 		c.Args[idx] = c.Expand(c.Args[idx])
 	}
 	c.Exec = c.Expand(c.Exec)
+	if len(c.WorkDir) > 0 {
+		c.WorkDir = c.Expand(c.WorkDir)
+		c.cmd.Dir = filepath.FromSlash(c.WorkDir)
+	}
 	if c.ArgStr.SourceStr != "" {
 		c.ArgStr.SourceStr = c.Expand(c.ArgStr.SourceStr)
 		c.Args = append(c.Args, c.ArgStr.ToArray()...)
@@ -74,6 +79,7 @@ func (c *Command) prepareCmd() (*exec.Cmd, error) {
 		Stdin:  c.cmd.Stdin,
 		Stdout: c.cmd.Stdout,
 		Stderr: c.cmd.Stderr,
+		Dir:    c.cmd.Dir,
 	}
 	cmd.Path = c.Exec
 	if filepath.Base(c.Exec) == c.Exec {
