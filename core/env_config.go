@@ -135,9 +135,11 @@ func LoadRtEnv(name string, coreConfig MainConfig, altEnvDirname ...string) (RtE
 	if c.DirName == "" {
 		c.DirName = name
 	}
+	rtDir := filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir)
 	c.AppendVars(map[string]string{
-		"rt_dir":   filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir),
-		"rt_cache": filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir, c.CacheDir),
+		"rt_dir":   rtDir,
+		"rt_cache": filepath.Join(rtDir, c.CacheDir),
+		"rt_home":  filepath.Join(rtDir, "_home"),
 	})
 	loadPath := filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir, c.envDirname)
 	err := loadConfigRegular(name, &c, loadPath)
