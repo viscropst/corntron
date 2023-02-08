@@ -5,7 +5,7 @@ import (
 	"cryphtron/cmd/cptron"
 	"cryphtron/core"
 	"cryphtron/internal"
-	"fmt"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -40,14 +40,14 @@ func (c *execApp) BeforeCore(coreConfig *core.MainConfig) error {
 func (c *execApp) Exec(core *cryphtron.Core) error {
 	err := core.ProcessRtBootstrap()
 	if err != nil {
-		err = fmt.Errorf("error while bootstrapping %s", err.Error())
-		return err
+		newErr := errors.New("error while bootstrapping:")
+		return errors.Join(newErr, err)
 	}
 
 	err = core.ProcessRtMirror()
 	if err != nil {
-		err = fmt.Errorf("error while processing mirror %s", err.Error())
-		return err
+		newErr := errors.New("error while processing mirror:")
+		return errors.Join(newErr, err)
 	}
 	return c.execApp(c.appName, core)
 }
@@ -56,7 +56,7 @@ func (c *execApp) prepareApp(name string, coreObj *cryphtron.Core) (*core.AppEnv
 	var err error
 	app, ok := coreObj.AppsEnv[name]
 	if !ok {
-		return nil, fmt.Errorf("could not found the app named %s", c.appName)
+		return nil, errors.New("could not found the app named " + c.appName)
 	}
 
 	if !app.MetaOnly {
@@ -69,16 +69,16 @@ func (c *execApp) prepareApp(name string, coreObj *cryphtron.Core) (*core.AppEnv
 			_ = os.Mkdir(bootStrapDir, os.ModeDir|0o666)
 			err = app.ExecuteBootstrap()
 			if err != nil {
-				err = fmt.Errorf("error while bootstrap app["+app.ID+"]:%S", err.Error())
-				return nil, err
+				newErr := errors.New("error while bootstrap app[" + app.ID + "]:")
+				return nil, errors.Join(newErr, err)
 			}
 		}
 	}
 
 	err = app.ExecuteConfig()
 	if err != nil {
-		err = fmt.Errorf("error while configure app["+app.ID+"]:%S", err.Error())
-		return nil, err
+		newErr := errors.New("error while configure app[" + app.ID + "]:")
+		return nil, errors.Join(newErr, err)
 	}
 
 	for _, depend := range app.DependApps {
@@ -107,8 +107,8 @@ func (c *execApp) execApp(name string, core *cryphtron.Core) error {
 	cmd.Args = append(cmd.Args, c.args...)
 	err = cmd.SetEnv(app.Env).ExecuteNoWait(scope.Vars)
 	if err != nil {
-		err = fmt.Errorf("error while exec %s", err.Error())
-		return err
+		newErr := errors.New("error while executing:")
+		return errors.Join(newErr, err)
 	}
 
 	return nil

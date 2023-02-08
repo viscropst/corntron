@@ -4,8 +4,8 @@ import (
 	"cryphtron"
 	"cryphtron/cmd/cptron"
 	"cryphtron/cmd/cptron/actions"
-	"fmt"
-	"os"
+
+	"github.com/skerkour/rz"
 )
 
 type cliFlags struct {
@@ -21,9 +21,11 @@ func (f cliFlags) Init() *cliFlags {
 func main() {
 
 	flags := cliFlags{}.Init()
+	errLogger := cptron.CliLog(rz.ErrorLevel)
 	action, err := flags.Parse()
+	defer cptron.GracefulExit(err)
 	if err != nil {
-		fmt.Printf("error:%s\n", err.Error())
+		errLogger.Println("error:", err)
 		return
 	}
 
@@ -35,21 +37,21 @@ func main() {
 
 	err = action.BeforeCore(&coreConfig)
 	if err != nil {
-		fmt.Println("error before load core", err)
+		errLogger.Println("error before load core", err)
 		return
 	}
 
 	var core cryphtron.Core
 	core, err = cryphtron.LoadCore(coreConfig)
 	if err != nil {
-		fmt.Println("error while load core", err)
+		errLogger.Println("error while load core", err)
 		return
 	}
 
 	err = action.Exec(&core)
 	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
+		errLogger.Println(err.Error())
+		return
 	}
 
 }

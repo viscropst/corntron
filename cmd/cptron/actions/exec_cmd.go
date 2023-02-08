@@ -5,11 +5,13 @@ import (
 	"cryphtron/cmd/cptron"
 	ct_core "cryphtron/core"
 	"cryphtron/internal"
-	"fmt"
+	"errors"
 	"os"
 	"os/exec"
 	"runtime"
 	"strings"
+
+	"github.com/skerkour/rz"
 )
 
 type execCmd struct {
@@ -36,14 +38,16 @@ func (c *execCmd) ParseArg(info cptron.FlagInfo) error {
 			}
 		default:
 		}
-		fmt.Println("warn:no command to exec,will use default shell or cmd")
+		cptron.CliLog(rz.WarnLevel).Println("warn:no command to exec,will use default shell or cmd")
 	}
 
 	if path, err := exec.LookPath(c.Execute); err != nil {
-		return fmt.Errorf(
-			"exec argument invalid:usage %s %s <command>",
-			info.CmdName,
-			info.Name)
+		errBuilder := strings.Builder{}
+		errBuilder.WriteString("exec argument invalid: usage ")
+		errBuilder.WriteString(info.CmdName + " ")
+		errBuilder.WriteString(info.Name + " ")
+		errBuilder.WriteString("<command>")
+		return errors.New(errBuilder.String())
 	} else {
 		c.Execute = path
 	}
@@ -65,14 +69,14 @@ func (c *execCmd) Exec(core *cryphtron.Core) error {
 
 	err = core.ProcessRtBootstrap()
 	if err != nil {
-		err = fmt.Errorf("error while bootstrapping %s", err.Error())
-		return err
+		newErr := errors.New("error while bootstrapping:")
+		return errors.Join(newErr, err)
 	}
 
 	err = core.ProcessRtMirror()
 	if err != nil {
-		err = fmt.Errorf("error while processing mirror %s", err.Error())
-		return err
+		newErr := errors.New("error while processing mirror:")
+		return errors.Join(newErr, err)
 	}
 
 	cmd := ct_core.Command{
@@ -86,8 +90,8 @@ func (c *execCmd) Exec(core *cryphtron.Core) error {
 
 	err = cmd.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
-		err = fmt.Errorf("error while exec %s", err.Error())
-		return err
+		newErr := errors.New("error while executing:")
+		return errors.Join(newErr, err)
 	}
 
 	return nil

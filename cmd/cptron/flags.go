@@ -1,8 +1,8 @@
 package cptron
 
 import (
+	"errors"
 	"flag"
-	"fmt"
 	"os"
 	"path"
 )
@@ -32,14 +32,15 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 	result.actions = actions
 	result.argLen = 4
 	result.host.Usage = func() {
-		fmt.Println(path.Base(result.host.Name()) + " [options] <actions> [args]")
+		CliLog().Println(path.Base(result.host.Name()) + " [options] <actions> [args]")
 		actKeys := make([]string, 0)
 		for k := range result.actions {
 			actKeys = append(actKeys, k)
 		}
-		fmt.Printf("actions was: %v \n", actKeys)
-		fmt.Println("options has:")
+		CliLog().Printf("actions was: %v \n", actKeys)
+		CliLog().Println("options has:")
 		result.host.PrintDefaults()
+		GracefulExit(nil)
 	}
 	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<cryphtron config folder>")
 	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")
@@ -55,7 +56,7 @@ func (f *CmdFlag) Parse() (CmdAction, error) {
 	}
 	f.argLen = f.host.NFlag() * 2
 	if len(os.Args) < f.argLen+2 {
-		return nil, fmt.Errorf("invalid length of args,use '-help' for usage")
+		return nil, errors.New("invalid length of args,use '-help' for usage")
 	}
 	idxArgAct := f.argLen + 1
 	info := FlagInfo{
@@ -66,5 +67,5 @@ func (f *CmdFlag) Parse() (CmdAction, error) {
 	if action, ok := f.actions[os.Args[idxArgAct]]; ok {
 		return action, action.ParseArg(info)
 	}
-	return nil, fmt.Errorf("invalid action,use '-help' for actions ")
+	return nil, errors.New("invalid action,use '-help' for actions")
 }
