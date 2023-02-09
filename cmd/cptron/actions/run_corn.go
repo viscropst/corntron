@@ -11,18 +11,18 @@ import (
 	"strings"
 )
 
-type execApp struct {
+type runCorn struct {
 	cptron.BaseAction
 	appName       string
 	args          []string
 	globalWaiting bool
 }
 
-func (c *execApp) ActionName() string {
-	return "exec-app"
+func (c *runCorn) ActionName() string {
+	return "run-corn"
 }
 
-func (c *execApp) ParseArg(info cptron.FlagInfo) error {
+func (c *runCorn) ParseArg(info cptron.FlagInfo) error {
 	argCmdIdx := info.Index + 1
 	if len(os.Args) <= argCmdIdx && len(os.Args[argCmdIdx]) == 0 {
 		return nil
@@ -34,34 +34,34 @@ func (c *execApp) ParseArg(info cptron.FlagInfo) error {
 	return nil
 }
 
-func (c *execApp) BeforeCore(coreConfig *core.MainConfig) error {
+func (c *runCorn) BeforeCore(coreConfig *core.MainConfig) error {
 	coreConfig.WithApp = true
 	return nil
 }
 
-func (c *execApp) InsertFlags(flag *cptron.CmdFlag) error {
+func (c *runCorn) InsertFlags(flag *cptron.CmdFlag) error {
 	c.globalWaiting = !flag.NoWaiting
 	return nil
 }
 
-func (c *execApp) Exec(core *cryphtron.Core) error {
+func (c *runCorn) Exec(core *cryphtron.Core) error {
 	err := core.ProcessRtBootstrap()
 	if err != nil {
-		newErr := errors.New("error while bootstrapping:")
+		newErr := errors.New("error while bootstrapping")
 		return errors.Join(newErr, err)
 	}
 
 	err = core.ProcessRtMirror()
 	if err != nil {
-		newErr := errors.New("error while processing mirror:")
+		newErr := errors.New("error while processing mirror")
 		return errors.Join(newErr, err)
 	}
 	return c.execApp(c.appName, core)
 }
 
-func (c *execApp) prepareApp(name string, coreObj *cryphtron.Core) (*core.AppEnvConfig, error) {
+func (c *runCorn) prepareApp(name string, coreObj *cryphtron.Core) (*core.CornsEnvConfig, error) {
 	var err error
-	app, ok := coreObj.AppsEnv[name]
+	app, ok := coreObj.CornsEnv[name]
 	if !ok {
 		return nil, errors.New("could not found the app named " + c.appName)
 	}
@@ -69,7 +69,7 @@ func (c *execApp) prepareApp(name string, coreObj *cryphtron.Core) (*core.AppEnv
 	if !app.MetaOnly {
 		scope := coreObj.ComposeRtEnv()
 		app.AppendEnv(scope.Env)
-		bootStrapDir := filepath.Join(coreObj.Config.CurrentDir, coreObj.Config.AppDir)
+		bootStrapDir := filepath.Join(coreObj.Config.CurrentDir, coreObj.Config.CornDir)
 		bootStrapDir = filepath.Join(bootStrapDir, app.DirName)
 		stat, _ := os.Stat(bootStrapDir)
 		if stat == nil || (stat != nil && !stat.IsDir()) {
@@ -88,8 +88,8 @@ func (c *execApp) prepareApp(name string, coreObj *cryphtron.Core) (*core.AppEnv
 		return nil, errors.Join(newErr, err)
 	}
 
-	for _, depend := range app.DependApps {
-		var cfg *core.AppEnvConfig
+	for _, depend := range app.DependCorns {
+		var cfg *core.CornsEnvConfig
 		cfg, err = c.prepareApp(depend, coreObj)
 		if err != nil {
 			return nil, err
@@ -99,7 +99,7 @@ func (c *execApp) prepareApp(name string, coreObj *cryphtron.Core) (*core.AppEnv
 	return &app, nil
 }
 
-func (c *execApp) execApp(name string, core *cryphtron.Core) error {
+func (c *runCorn) execApp(name string, core *cryphtron.Core) error {
 	app, err := c.prepareApp(name, core)
 	if err != nil {
 		return err
@@ -109,13 +109,18 @@ func (c *execApp) execApp(name string, core *cryphtron.Core) error {
 	pthVal := scope.Env["PATH"]
 	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, core.Environ["PATH"], 1)
 	scope.Env["PATH"] = pthVal
-
 	cmd := &app.Exec
 	cmd.Args = append(cmd.Args, c.args...)
-	cmd.WithWaiting = c.globalWaiting
+	origWait := cmd.WithWaiting
+	if c.globalWaiting {
+		cmd.WithWaiting = c.globalWaiting
+	}
+	if origWait {
+		cmd.WithWaiting = origWait
+	}
 	err = cmd.SetEnv(app.Env).Execute(scope.Vars)
 	if err != nil {
-		newErr := errors.New("error while executing:")
+		newErr := errors.New("error while executing")
 		return errors.Join(newErr, err)
 	}
 

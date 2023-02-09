@@ -17,16 +17,14 @@ func LoadCoreConfig(altBases ...string) core.MainConfig {
 type Core struct {
 	internal.Core
 	Config      core.MainConfig
-	AppsEnv     map[string]core.AppEnvConfig
+	CornsEnv    map[string]core.CornsEnvConfig
 	RuntimesEnv []core.RtEnvConfig
 }
 
 func (c Core) ComposeRtEnv() *internal.ValueScope {
 	c.Prepare()
-	cacheDir := ""
 	for _, config := range c.RuntimesEnv {
 		config.PrepareScope()
-		cacheDir = config.CacheDir
 		mirrorEnv := config.UnwrapMirrorsEnv(c.Config.UnwrapMirrorType())
 		for k, v := range mirrorEnv {
 			mirrorEnv[k] = config.Expand(v)
@@ -38,30 +36,23 @@ func (c Core) ComposeRtEnv() *internal.ValueScope {
 		}
 		c.AppendEnv(config.Env).AppendEnv(mirrorEnv)
 	}
-	c.Vars = map[string]string{
-		"rt_dir":   filepath.Join(c.Config.CurrentDir, c.Config.RuntimeDir),
-		"rt_cache": filepath.Join(c.Config.CurrentDir, c.Config.RuntimeDir, cacheDir),
-	}
+
 	return c.ValueScope
 }
 
-func (c Core) ComposeAppEnv(app *core.AppEnvConfig) *internal.ValueScope {
+func (c Core) ComposeAppEnv(corn *core.CornsEnvConfig) *internal.ValueScope {
 	c.Prepare()
-	if app == nil {
+	if corn == nil {
 		return c.ValueScope
 	}
-	for _, depends := range app.DependApps {
-		config := c.AppsEnv[depends]
-		config.AppendVars(app.Vars)
+	for _, depends := range corn.DependCorns {
+		config := c.CornsEnv[depends]
+		config.AppendVars(corn.Vars)
 		config.PrepareScope()
-		app.AppendEnv(config.Env)
-		app.AppendVars(config.Vars)
+		corn.AppendEnv(config.Env)
+		corn.AppendVars(config.Vars)
 	}
-	c.Vars = map[string]string{
-		"app_dir":   filepath.Join(c.Config.CurrentDir, c.Config.AppDir),
-		"app_cache": filepath.Join(c.Config.CurrentDir, c.Config.AppDir, app.CacheDir),
-	}
-	return &app.ValueScope
+	return &corn.ValueScope
 }
 
 func (c Core) ProcessRtMirror() error {
@@ -107,8 +98,8 @@ func (c Core) ProcessRtBootstrap() error {
 
 func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	result := Core{
-		Config:  coreConfig,
-		AppsEnv: make(map[string]core.AppEnvConfig),
+		Config:   coreConfig,
+		CornsEnv: make(map[string]core.CornsEnvConfig),
 	}
 
 	result.ValueScope = &internal.ValueScope{
@@ -121,7 +112,10 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 		envDirName = altNames[0]
 	}
 
+	baseEnv := core.BaseEnv(coreConfig, envDirName)
+
 	result.Prepare()
+	result.AppendVars(core.InitRtVars(baseEnv))
 	err := coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {
 			if info == nil {
@@ -131,12 +125,13 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 				(!info.IsDir() && !strings.HasSuffix(info.Name(), ".toml")) {
 				return nil
 			}
+
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			env, envErr := core.LoadRtEnv(configName, coreConfig, envDirName)
+			env, envErr := core.LoadRtEnv(configName, baseEnv)
 			if envErr != nil {
 				return envErr
 			}
-			env.ID = "rt_" + configName
+			env.ID = core.RtIdentifier + "_" + configName
 			env.Top = result.ValueScope
 			result.RuntimesEnv = append(result.RuntimesEnv, env)
 			return nil
@@ -146,6 +141,7 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 		return result, err
 	}
 
+	result.AppendVars(core.InitCornVars(baseEnv))
 	err = coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {
 			if !coreConfig.WithApp {
@@ -159,16 +155,16 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 				return nil
 			}
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			env, envErr := core.LoadAppEnv(configName, coreConfig, envDirName)
+			env, envErr := core.LoadCornEnv(configName, baseEnv)
 			if envErr != nil {
 				return envErr
 			}
-			env.ID = "app_" + configName
+			env.ID = core.CornsIdentifier + "_" + configName
 			env.Top = result.ValueScope
-			result.AppsEnv[configName] = env
+			result.CornsEnv[configName] = env
 			return nil
 		},
-		coreConfig.AppDir, envDirName)
+		coreConfig.CornDir, envDirName)
 	if err != nil {
 		return result, err
 	}

@@ -13,7 +13,7 @@ import (
 type MainConfig struct {
 	CurrentDir string
 	RuntimeDir string
-	AppDir     string
+	CornDir    string
 	MirrorType string
 	WithApp    bool
 }
@@ -45,7 +45,7 @@ const execDirWithoutLink = "${dp0}"
 var defaultCoreConfig = MainConfig{
 	CurrentDir: execDirWithoutLink,
 	RuntimeDir: "runtimes",
-	AppDir:     "apps",
+	CornDir:    "apps",
 }
 
 func loadConfigRegular(config string, value interface{}, altBases ...string) error {
@@ -113,8 +113,8 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 		result.CurrentDir = basePath
 	}
 
-	if len(result.AppDir) == 0 {
-		result.AppDir = defaultCoreConfig.AppDir
+	if len(result.CornDir) == 0 {
+		result.CornDir = defaultCoreConfig.CornDir
 	}
 
 	return result

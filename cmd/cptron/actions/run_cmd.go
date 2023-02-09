@@ -14,18 +14,18 @@ import (
 	"github.com/skerkour/rz"
 )
 
-type execCmd struct {
+type runCmd struct {
 	cptron.BaseAction
 	Execute     string
 	ExecArgs    []string
 	withWaiting bool
 }
 
-func (c *execCmd) ActionName() string {
-	return "exec-cmd"
+func (c *runCmd) ActionName() string {
+	return "run-cmd"
 }
 
-func (c *execCmd) ParseArg(info cptron.FlagInfo) error {
+func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
 	argCmdIdx := info.Index + 1
 	if len(os.Args) > argCmdIdx && len(os.Args[argCmdIdx]) > 0 {
 		c.Execute = os.Args[argCmdIdx]
@@ -61,28 +61,28 @@ func (c *execCmd) ParseArg(info cptron.FlagInfo) error {
 	return nil
 }
 
-func (c *execCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
+func (c *runCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
 	return nil
 }
 
-func (c *execCmd) InsertFlags(flag *cptron.CmdFlag) error {
+func (c *runCmd) InsertFlags(flag *cptron.CmdFlag) error {
 	c.withWaiting = !flag.NoWaiting
 	return nil
 }
 
-func (c *execCmd) Exec(core *cryphtron.Core) error {
+func (c *runCmd) Exec(core *cryphtron.Core) error {
 	var err error
 	scope := core.ComposeRtEnv()
 
 	err = core.ProcessRtBootstrap()
 	if err != nil {
-		newErr := errors.New("error while bootstrapping:")
+		newErr := errors.New("error while bootstrapping")
 		return errors.Join(newErr, err)
 	}
 
 	err = core.ProcessRtMirror()
 	if err != nil {
-		newErr := errors.New("error while processing mirror:")
+		newErr := errors.New("error while processing mirror")
 		return errors.Join(newErr, err)
 	}
 
@@ -98,7 +98,7 @@ func (c *execCmd) Exec(core *cryphtron.Core) error {
 
 	err = cmd.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
-		newErr := errors.New("error while executing:")
+		newErr := errors.New("error while executing")
 		return errors.Join(newErr, err)
 	}
 
