@@ -12,8 +12,10 @@ import (
 )
 
 type execApp struct {
-	appName string
-	args    []string
+	cptron.BaseAction
+	appName       string
+	args          []string
+	globalWaiting bool
 }
 
 func (c *execApp) ActionName() string {
@@ -34,6 +36,11 @@ func (c *execApp) ParseArg(info cptron.FlagInfo) error {
 
 func (c *execApp) BeforeCore(coreConfig *core.MainConfig) error {
 	coreConfig.WithApp = true
+	return nil
+}
+
+func (c *execApp) InsertFlags(flag *cptron.CmdFlag) error {
+	c.globalWaiting = !flag.NoWaiting
 	return nil
 }
 
@@ -105,7 +112,8 @@ func (c *execApp) execApp(name string, core *cryphtron.Core) error {
 
 	cmd := &app.Exec
 	cmd.Args = append(cmd.Args, c.args...)
-	err = cmd.SetEnv(app.Env).ExecuteNoWait(scope.Vars)
+	cmd.WithWaiting = c.globalWaiting
+	err = cmd.SetEnv(app.Env).Execute(scope.Vars)
 	if err != nil {
 		newErr := errors.New("error while executing:")
 		return errors.Join(newErr, err)

@@ -10,7 +10,8 @@ import (
 )
 
 func IsInTerminal() bool {
-	fd := os.Stdout.Fd()
-	return isatty.IsCygwinTerminal(fd) ||
-		isatty.IsTerminal(fd)
+	fd := os.Stdin.Fd()
+	isTerm := isatty.IsTerminal(fd)
+	isCygwin := isatty.IsCygwinTerminal(fd)
+	return isTerm || isCygwin
 }

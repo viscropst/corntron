@@ -117,6 +117,7 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 	for _, command := range mirrorExec {
 		c0 := command.Prepare().
 			SetEnv(env)
+		c0.WithWaiting = true
 		c0.Top = &c.ValueScope
 		c0.Env["PATH"] = strings.Replace(
 			c0.Env["PATH"], internal.PathPlaceHolder, c.Vars["pth_environ"], 1)
@@ -165,6 +166,7 @@ type AppEnvConfig struct {
 func (c AppEnvConfig) ExecuteConfig() error {
 	c.PrepareScope()
 	for _, command := range c.ConfigExec {
+		command.WithWaiting = true
 		err := command.Prepare().
 			SetEnv(c.Env).Execute()
 		if err != nil {

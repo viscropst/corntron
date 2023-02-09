@@ -15,8 +15,10 @@ import (
 )
 
 type execCmd struct {
-	Execute  string
-	ExecArgs []string
+	cptron.BaseAction
+	Execute     string
+	ExecArgs    []string
+	withWaiting bool
 }
 
 func (c *execCmd) ActionName() string {
@@ -63,6 +65,11 @@ func (c *execCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
 	return nil
 }
 
+func (c *execCmd) InsertFlags(flag *cptron.CmdFlag) error {
+	c.withWaiting = !flag.NoWaiting
+	return nil
+}
+
 func (c *execCmd) Exec(core *cryphtron.Core) error {
 	var err error
 	scope := core.ComposeRtEnv()
@@ -80,8 +87,9 @@ func (c *execCmd) Exec(core *cryphtron.Core) error {
 	}
 
 	cmd := ct_core.Command{
-		Exec: c.Execute,
-		Args: c.ExecArgs,
+		Exec:        c.Execute,
+		Args:        c.ExecArgs,
+		WithWaiting: c.withWaiting,
 	}
 
 	pthVal := scope.Env["PATH"]

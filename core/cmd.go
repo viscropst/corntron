@@ -2,7 +2,6 @@ package core
 
 import (
 	"cryphtron/internal"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,6 +30,7 @@ type Command struct {
 	WorkDir string      `toml:"work-dir"`
 	internal.ValueScope
 	WithEnviron bool `toml:"with-environ"`
+	WithWaiting bool `toml:"with-waiting"`
 }
 
 func (c *Command) SetEnv(environ map[string]string) *Command {
@@ -117,19 +117,10 @@ func (c *Command) Execute(vars ...map[string]string) error {
 	if err != nil {
 		return err
 	}
-	return cmd.Wait()
-}
 
-func (c *Command) ExecuteNoWait(vars ...map[string]string) error {
-	c.Prepare(vars...)
-	cmd, err := c.prepareCmd()
-	if err != nil {
-		return err
+	if c.WithWaiting {
+		return cmd.Wait()
 	}
-	fmt.Println(cmd.String())
-	err = cmd.Start()
-	if err != nil {
-		return err
-	}
+
 	return cmd.Process.Release()
 }
