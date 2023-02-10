@@ -2,6 +2,7 @@ package internal
 
 import (
 	"os"
+	"runtime"
 	"strings"
 )
 
@@ -13,17 +14,58 @@ type ValueScope struct {
 }
 
 const valueRefFormat = "#{%s}"
+const selectorPrefix = "+"
+const platArchSeprator = ":"
+
+func OsId(prefix string) string {
+	goosSuffix := prefix + runtime.GOOS
+	return goosSuffix
+}
+
+func ArchId(prefix string) string {
+	goarchSuffix := prefix + runtime.GOARCH
+	return goarchSuffix
+}
+
+func PlatId(prefix string) string {
+	goplatSuffix := prefix +
+		runtime.GOOS +
+		platArchSeprator +
+		runtime.GOARCH
+	return goplatSuffix
+}
+
+func platMapping[v any](key string, src map[string]v) v {
+	var result v
+	if v0, ok := src[key]; ok {
+		result = v0
+	}
+
+	if v0, ok := src[key+OsId(selectorPrefix)]; ok {
+		result = v0
+	}
+
+	if v0, ok := src[key+ArchId(selectorPrefix)]; ok {
+		result = v0
+	}
+
+	if v0, ok := src[key+PlatId(selectorPrefix)]; ok {
+		result = v0
+	}
+	return result
+}
 
 func (v ValueScope) mappingScope(key string) string {
 	var result string
 
 	keyFn := strings.Split(key, ":")
-	if v0, ok := v.Vars[keyFn[0]]; ok {
-		result = v0
+	varRes := platMapping(keyFn[0], v.Vars)
+	if len(varRes) > 0 {
+		result = varRes
 	}
-
-	if v0, ok := v.Env[keyFn[0]]; ok {
-		result = v0
+	envRes := platMapping(keyFn[0], v.Env)
+	if len(envRes) > 0 {
+		result = envRes
 	}
 
 	if v.Top != nil && result == "" {
@@ -106,10 +148,11 @@ func (v *ValueScope) innerResolve(inner string) (string, int) {
 
 func (v *ValueScope) selectScopeVal(name, alt string) string {
 	scopeValue := v.mappingScope(name)
+
 	if scopeValue != "" && scopeValue == name {
 		return alt
 	}
-	return scopeValue
+	return v.expandValue(scopeValue)
 }
 
 func (v *ValueScope) PrepareScope() {

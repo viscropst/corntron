@@ -34,11 +34,12 @@ const (
 type envConfig struct {
 	coreConfig *MainConfig
 	internal.ValueScope
-	envDirname    string
-	ID            string    `toml:"-"`
-	CacheDir      string    `toml:"cache_dir"`
-	DirName       string    `toml:"dir_name"`
-	BootstrapExec []Command `toml:"bootstrap_exec"`
+	envDirname        string
+	ID                string               `toml:"-"`
+	CacheDir          string               `toml:"cache_dir"`
+	DirName           string               `toml:"dir_name"`
+	BootstrapExec     []Command            `toml:"bootstrap_exec"`
+	BootstrapPlatExec map[string][]Command `toml:"bootstrap_exec_plat"`
 }
 
 func (c envConfig) setCore(coreConfig MainConfig) envConfig {
@@ -64,11 +65,34 @@ func (c *envConfig) setCacheDirname(altCacheDirname ...string) {
 	}
 }
 
+func commandsPlatMapping[v Command](key string, src map[string][]v) []v {
+	var result []v
+	const prefix = ""
+	if v0, ok := src[key]; ok {
+		result = append(result, v0...)
+	}
+
+	if v0, ok := src[key+internal.OsId(prefix)]; ok {
+		result = append(result, v0...)
+	}
+
+	if v0, ok := src[key+internal.ArchId(prefix)]; ok {
+		result = append(result, v0...)
+	}
+
+	if v0, ok := src[key+internal.PlatId(prefix)]; ok {
+		result = append(result, v0...)
+	}
+	return result
+}
+
 func (c *envConfig) ExecuteBootstrap() error {
 	if len(c.BootstrapExec) == 0 {
 		return nil
 	}
 	c.PrepareScope()
+	bootstraps := commandsPlatMapping("", c.BootstrapPlatExec)
+	c.BootstrapExec = append(c.BootstrapExec, bootstraps...)
 	for _, command := range c.BootstrapExec {
 		cmd := command.Prepare().
 			SetEnv(c.Env)
