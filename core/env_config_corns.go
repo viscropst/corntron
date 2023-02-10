@@ -5,6 +5,7 @@ import (
 )
 
 const CornsIdentifier = "corn"
+const CornsNameAttr = CornsIdentifier + "_name"
 
 type CornsEnvConfig struct {
 	envConfig

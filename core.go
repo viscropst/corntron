@@ -161,6 +161,7 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 			}
 			env.ID = core.CornsIdentifier + "_" + configName
 			env.Top = result.ValueScope
+			env.Vars[core.CornsNameAttr] = configName
 			result.CornsEnv[configName] = env
 			return nil
 		},
