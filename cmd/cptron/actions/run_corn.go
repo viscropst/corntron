@@ -69,13 +69,16 @@ func (c *runCorn) prepareApp(name string, coreObj *cryphtron.Core) (*core.CornsE
 	if !app.MetaOnly {
 		scope := coreObj.ComposeRtEnv()
 		app.AppendEnv(scope.Env)
-		bootStrapDir := filepath.Join(coreObj.Config.CurrentDir, coreObj.Config.CornDir)
-		bootStrapDir = filepath.Join(bootStrapDir, app.DirName)
-		stat, _ := os.Stat(bootStrapDir)
+		bootstrapDir := filepath.Join(coreObj.Config.CurrentDir, coreObj.Config.CornDir)
+		bootstrapDir = filepath.Join(bootstrapDir, app.DirName)
+		stat, _ := os.Stat(bootstrapDir)
 		if stat == nil || (stat != nil && !stat.IsDir()) {
-			_ = os.Mkdir(bootStrapDir, os.ModeDir|0o666)
+			_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
+			app.AppendEnv(coreObj.Env)
+			app.Vars["pth_environ"] = coreObj.Environ["PATH"]
 			err = app.ExecuteBootstrap()
 			if err != nil {
+				_ = os.RemoveAll(bootstrapDir)
 				newErr := errors.New("error while bootstrap app[" + app.ID + "]:")
 				return nil, errors.Join(newErr, err)
 			}
