@@ -4,9 +4,8 @@ import "cryphtron/cmd/cptron"
 
 var mActions = make([]cptron.CmdAction, 0)
 
-func init() {
-	mActions = append(mActions, &runCmd{})
-	mActions = append(mActions, &runCorn{})
+func appendAction(act cptron.CmdAction) {
+	mActions = append(mActions, act)
 }
 
 func ActionMap() map[string]cptron.CmdAction {

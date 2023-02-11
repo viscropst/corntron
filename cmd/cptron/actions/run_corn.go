@@ -15,6 +15,10 @@ type runCorn struct {
 	globalWaiting bool
 }
 
+func init() {
+	appendAction(&runCorn{})
+}
+
 func (c *runCorn) ActionName() string {
 	return "run-" + core.CornsIdentifier
 }

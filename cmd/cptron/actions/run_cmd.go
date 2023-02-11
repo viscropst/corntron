@@ -20,6 +20,10 @@ type runCmd struct {
 	withWaiting bool
 }
 
+func init() {
+	appendAction(&runCmd{})
+}
+
 func (c *runCmd) ActionName() string {
 	return "run-cmd"
 }
