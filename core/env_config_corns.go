@@ -36,6 +36,7 @@ func (c CornsEnvConfig) ExecuteConfig() error {
 func (c *CornsEnvConfig) initCornVars() {
 	coreConfig := c.coreConfig
 	vars := make(map[string]string)
+
 	if coreConfig != nil {
 		baseDir := c.cornsDir()
 		vars = map[string]string{
@@ -49,8 +50,9 @@ func (c *CornsEnvConfig) initCornVars() {
 	} else {
 		c.AppendVars(vars)
 	}
+
 	if len(c.envName) > 0 {
-		c.Vars[CornsIdentifier+"_name"] = c.envName
+		c.AppendVar(CornsIdentifier+"_name", c.envName)
 	}
 }
 

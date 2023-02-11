@@ -233,6 +233,11 @@ func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
 	return v
 }
 
+func (v *ValueScope) AppendVar(key, val string) *ValueScope {
+	varToAdd := map[string]string{key: val}
+	return v.AppendVars(varToAdd)
+}
+
 func (v *ValueScope) EnvStrList() []string {
 	result := make([]string, 0)
 	for k, v0 := range v.Env {

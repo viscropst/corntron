@@ -73,8 +73,9 @@ func (r *RtEnvConfig) initRtVars() {
 	} else {
 		r.AppendVars(vars)
 	}
+
 	if len(r.envName) > 0 {
-		vars[RtIdentifier+"_name"] = r.envName
+		r.AppendVar(RtIdentifier+"_name", r.envName)
 	}
 
 }
