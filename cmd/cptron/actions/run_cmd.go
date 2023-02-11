@@ -4,7 +4,6 @@ import (
 	"cryphtron"
 	"cryphtron/cmd/cptron"
 	ct_core "cryphtron/core"
-	"cryphtron/internal"
 	"errors"
 	"os"
 	"os/exec"
@@ -72,7 +71,6 @@ func (c *runCmd) InsertFlags(flag *cptron.CmdFlag) error {
 
 func (c *runCmd) Exec(core *cryphtron.Core) error {
 	var err error
-	scope := core.ComposeRtEnv()
 
 	err = core.ProcessRtBootstrap()
 	if err != nil {
@@ -86,21 +84,5 @@ func (c *runCmd) Exec(core *cryphtron.Core) error {
 		return errors.Join(newErr, err)
 	}
 
-	cmd := ct_core.Command{
-		Exec:        c.Execute,
-		Args:        c.ExecArgs,
-		WithWaiting: c.withWaiting,
-	}
-
-	pthVal := scope.Env["PATH"]
-	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, core.Environ["PATH"], 1)
-	scope.Env["PATH"] = pthVal
-
-	err = cmd.SetEnv(scope.Env).Execute(scope.Vars)
-	if err != nil {
-		newErr := errors.New("error while executing")
-		return errors.Join(newErr, err)
-	}
-
-	return nil
+	return core.ExecCmd(c.Execute, c.withWaiting, c.ExecArgs...)
 }
