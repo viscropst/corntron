@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+func (c *envConfig) runtimesDir() string {
+	return filepath.Join(
+		c.coreConfig.CurrentDir,
+		c.coreConfig.RuntimeDir)
+}
+
 type RtEnvConfig struct {
 	envConfig
 	MirrorEnv  map[MirrorType]map[string]string `toml:"mirror_env"`
@@ -51,29 +57,45 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 	return nil
 }
 
-func InitRtVars(base envConfig) map[string]string {
-	baseDir := filepath.Join(base.coreConfig.CurrentDir, base.coreConfig.RuntimeDir)
-	return map[string]string{
-		RtIdentifier + "_dir":   baseDir,
-		RtIdentifier + "_cache": filepath.Join(baseDir, base.CacheDir),
-		RtIdentifier + "_home":  filepath.Join(baseDir, "_home"),
+func (r *RtEnvConfig) initRtVars() {
+	vars := make(map[string]string)
+
+	if coreConfig := r.coreConfig; coreConfig != nil {
+		baseDir := filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir)
+		vars = map[string]string{
+			RtIdentifier + "_dir":   baseDir,
+			RtIdentifier + "_cache": filepath.Join(baseDir, r.CacheDir),
+			RtIdentifier + "_home":  filepath.Join(baseDir, "_home"),
+		}
 	}
+	if r.Top != nil {
+		r.Top.AppendVars(vars)
+	} else {
+		r.AppendVars(vars)
+	}
+	if len(r.envName) > 0 {
+		vars[RtIdentifier+"_name"] = r.envName
+	}
+
 }
 
 func LoadRtEnv(name string, base envConfig) (RtEnvConfig, error) {
-	c := RtEnvConfig{}
-	c.envConfig = base
-	if c.DirName == "" {
-		c.DirName = name
+	result := RtEnvConfig{}
+	result.envConfig = base
+	result.ID = RtIdentifier + "_" + name
+	result.envName = name
+	if result.DirName == "" {
+		result.DirName = name
 	}
-
-	loadPath := filepath.Join(c.coreConfig.CurrentDir, c.coreConfig.RuntimeDir, c.envDirname)
-	err := loadConfigRegular(name, &c, loadPath)
+	result.initRtVars()
+	loadPath := filepath.Join(
+		result.runtimesDir(), result.envDirname)
+	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
-		return c, err
+		return result, err
 	}
-	for idx := range c.BootstrapExec {
-		c.BootstrapExec[idx].Top = &c.ValueScope
+	for idx := range result.BootstrapExec {
+		result.BootstrapExec[idx].Top = &result.ValueScope
 	}
-	return c, nil
+	return result, nil
 }

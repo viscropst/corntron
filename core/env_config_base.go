@@ -35,6 +35,7 @@ type envConfig struct {
 	coreConfig *MainConfig
 	internal.ValueScope
 	envDirname        string
+	envName           string
 	ID                string               `toml:"-"`
 	CacheDir          string               `toml:"cache_dir"`
 	DirName           string               `toml:"dir_name"`

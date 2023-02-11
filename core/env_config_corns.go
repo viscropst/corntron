@@ -5,7 +5,12 @@ import (
 )
 
 const CornsIdentifier = "corn"
-const CornsNameAttr = CornsIdentifier + "_name"
+
+func (c *envConfig) cornsDir() string {
+	return filepath.Join(
+		c.coreConfig.CurrentDir,
+		c.coreConfig.CornDir)
+}
 
 type CornsEnvConfig struct {
 	envConfig
@@ -28,21 +33,35 @@ func (c CornsEnvConfig) ExecuteConfig() error {
 	return nil
 }
 
-func InitCornVars(base envConfig) map[string]string {
-	coreConfig := base.coreConfig
-	baseDir := filepath.Join(coreConfig.CurrentDir, coreConfig.CornDir)
-	return map[string]string{
-		CornsIdentifier + "_dir":   baseDir,
-		CornsIdentifier + "_cache": filepath.Join(baseDir, base.CacheDir),
+func (c *CornsEnvConfig) initCornVars() {
+	coreConfig := c.coreConfig
+	vars := make(map[string]string)
+	if coreConfig != nil {
+		baseDir := c.cornsDir()
+		vars = map[string]string{
+			CornsIdentifier + "_dir":   baseDir,
+			CornsIdentifier + "_cache": filepath.Join(baseDir, c.CacheDir),
+			CornsIdentifier + "_home":  filepath.Join(baseDir, "_home"),
+		}
+	}
+	if c.Top != nil {
+		c.Top.AppendVars(vars)
+	} else {
+		c.AppendVars(vars)
+	}
+	if len(c.envName) > 0 {
+		c.Vars[CornsIdentifier+"_name"] = c.envName
 	}
 }
 
 func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 	result := CornsEnvConfig{}
 	result.envConfig = base
+	result.ID = CornsIdentifier + "_" + name
+	result.envName = name
+	result.initCornVars()
 
-	baseDir := filepath.Join(base.coreConfig.CurrentDir, base.coreConfig.CornDir)
-	loadPath := filepath.Join(baseDir, result.envDirname)
+	loadPath := filepath.Join(result.cornsDir(), result.envDirname)
 	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
 		return result, err

@@ -115,7 +115,6 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	baseEnv := core.BaseEnv(coreConfig, envDirName)
 
 	result.Prepare()
-	result.AppendVars(core.InitRtVars(baseEnv))
 	err := coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {
 			if info == nil {
@@ -127,12 +126,12 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 			}
 
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			env, envErr := core.LoadRtEnv(configName, baseEnv)
+			tmpEnv := baseEnv
+			tmpEnv.Top = result.ValueScope
+			env, envErr := core.LoadRtEnv(configName, tmpEnv)
 			if envErr != nil {
 				return envErr
 			}
-			env.ID = core.RtIdentifier + "_" + configName
-			env.Top = result.ValueScope
 			result.RuntimesEnv = append(result.RuntimesEnv, env)
 			return nil
 		},
@@ -141,7 +140,6 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 		return result, err
 	}
 
-	result.AppendVars(core.InitCornVars(baseEnv))
 	err = coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {
 			if !coreConfig.WithApp {
@@ -155,13 +153,12 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 				return nil
 			}
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			env, envErr := core.LoadCornEnv(configName, baseEnv)
+			tmpEnv := baseEnv
+			tmpEnv.Top = result.ValueScope
+			env, envErr := core.LoadCornEnv(configName, tmpEnv)
 			if envErr != nil {
 				return envErr
 			}
-			env.ID = core.CornsIdentifier + "_" + configName
-			env.Top = result.ValueScope
-			env.Vars[core.CornsNameAttr] = configName
 			result.CornsEnv[configName] = env
 			return nil
 		},
