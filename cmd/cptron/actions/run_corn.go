@@ -25,7 +25,11 @@ func (c *runCorn) ActionName() string {
 
 func (c *runCorn) ParseArg(info cptron.FlagInfo) error {
 	argCmdIdx := info.Index + 1
-	if len(os.Args) <= argCmdIdx && len(os.Args[argCmdIdx]) == 0 {
+	isValidArgNum := len(os.Args) <= argCmdIdx
+	if isValidArgNum {
+		return nil
+	}
+	if isValidArgNum && len(os.Args[argCmdIdx]) == 0 {
 		return nil
 	}
 	c.appName = os.Args[argCmdIdx]
