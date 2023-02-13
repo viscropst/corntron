@@ -23,7 +23,7 @@ type CornsEnvConfig struct {
 func (c CornsEnvConfig) ExecuteConfig() error {
 	c.PrepareScope()
 	for _, command := range c.ConfigExec {
-		command.WithWaiting = true
+		command.WithNoWait = false
 		err := command.Prepare().
 			SetEnv(c.Env).Execute()
 		if err != nil {

@@ -102,7 +102,7 @@ func (c *envConfig) ExecuteBootstrap() error {
 			internal.PathPlaceHolder,
 			c.Vars["pth_environ"], 1)
 
-		cmd.WithWaiting = true
+		cmd.WithNoWait = false
 		err := cmd.Execute()
 		if err != nil {
 			return err

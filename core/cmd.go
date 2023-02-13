@@ -30,7 +30,7 @@ type Command struct {
 	WorkDir string      `toml:"work-dir"`
 	internal.ValueScope
 	WithEnviron bool `toml:"with-environ"`
-	WithWaiting bool `toml:"with-waiting"`
+	WithNoWait  bool `toml:"with-no-wait"`
 }
 
 func (c *Command) SetEnv(environ map[string]string) *Command {
@@ -118,7 +118,7 @@ func (c *Command) Execute(vars ...map[string]string) error {
 		return err
 	}
 
-	if c.WithWaiting {
+	if !c.WithNoWait {
 		return cmd.Wait()
 	}
 

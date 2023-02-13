@@ -79,12 +79,12 @@ func (c *Core) execCorn(name string, isWaiting bool, args ...string) error {
 	scope := c.ComposeCornEnv(app)
 	cmd := &app.Exec
 	cmd.Args = append(cmd.Args, args...)
-	origWait := cmd.WithWaiting
+	origWait := cmd.WithNoWait
 	if isWaiting {
-		cmd.WithWaiting = isWaiting
+		cmd.WithNoWait = !isWaiting
 	}
-	if !origWait == isWaiting {
-		cmd.WithWaiting = origWait
+	if origWait == isWaiting {
+		cmd.WithNoWait = origWait
 	}
 	return c.execCmd(cmd, scope)
 }
