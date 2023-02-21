@@ -7,12 +7,12 @@ import (
 	"os"
 )
 
-const WgetCmdId = "wgt"
+const WgetCmdID = "wgt"
 
-var WgetCmdName = CmdName(WgetCmdId)
+var WgetCmdName = CmdName(WgetCmdID)
 
 func init() {
-	AppendCmd(CmdName(WgetCmdId), WgetCmd)
+	AppendCmd(CmdName(WgetCmdID), WgetCmd)
 }
 
 func wgetFlags() *flag.FlagSet {
@@ -24,10 +24,10 @@ func WgetCmd(args []string) error {
 
 	if len(args) < 1 {
 		return errors.New(
-			" correct usage was: " + WgetCmdId + " src [options]")
+			" correct usage was: " + WgetCmdID + " src [options]")
 	}
 
-	srcUrl := args[0]
+	srcURL := args[0]
 
 	client := http.DefaultClient
 
@@ -38,7 +38,7 @@ func WgetCmd(args []string) error {
 	method := http.MethodGet
 	var err error
 	var req *http.Request
-	req, err = http.NewRequest(method, srcUrl, nil)
+	req, err = http.NewRequest(method, srcURL, nil)
 	if err != nil {
 		return err
 	}

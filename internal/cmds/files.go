@@ -11,12 +11,12 @@ import (
 
 const defaultMod = 0666
 
-const CopyCmdId = "cp"
-const MoveCmdId = "mv"
+const CopyCmdID = "cp"
+const MoveCmdID = "mv"
 
 func init() {
-	AppendCmd(CmdName(CopyCmdId), CpCmd)
-	AppendCmd(CmdName(MoveCmdId), MvCmd)
+	AppendCmd(CmdName(CopyCmdID), CpCmd)
+	AppendCmd(CmdName(MoveCmdID), MvCmd)
 }
 
 func ioToFile(from io.Reader, to string) error {
