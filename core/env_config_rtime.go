@@ -7,9 +7,7 @@ import (
 )
 
 func (c *envConfig) runtimesDir() string {
-	return filepath.Join(
-		c.coreConfig.CurrentDir,
-		c.coreConfig.RuntimeDir)
+	return c.coreConfig.RuntimesPath()
 }
 
 type RtEnvConfig struct {

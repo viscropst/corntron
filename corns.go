@@ -35,7 +35,7 @@ func (c *Core) prepareCorn(name string) (*core.CornsEnvConfig, error) {
 	if !app.MetaOnly {
 		scope := c.ComposeRtEnv()
 		app.AppendEnv(scope.Env)
-		bootstrapDir := c.Config.CornDir
+		bootstrapDir := c.Config.CornsPath()
 		bootstrapDir = filepath.Join(bootstrapDir, app.DirName)
 		stat, _ := os.Stat(bootstrapDir)
 		if stat == nil || (stat != nil && !stat.IsDir()) {

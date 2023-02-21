@@ -44,14 +44,12 @@ func (c Core) ProcessRtMirror() error {
 
 func (c Core) ProcessRtBootstrap() error {
 	c.Prepare()
-	currentRtDir := filepath.Join(
-		c.Config.CurrentDir, c.Config.RuntimeDir)
+	currentRtDir := c.Config.RuntimesPath()
 	for _, config := range c.RuntimesEnv {
 		bootstrapDir := filepath.Join(currentRtDir,
 			config.DirName)
 		stat, _ := os.Stat(bootstrapDir)
 		if stat != nil || (stat != nil && stat.IsDir()) {
-
 			continue
 		}
 		_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)

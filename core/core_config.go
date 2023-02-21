@@ -18,6 +18,14 @@ type MainConfig struct {
 	WithApp    bool
 }
 
+func (c MainConfig) RuntimesPath() string {
+	return filepath.Join(c.CurrentDir, c.CornDir)
+}
+
+func (c MainConfig) CornsPath() string {
+	return filepath.Join(c.CurrentDir, c.CornDir)
+}
+
 func (c MainConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
 	rootDir := c.CurrentDir
 	if len(DirNames) > 0 {

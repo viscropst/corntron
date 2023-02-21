@@ -7,9 +7,7 @@ import (
 const CornsIdentifier = "corn"
 
 func (c *envConfig) cornsDir() string {
-	return filepath.Join(
-		c.coreConfig.CurrentDir,
-		c.coreConfig.CornDir)
+	return c.coreConfig.CornsPath()
 }
 
 type CornsEnvConfig struct {
