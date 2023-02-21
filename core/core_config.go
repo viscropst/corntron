@@ -19,7 +19,7 @@ type MainConfig struct {
 }
 
 func (c MainConfig) RuntimesPath() string {
-	return filepath.Join(c.CurrentDir, c.CornDir)
+	return filepath.Join(c.CurrentDir, c.RuntimeDir)
 }
 
 func (c MainConfig) CornsPath() string {
