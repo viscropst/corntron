@@ -31,21 +31,31 @@ func argReplace(s string) string {
 	return fcs[0]
 }
 
+const fnQuotting = "()"
+
+var fnMaps = map[string]func(args ...string) string{
+	"rp": func(args ...string) string {
+		before := args[0]
+		tmpArg := strings.SplitN(args[1], "=", 2)
+		tmpArg[0] = argReplace(tmpArg[0])
+		tmpArg[1] = argReplace(tmpArg[1])
+		return strings.ReplaceAll(before, tmpArg[0], tmpArg[1])
+	},
+	"ospth": func(args ...string) string {
+		src := args[0]
+		return strings.ReplaceAll(src, "/", argReplace("/#os/"))
+	},
+}
+
 func (v ValueScope) resolveFn(keyFn []string, result string) string {
 	for _, v := range keyFn[1:] {
-		idxLeft := strings.IndexRune(v, '(')
-		idxRight := strings.IndexRune(v, ')')
+		idxLeft := strings.IndexRune(v, rune(fnQuotting[0]))
+		idxRight := strings.IndexRune(v, rune(fnQuotting[1]))
 		hasQuote := idxLeft > 0 && idxRight > 0
 		if hasQuote {
 			fnName := v[:idxLeft]
-			switch fnName {
-			case "rp":
-				args := strings.SplitN(v[idxLeft+1:idxRight], "=", 2)
-				args[0] = argReplace(args[0])
-				args[1] = argReplace(args[1])
-				result = strings.ReplaceAll(result, args[0], args[1])
-			default:
-				continue
+			if fn, ok := fnMaps[fnName]; ok {
+				result = fn(result, v[idxLeft+1:idxRight])
 			}
 		}
 	}

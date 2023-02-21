@@ -16,6 +16,7 @@ type ValueScope struct {
 const valueRefFormat = "#{%s}"
 const selectorPrefix = "+"
 const platArchSeprator = ":"
+const funcSeprator = ":"
 
 func OsId(prefix string) string {
 	goosSuffix := prefix + runtime.GOOS
@@ -55,13 +56,35 @@ func platMapping[v any](key string, src map[string]v) v {
 	return result
 }
 
+func (v ValueScope) funcMapping(key string, src map[string]string) string {
+	var result string
+	keyFn := strings.Split(key, funcSeprator)
+	for k, v0 := range src {
+		if !strings.HasPrefix(k, keyFn[0]) {
+			continue
+		}
+		kFn := strings.Split(k, funcSeprator)
+		if len(kFn) < 2 {
+			break
+		}
+		result = v.resolveFn(kFn, v0)
+		if len(result) > 0 {
+			break
+		}
+	}
+	return result
+}
+
 func (v ValueScope) mappingScope(key string) string {
 	var result string
 
-	keyFn := strings.Split(key, ":")
+	keyFn := strings.Split(key, funcSeprator)
 	varRes := platMapping(keyFn[0], v.Vars)
 	if len(varRes) > 0 {
 		result = varRes
+	}
+	if tmp := v.funcMapping(keyFn[0], v.Vars); len(tmp) > 0 {
+		result = tmp
 	}
 	envRes := platMapping(keyFn[0], v.Env)
 	if len(envRes) > 0 {
