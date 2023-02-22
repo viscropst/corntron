@@ -9,13 +9,17 @@ import (
 )
 
 type splitString struct {
-	SourceStr string `toml:"src"`
-	SplitStr  string `toml:"split-str"`
-	SplitNum  int8   `toml:"split-num"`
+	SourceStr string    `toml:"src"`
+	SplitStr  string    `toml:"split-str"`
+	SplitNum  int8      `toml:"split-num"`
+	Replaces  [2]string `toml:"replaces"`
 }
 
 func (sp *splitString) ToArray() []string {
-	sp.SourceStr = strings.ReplaceAll(sp.SourceStr, "\r\n", "")
+	if len(sp.Replaces) == 2 {
+		sp.SourceStr = strings.ReplaceAll(
+			sp.SourceStr, sp.Replaces[0], sp.Replaces[1])
+	}
 	if sp.SplitNum != 0 {
 		return strings.SplitN(sp.SourceStr, sp.SplitStr, int(sp.SplitNum))
 	}

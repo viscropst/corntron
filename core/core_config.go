@@ -7,7 +7,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/pelletier/go-toml/v2"
+	"github.com/BurntSushi/toml"
 )
 
 type MainConfig struct {
@@ -90,7 +90,7 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	tomlFile, _ := os.Open(tomlFilename)
 	tomlDecoder := toml.NewDecoder(tomlFile)
 	//tomlDecoder.DisallowUnknownFields()
-	err := tomlDecoder.Decode(value)
+	_, err := tomlDecoder.Decode(value)
 	if err != nil {
 		errFmt.Path = tomlFilename
 		errFmt.Err = err

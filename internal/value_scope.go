@@ -104,7 +104,7 @@ func (v ValueScope) mappingScope(key string) string {
 		result = key
 	}
 
-	return result
+	return strings.TrimSpace(result)
 }
 
 func (v ValueScope) expandValue(str string) string {
