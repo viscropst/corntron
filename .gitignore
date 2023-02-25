@@ -51,6 +51,9 @@ Thumbs.db
 # vscode related
 .vscode
 
+# fleet related
+.fleet
+
 # Miscs
 go.sum
 cr_testf
