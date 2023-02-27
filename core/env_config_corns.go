@@ -21,6 +21,9 @@ type CornsEnvConfig struct {
 func (c CornsEnvConfig) ExecuteConfig() error {
 	c.PrepareScope()
 	for _, command := range c.ConfigExec {
+		if !command.CanRunning() {
+			continue
+		}
 		command.WithNoWait = false
 		err := command.Prepare().
 			SetEnv(c.Env).Execute()

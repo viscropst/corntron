@@ -43,6 +43,9 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 	for _, command := range mirrorExec {
 		c0 := command.Prepare().
 			SetEnv(env)
+		if !c0.CanRunning() {
+			continue
+		}
 		c0.WithNoWait = false
 		c0.Top = &c.ValueScope
 		c0.Env["PATH"] = strings.Replace(

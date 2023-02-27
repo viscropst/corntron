@@ -78,6 +78,11 @@ func (c *Core) execCorn(name string, isWaiting bool, args ...string) error {
 	}
 	scope := c.ComposeCornEnv(app)
 	cmd := &app.Exec
+	if !cmd.CanRunning() {
+		return errors.New(
+			"Cannot running this app(named:" +
+				name + ") on current platform")
+	}
 	cmd.Args = append(cmd.Args, args...)
 	origWait := cmd.WithNoWait
 	if isWaiting {

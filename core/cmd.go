@@ -29,12 +29,21 @@ func (sp *splitString) ToArray() []string {
 type Command struct {
 	cmd     exec.Cmd
 	Exec    string      `toml:"exec"`
+	PlatStr string      `toml:"platform"`
 	Args    []string    `toml:"args"`
 	ArgStr  splitString `toml:"arg-str"`
 	WorkDir string      `toml:"work-dir"`
 	internal.ValueScope
 	WithEnviron bool `toml:"with-environ"`
 	WithNoWait  bool `toml:"with-no-wait"`
+}
+
+func (c *Command) CanRunning() bool {
+	var canRunning = len(c.PlatStr) == 0
+	canRunning = canRunning || c.PlatStr == internal.ArchId("")
+	canRunning = canRunning || c.PlatStr == internal.OsId("")
+	canRunning = canRunning || c.PlatStr == internal.PlatId("")
+	return canRunning
 }
 
 func (c *Command) SetEnv(environ map[string]string) *Command {
