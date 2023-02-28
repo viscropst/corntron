@@ -36,6 +36,10 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 
 	baseEnv := core.BaseEnv(coreConfig, envDirName)
 
+	baseEnv.AppendVar("base_dir", coreConfig.CurrentDir)
+	baseEnv.AppendVar(core.CornsIdentifier+"_dirname", coreConfig.CornDir)
+	baseEnv.AppendVar(core.RtIdentifier+"_dirname", coreConfig.RuntimeDir)
+
 	result.Prepare()
 	err := coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {

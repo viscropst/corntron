@@ -1,13 +1,14 @@
 package core
 
 import (
-	"fmt"
+	"errors"
 	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
+	"github.com/skerkour/rz"
 )
 
 type MainConfig struct {
@@ -63,7 +64,7 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	}
 
 	if len(config) == 0 {
-		errFmt.Err = fmt.Errorf("could not load config by empty name")
+		errFmt.Err = errors.New("could not load config by empty name")
 		return &errFmt
 	}
 
@@ -76,14 +77,14 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 		basePath = filepath.Dir(basePath)
 	}
 	if len(basePath) == 0 {
-		return fmt.Errorf("could not load workdir")
+		return errors.New("could not load workdir")
 	}
 
 	tomlFilename := path.Join(basePath, config+".toml")
 	stat, _ := os.Stat(tomlFilename)
 	if stat == nil || !stat.Mode().IsRegular() {
 		errFmt.Path = tomlFilename
-		errFmt.Err = fmt.Errorf("could not stat that file")
+		errFmt.Err = errors.New("could not stat that file")
 		return &errFmt
 	}
 
@@ -103,7 +104,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	basePath, _ := os.Executable()
 	basePath, _ = filepath.EvalSymlinks(basePath)
 	if len(basePath) == 0 && len(altBases) == 0 {
-		panic("Could not load workdir,use altBase instead")
+		LogCLI(rz.FatalLevel).Println("Could not load workdir,use altBase instead")
 	}
 	basePath = filepath.Dir(basePath)
 
@@ -114,7 +115,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	var result = defaultCoreConfig
 	err := loadConfigRegular("core", &result, basePath)
 	if err != nil {
-		fmt.Println("WARN:>", err.Error())
+		LogCLI(rz.WarnLevel).Println("WARN:>", err.Error())
 	}
 
 	if result.CurrentDir == execDirWithoutLink {
