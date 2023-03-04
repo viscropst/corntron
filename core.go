@@ -34,12 +34,6 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 		envDirName = altNames[0]
 	}
 
-	baseEnv := core.BaseEnv(coreConfig, envDirName)
-
-	baseEnv.AppendVar("base_dir", coreConfig.CurrentDir)
-	baseEnv.AppendVar(core.CornsIdentifier+"_dirname", coreConfig.CornDir)
-	baseEnv.AppendVar(core.RtIdentifier+"_dirname", coreConfig.RuntimeDir)
-
 	result.Prepare()
 	err := coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {
@@ -52,7 +46,7 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 			}
 
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			tmpEnv := baseEnv
+			tmpEnv := core.BaseEnv(coreConfig, envDirName)
 			tmpEnv.Top = result.ValueScope
 			env, envErr := core.LoadRtEnv(configName, tmpEnv)
 			if envErr != nil {
@@ -79,7 +73,7 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 				return nil
 			}
 			configName := strings.TrimSuffix(info.Name(), ".toml")
-			tmpEnv := baseEnv
+			tmpEnv := core.BaseEnv(coreConfig, envDirName)
 			tmpEnv.Top = result.ValueScope
 			env, envErr := core.LoadCornEnv(configName, tmpEnv)
 			if envErr != nil {
