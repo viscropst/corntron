@@ -21,12 +21,19 @@ type CornsEnvConfig struct {
 func (c CornsEnvConfig) ExecuteConfig() error {
 	c.PrepareScope()
 	for _, command := range c.ConfigExec {
-		if !command.CanRunning() {
+		c0 := command.Prepare().
+			SetEnv(c.Env)
+		if !c0.CanRunning() {
 			continue
 		}
-		command.WithNoWait = false
-		err := command.Prepare().
-			SetEnv(c.Env).Execute()
+		c0.WithNoWait = false
+		c0.Top = &c.ValueScope
+
+		c0.AppendEnv(map[string]string{
+			"PATH": c.Vars["pth_environ"],
+		})
+
+		err := c0.Execute()
 		if err != nil {
 			return err
 		}

@@ -38,10 +38,10 @@ func (c *Core) prepareCorn(name string) (*core.CornsEnvConfig, error) {
 		bootstrapDir := c.Config.CornsPath()
 		bootstrapDir = filepath.Join(bootstrapDir, app.DirName)
 		stat, _ := os.Stat(bootstrapDir)
+		app.Vars["pth_environ"] = c.Environ["PATH"]
 		if stat == nil || (stat != nil && !stat.IsDir()) {
 			_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
 			app.AppendEnv(c.Env)
-			app.Vars["pth_environ"] = c.Environ["PATH"]
 			err = app.ExecuteBootstrap()
 			if err != nil {
 				_ = os.RemoveAll(bootstrapDir)
