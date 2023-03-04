@@ -60,7 +60,7 @@ func (f *CmdFlag) Parse() (CmdAction, error) {
 	f.flagLen = f.host.NFlag() * 2
 	f.argLen = f.host.NArg()
 	f.osArgLen = len(os.Args) - 1
-	if (f.osArgLen - f.argLen) < 0 {
+	if (f.osArgLen - f.argLen) < 0 || (f.argLen + f.flagLen) == 0 {
 		return nil, errors.New("invalid length of args,use '-help' for usage")
 	}
 	idxArgAct := f.flagLen + 1
