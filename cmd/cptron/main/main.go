@@ -4,6 +4,7 @@ import (
 	"cryphtron"
 	"cryphtron/cmd/cptron"
 	"cryphtron/cmd/cptron/actions"
+	"os"
 
 	"github.com/skerkour/rz"
 )
@@ -53,5 +54,7 @@ func main() {
 		errLogger.Println(err.Error())
 		return
 	}
+
+	os.Exit(0)
 
 }
