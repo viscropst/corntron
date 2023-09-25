@@ -4,6 +4,8 @@ import (
 	"cryphtron/core"
 	"cryphtron/internal"
 	"errors"
+	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -21,6 +23,16 @@ func (c *Core) execCmd(command *core.Command, scope *internal.ValueScope) error 
 	pthVal := scope.Env["PATH"]
 	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, c.Environ["PATH"], 1)
 	scope.Env["PATH"] = pthVal
+
+	os.Setenv("PATH", scope.Env["PATH"])
+	if path, err := exec.LookPath(command.Exec); err != nil {
+		errBuilder := strings.Builder{}
+		errBuilder.WriteString("exec argument invalid: the command could not found")
+		return errors.New(errBuilder.String())
+	} else {
+		command.Exec = path
+	}
+	os.Unsetenv("PATH")
 
 	err := command.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {

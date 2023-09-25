@@ -6,7 +6,6 @@ import (
 	ct_core "cryphtron/core"
 	"errors"
 	"os"
-	"os/exec"
 	"runtime"
 	"strings"
 
@@ -46,15 +45,13 @@ func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
 		cptron.CliLog(rz.WarnLevel).Println("warn:no command to exec,will use default shell or cmd")
 	}
 
-	if path, err := exec.LookPath(c.Execute); err != nil {
+	if len(c.Execute) == 0 {
 		errBuilder := strings.Builder{}
 		errBuilder.WriteString("exec argument invalid: usage ")
 		errBuilder.WriteString(info.CmdName + " ")
 		errBuilder.WriteString(info.Name + " ")
 		errBuilder.WriteString("<command>")
 		return errors.New(errBuilder.String())
-	} else {
-		c.Execute = path
 	}
 
 	if len(os.Args) > argCmdIdx+1 {

@@ -23,6 +23,7 @@ func main() {
 
 	flags := cliFlags{}.Init()
 	errLogger := cptron.CliLog(rz.ErrorLevel)
+
 	action, err := flags.Parse()
 	defer cptron.CliExit(err, err != nil && !flags.NoWaiting)
 	if err != nil {
