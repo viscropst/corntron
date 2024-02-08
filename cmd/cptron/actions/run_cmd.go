@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/skerkour/rz"
+	"github.com/rs/zerolog"
 )
 
 type runCmd struct {
@@ -42,7 +42,7 @@ func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
 			}
 		default:
 		}
-		cptron.CliLog(rz.WarnLevel).Println("warn:no command to exec,will use default shell or cmd")
+		cptron.CliLog(zerolog.WarnLevel).Println("no command to exec,will use default shell or cmd")
 	}
 
 	if len(c.Execute) == 0 {

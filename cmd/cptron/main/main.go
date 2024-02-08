@@ -6,7 +6,7 @@ import (
 	"cryphtron/cmd/cptron/actions"
 	"os"
 
-	"github.com/skerkour/rz"
+	"github.com/rs/zerolog"
 )
 
 type cliFlags struct {
@@ -22,12 +22,12 @@ func (f cliFlags) Init() *cliFlags {
 func main() {
 
 	flags := cliFlags{}.Init()
-	errLogger := cptron.CliLog(rz.ErrorLevel)
+	errLogger := cptron.CliLog(zerolog.ErrorLevel)
 
 	action, err := flags.Parse()
 	defer cptron.CliExit(err, err != nil && !flags.NoWaiting)
 	if err != nil {
-		errLogger.Println("error:", err)
+		errLogger.Println(err)
 		return
 	}
 

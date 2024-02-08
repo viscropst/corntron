@@ -4,9 +4,9 @@ import (
 	"cryphtron/core"
 	"log"
 
-	"github.com/skerkour/rz"
+	"github.com/rs/zerolog"
 )
 
-func CliLog(levels ...rz.LogLevel) *log.Logger {
+func CliLog(levels ...zerolog.Level) *log.Logger {
 	return core.LogCLI(levels...)
 }

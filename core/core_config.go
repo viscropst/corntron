@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/BurntSushi/toml"
-	"github.com/skerkour/rz"
+	"github.com/rs/zerolog"
 )
 
 type MainConfig struct {
@@ -104,7 +104,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	basePath, _ := os.Executable()
 	basePath, _ = filepath.EvalSymlinks(basePath)
 	if len(basePath) == 0 && len(altBases) == 0 {
-		LogCLI(rz.FatalLevel).Println("Could not load workdir,use altBase instead")
+		LogCLI(zerolog.FatalLevel).Println("Could not load workdir,use altBase instead")
 	}
 	basePath = filepath.Dir(basePath)
 
@@ -115,7 +115,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	var result = defaultCoreConfig
 	err := loadConfigRegular("core", &result, basePath)
 	if err != nil {
-		LogCLI(rz.WarnLevel).Println("WARN:>", err.Error())
+		LogCLI(zerolog.WarnLevel).Println(err.Error())
 	}
 
 	if result.CurrentDir == execDirWithoutLink {
