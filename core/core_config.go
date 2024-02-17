@@ -12,19 +12,19 @@ import (
 )
 
 type MainConfig struct {
-	CurrentDir string
-	RuntimeDir string
-	CornDir    string
-	MirrorType string
-	WithApp    bool
+	CurrentDir     string `toml:"base_dir,omitempty"`
+	RuntimeDirName string `toml:"runtime_dirname,omitempty"`
+	CornDirName    string `toml:"corn_dirname,omitempty"`
+	MirrorType     string `toml:"mirror_type,omitempty"`
+	WithCorn       bool   `toml:"with_corn"`
 }
 
 func (c MainConfig) RuntimesPath() string {
-	return filepath.Join(c.CurrentDir, c.RuntimeDir)
+	return filepath.Join(c.CurrentDir, c.RuntimeDirName)
 }
 
 func (c MainConfig) CornsPath() string {
-	return filepath.Join(c.CurrentDir, c.CornDir)
+	return filepath.Join(c.CurrentDir, c.CornDirName)
 }
 
 func (c MainConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
@@ -52,9 +52,9 @@ func (c MainConfig) UnwrapMirrorType() MirrorType {
 const execDirWithoutLink = "${dp0}"
 
 var defaultCoreConfig = MainConfig{
-	CurrentDir: execDirWithoutLink,
-	RuntimeDir: "runtimes",
-	CornDir:    "apps",
+	CurrentDir:     execDirWithoutLink,
+	RuntimeDirName: "runtimes",
+	CornDirName:    "corns",
 }
 
 func loadConfigRegular(config string, value interface{}, altBases ...string) error {
@@ -120,10 +120,6 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 
 	if result.CurrentDir == execDirWithoutLink {
 		result.CurrentDir = basePath
-	}
-
-	if len(result.CornDir) == 0 {
-		result.CornDir = defaultCoreConfig.CornDir
 	}
 
 	return result

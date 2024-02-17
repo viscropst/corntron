@@ -55,14 +55,14 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 			result.RuntimesEnv = append(result.RuntimesEnv, env)
 			return nil
 		},
-		coreConfig.RuntimeDir, envDirName)
+		coreConfig.RuntimeDirName, envDirName)
 	if err != nil {
 		return result, err
 	}
 
 	err = coreConfig.FsWalk(
 		func(path string, info fs.FileInfo, err error) error {
-			if !coreConfig.WithApp {
+			if !coreConfig.WithCorn {
 				return nil
 			}
 			if info == nil {
@@ -82,7 +82,7 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 			result.CornsEnv[configName] = env
 			return nil
 		},
-		coreConfig.CornDir, envDirName)
+		coreConfig.CornDirName, envDirName)
 	if err != nil {
 		return result, err
 	}

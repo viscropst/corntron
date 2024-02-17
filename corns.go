@@ -25,62 +25,62 @@ func (c Core) ComposeCornEnv(corn *core.CornsEnvConfig) *internal.ValueScope {
 
 func (c *Core) prepareCorn(name string) (*core.CornsEnvConfig, error) {
 	var err error
-	app, ok := c.CornsEnv[name]
+	corn, ok := c.CornsEnv[name]
 	if !ok {
 		return nil,
 			errors.New("could not found the " +
 				core.CornsIdentifier + " named " + name)
 	}
 
-	if !app.MetaOnly {
+	if !corn.MetaOnly {
 		scope := c.ComposeRtEnv()
-		app.AppendEnv(scope.Env)
+		corn.AppendEnv(scope.Env)
 		bootstrapDir := c.Config.CornsPath()
-		bootstrapDir = filepath.Join(bootstrapDir, app.DirName)
+		bootstrapDir = filepath.Join(bootstrapDir, corn.DirName)
 		stat, _ := os.Stat(bootstrapDir)
-		app.Vars["pth_environ"] = c.Environ["PATH"]
+		corn.Vars["pth_environ"] = c.Environ["PATH"]
 		if stat == nil || (stat != nil && !stat.IsDir()) {
 			_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
-			app.AppendEnv(c.Env)
-			err = app.ExecuteBootstrap()
+			corn.AppendEnv(c.Env)
+			err = corn.ExecuteBootstrap()
 			if err != nil {
 				_ = os.RemoveAll(bootstrapDir)
 				newErr := errors.New(
 					"error while bootstrap " +
-						core.CornsIdentifier + "[" + app.ID + "]:")
+						core.CornsIdentifier + "[" + corn.ID + "]:")
 				return nil, errors.Join(newErr, err)
 			}
 		}
 	}
 
-	err = app.ExecuteConfig()
+	err = corn.ExecuteConfig()
 	if err != nil {
 		newErr := errors.New("error while configure " +
-			core.CornsIdentifier + "[" + app.ID + "]:")
+			core.CornsIdentifier + "[" + corn.ID + "]:")
 		return nil, errors.Join(newErr, err)
 	}
 
-	for _, depend := range app.DependCorns {
+	for _, depend := range corn.DependCorns {
 		var cfg *core.CornsEnvConfig
 		cfg, err = c.prepareCorn(depend)
 		if err != nil {
 			return nil, err
 		}
-		app.AppendVars(cfg.Vars)
+		corn.AppendVars(cfg.Vars)
 	}
-	return &app, nil
+	return &corn, nil
 }
 
 func (c *Core) execCorn(name string, isWaiting bool, args ...string) error {
-	app, err := c.prepareCorn(name)
+	corn, err := c.prepareCorn(name)
 	if err != nil {
 		return err
 	}
-	scope := c.ComposeCornEnv(app)
-	cmd := &app.Exec
+	scope := c.ComposeCornEnv(corn)
+	cmd := &corn.Exec
 	if !cmd.CanRunning() {
 		return errors.New(
-			"Cannot running this app(named:" +
+			"Cannot running this corn(named:" +
 				name + ") on current platform")
 	}
 	cmd.Args = append(cmd.Args, args...)

@@ -47,7 +47,7 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 	result.host.BoolVar(&result.NoWaiting, "no-wait", false, "executing cryptron without waiting")
 	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<cryphtron config folder>")
 	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")
-	result.host.StringVar(&result.EditorBase, "app-base", "", "/path/to/your/<editor profiles folder>")
+	result.host.StringVar(&result.EditorBase, "corn-base", "", "/path/to/your/<corns profiles folder>")
 	result.host.StringVar(&result.EnvDirname, "env-dirname", "", "<folder name of env files to store>")
 	return result
 }

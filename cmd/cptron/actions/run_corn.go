@@ -40,7 +40,7 @@ func (c *runCorn) ParseArg(info cptron.FlagInfo) error {
 }
 
 func (c *runCorn) BeforeCore(coreConfig *core.MainConfig) error {
-	coreConfig.WithApp = true
+	coreConfig.WithCorn = true
 	return nil
 }
 

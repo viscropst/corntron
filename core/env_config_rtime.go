@@ -62,7 +62,7 @@ func (c *RtEnvConfig) initRtVars() {
 	vars := make(map[string]string)
 
 	if coreConfig := c.coreConfig; coreConfig != nil {
-		baseDir := filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDir)
+		baseDir := filepath.Join(coreConfig.CurrentDir, coreConfig.RuntimeDirName)
 		vars = map[string]string{
 			RtIdentifier + "_dir":   baseDir,
 			RtIdentifier + "_cache": filepath.Join(baseDir, c.CacheDir),
