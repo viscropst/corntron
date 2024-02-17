@@ -32,14 +32,17 @@ func (c *Core) prepareCorn(name string) (*core.CornsEnvConfig, error) {
 				core.CornsIdentifier + " named " + name)
 	}
 
+	currentCornDir := c.Config.CornWithRunningDir()
+	if ifFolderNotExists(currentCornDir) {
+		_ = os.MkdirAll(currentCornDir, os.ModeDir|0o666)
+	}
+
 	if !corn.MetaOnly {
 		scope := c.ComposeRtEnv()
 		corn.AppendEnv(scope.Env)
-		bootstrapDir := c.Config.CornsPath()
-		bootstrapDir = filepath.Join(bootstrapDir, corn.DirName)
-		stat, _ := os.Stat(bootstrapDir)
+		bootstrapDir := filepath.Join(currentCornDir, corn.DirName)
 		corn.Vars["pth_environ"] = c.Environ["PATH"]
-		if stat == nil || (stat != nil && !stat.IsDir()) {
+		if ifFolderNotExists(bootstrapDir) {
 			_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
 			corn.AppendEnv(c.Env)
 			err = corn.ExecuteBootstrap()

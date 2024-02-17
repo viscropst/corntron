@@ -4,8 +4,23 @@ import (
 	"cryphtron/core"
 	"cryphtron/internal"
 	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 )
+
+func LoadCoreConfigWithRuningBase(runningBase string, altBases ...string) core.MainConfig {
+	result := LoadCoreConfig(altBases...)
+	if len(runningBase) > 0 && !filepath.IsAbs(runningBase) {
+		result.RunningDir = filepath.Join(result.CurrentDir, runningBase)
+		return result
+	}
+	if len(runningBase) > 0 && filepath.IsAbs(runningBase) {
+		result.RunningDir = runningBase
+		return result
+	}
+	return result
+}
 
 func LoadCoreConfig(altBases ...string) core.MainConfig {
 	return core.LoadCoreConfig(altBases...)
@@ -88,4 +103,9 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	}
 
 	return result, nil
+}
+
+func ifFolderNotExists(path string) bool {
+	stat, _ := os.Stat(path)
+	return stat == nil || (stat != nil && !stat.IsDir())
 }

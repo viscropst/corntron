@@ -46,9 +46,9 @@ func (c *CornsEnvConfig) initCornVars() {
 	vars := make(map[string]string)
 
 	if coreConfig != nil {
-		baseDir := c.cornsDir()
+		baseDir := coreConfig.CornsPath()
 		vars = map[string]string{
-			CornsIdentifier + "_dir":      baseDir,
+			CornsIdentifier + "_dir":      coreConfig.CornWithRunningDir(),
 			CornsIdentifier + "_cache":    filepath.Join(baseDir, c.CacheDir),
 			CornsIdentifier + "_home":     filepath.Join(baseDir, "_home"),
 			CornsIdentifier + "_dir_envs": filepath.Join(baseDir, c.envDirname),

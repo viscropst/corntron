@@ -1,6 +1,7 @@
 package core
 
 import (
+	"cryphtron/internal"
 	"errors"
 	"io/fs"
 	"os"
@@ -12,11 +13,13 @@ import (
 )
 
 type MainConfig struct {
-	CurrentDir     string `toml:"base_dir,omitempty"`
-	RuntimeDirName string `toml:"runtime_dirname,omitempty"`
-	CornDirName    string `toml:"corn_dirname,omitempty"`
-	MirrorType     string `toml:"mirror_type,omitempty"`
-	WithCorn       bool   `toml:"with_corn"`
+	CurrentDir           string            `toml:"base_dir,omitempty"`
+	RunningDir           string            `toml:"-"`
+	RuntimeDirName       string            `toml:"runtime_dirname,omitempty"`
+	CornDirName          string            `toml:"corn_dirname,omitempty"`
+	MirrorType           string            `toml:"mirror_type,omitempty"`
+	WithCorn             bool              `toml:"with_corn"`
+	RunningDirByPlatfrom map[string]string `toml:"running_dir,omitempty"`
 }
 
 func (c MainConfig) RuntimesPath() string {
@@ -25,6 +28,14 @@ func (c MainConfig) RuntimesPath() string {
 
 func (c MainConfig) CornsPath() string {
 	return filepath.Join(c.CurrentDir, c.CornDirName)
+}
+
+func (c MainConfig) RtWithRunningDir() string {
+	return filepath.Join(c.RunningDir, c.RuntimeDirName)
+}
+
+func (c MainConfig) CornWithRunningDir() string {
+	return filepath.Join(c.RunningDir, c.CornDirName)
 }
 
 func (c MainConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
@@ -53,6 +64,7 @@ const execDirWithoutLink = "${dp0}"
 
 var defaultCoreConfig = MainConfig{
 	CurrentDir:     execDirWithoutLink,
+	RunningDir:     execDirWithoutLink,
 	RuntimeDirName: "runtimes",
 	CornDirName:    "corns",
 }
@@ -120,6 +132,21 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 
 	if result.CurrentDir == execDirWithoutLink {
 		result.CurrentDir = basePath
+	}
+
+	if result.RunningDir == execDirWithoutLink {
+		result.RunningDir = basePath
+	}
+
+	if path, ok := result.RunningDirByPlatfrom[internal.OsId("")]; ok {
+		result.RunningDir = path
+	}
+	if path, ok := result.RunningDirByPlatfrom[internal.PlatId("")]; ok {
+		result.RunningDir = path
+	}
+
+	if !filepath.IsAbs(result.RunningDir) {
+		result.RunningDir = filepath.Join(basePath, result.RunningDir)
 	}
 
 	return result

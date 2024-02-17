@@ -100,7 +100,7 @@ func BaseEnv(coreConfig MainConfig, altEnvDirname ...string) envConfig {
 	tmp.setCacheDirname()
 	tmp.setEnvDirname(altEnvDirname...)
 	tmp = tmp.setCore(coreConfig)
-	tmp.AppendVar("base_dir", coreConfig.CurrentDir)
+	tmp.AppendVar("base_dir", coreConfig.RunningDir)
 	tmp.AppendVar(CornsIdentifier+"_dirname", coreConfig.CornDirName)
 	tmp.AppendVar(RtIdentifier+"_dirname", coreConfig.RuntimeDirName)
 	return tmp

@@ -35,7 +35,7 @@ func main() {
 	if len(flags.ConfigBase) > 0 {
 		confBase = append(confBase, flags.ConfigBase)
 	}
-	coreConfig := cryphtron.LoadCoreConfig(confBase...)
+	coreConfig := cryphtron.LoadCoreConfigWithRuningBase(flags.RunningBase, confBase...)
 
 	err = action.BeforeCore(&coreConfig)
 	if err != nil {
