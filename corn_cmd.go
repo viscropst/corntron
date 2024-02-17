@@ -17,15 +17,10 @@ func (c *Core) ExecCmd(command string, isWaiting bool, args ...string) error {
 		WithNoWait: !isWaiting,
 	}
 
-	if exec, err := c.checkByPATH(cmd, scope); err != nil {
-		return err
-	} else {
-		cmd.Exec = exec
-	}
 	return c.execCmd(&cmd, scope)
 }
 
-func (c *Core) checkByPATH(command core.Command, scope *internal.ValueScope) (string, error) {
+func (c *Core) checkByPATH(command *core.Command, scope *internal.ValueScope) (string, error) {
 	pthVal := scope.Env["PATH"]
 	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, c.Environ["PATH"], 1)
 	scope.Env["PATH"] = pthVal
@@ -42,6 +37,9 @@ func (c *Core) checkByPATH(command core.Command, scope *internal.ValueScope) (st
 }
 
 func (c *Core) execCmd(command *core.Command, scope *internal.ValueScope) error {
+	if exec, err := c.checkByPATH(command, scope); err == nil {
+		command.Exec = exec
+	}
 	err := command.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
 		newErr := errors.New("error while executing")
