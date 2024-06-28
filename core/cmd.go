@@ -19,6 +19,9 @@ func (sp *splitString) ToArray() []string {
 	if len(sp.Replaces) == 2 {
 		sp.SourceStr = strings.ReplaceAll(
 			sp.SourceStr, sp.Replaces[0], sp.Replaces[1])
+		if sp.Replaces[0] == "\n" && internal.OsId("") == "windows" {
+			sp.SourceStr = strings.ReplaceAll(sp.SourceStr, "\r", "")
+		}
 	}
 	if sp.SplitNum != 0 {
 		return strings.SplitN(sp.SourceStr, sp.SplitStr, int(sp.SplitNum))
