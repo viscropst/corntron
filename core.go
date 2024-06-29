@@ -44,6 +44,10 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 		Vars: make(map[string]string),
 	}
 
+	if !coreConfig.IsUserProfile() {
+		result.ProfileDir = coreConfig.ProfileDir
+	}
+
 	envDirName := "_env"
 	if len(altNames) > 0 {
 		envDirName = altNames[0]

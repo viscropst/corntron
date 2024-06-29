@@ -20,6 +20,7 @@ type MainConfig struct {
 	MirrorType           string            `toml:"mirror_type,omitempty"`
 	WithCorn             bool              `toml:"with_corn"`
 	RunningDirByPlatfrom map[string]string `toml:"running_dir,omitempty"`
+	ProfileDir           string            `toml:"profile_dir,omitempty"`
 }
 
 func (c MainConfig) RuntimesPath() string {
@@ -61,12 +62,20 @@ func (c MainConfig) UnwrapMirrorType() MirrorType {
 }
 
 const execDirWithoutLink = "${dp0}"
+const profileAsUserProfile = "${userprofile}"
+
+func (c MainConfig) IsUserProfile() bool {
+	return (c.ProfileDir == profileAsUserProfile)
+}
+
+const profileAsCurrentDir = "${currentdir}"
 
 var defaultCoreConfig = MainConfig{
 	CurrentDir:     execDirWithoutLink,
 	RunningDir:     execDirWithoutLink,
 	RuntimeDirName: "runtimes",
 	CornDirName:    "corns",
+	ProfileDir:     profileAsUserProfile,
 }
 
 func loadConfigRegular(config string, value interface{}, altBases ...string) error {
@@ -136,6 +145,15 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 
 	if result.RunningDir == execDirWithoutLink {
 		result.RunningDir = basePath
+	}
+
+	if result.ProfileDir != profileAsUserProfile &&
+		filepath.IsLocal(result.ProfileDir) {
+		result.ProfileDir = filepath.Join(basePath, result.ProfileDir)
+	}
+
+	if result.ProfileDir == profileAsCurrentDir {
+		result.ProfileDir = filepath.Join(basePath, "profile")
 	}
 
 	if path, ok := result.RunningDirByPlatfrom[internal.OsId("")]; ok {

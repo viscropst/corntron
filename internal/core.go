@@ -8,7 +8,8 @@ import (
 
 type Core struct {
 	*ValueScope
-	Environ map[string]string
+	Environ    map[string]string
+	ProfileDir string
 }
 
 func (c *Core) fillEnviron() {
@@ -59,7 +60,11 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("WINDIR")
 		c.assignWithEnviron("OS")
 		c.assignWithEnviron("LOCALAPPDATA")
-		c.assignWithEnviron("USERPROFILE")
+		if c.ProfileDir != "" {
+			c.Env["USERPROFILE"] = c.ProfileDir
+		} else {
+			c.assignWithEnviron("USERPROFILE")
+		}
 		c.assignWithEnviron("PROGRAMW6432")
 		c.assignWithEnviron("PATHEXT")
 		c.assignWithEnviron("SYSTEMDRIVE")
@@ -72,6 +77,11 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("PWD")
 		c.assignWithEnviron("LANG")
 		c.assignWithEnviron("TMPDIR")
+		if c.ProfileDir != "" {
+			c.Env["HOME"] = c.ProfileDir
+		} else {
+			c.assignWithEnviron("HOME")
+		}
 	default:
 	}
 
