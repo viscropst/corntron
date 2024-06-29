@@ -147,13 +147,13 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 		result.RunningDir = basePath
 	}
 
+	if result.ProfileDir == profileAsCurrentDir {
+		result.ProfileDir = filepath.Join(basePath, "profile")
+	}
+
 	if result.ProfileDir != profileAsUserProfile &&
 		filepath.IsLocal(result.ProfileDir) {
 		result.ProfileDir = filepath.Join(basePath, result.ProfileDir)
-	}
-
-	if result.ProfileDir == profileAsCurrentDir {
-		result.ProfileDir = filepath.Join(basePath, "profile")
 	}
 
 	if path, ok := result.RunningDirByPlatfrom[internal.OsId("")]; ok {
