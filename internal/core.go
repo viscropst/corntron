@@ -57,6 +57,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("TEMP")
 		c.assignWithEnviron("TMP")
 		c.assignWithEnviron("WINDIR")
+		c.assignWithEnviron("OS")
 		c.assignWithEnviron("LOCALAPPDATA")
 		c.assignWithEnviron("USERPROFILE")
 		c.assignWithEnviron("PROGRAMW6432")
