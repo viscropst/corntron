@@ -101,6 +101,9 @@ func BaseEnv(coreConfig MainConfig, altEnvDirname ...string) envConfig {
 	tmp.setEnvDirname(altEnvDirname...)
 	tmp = tmp.setCore(coreConfig)
 	tmp.AppendVar("base_dir", coreConfig.RunningDir)
+	if !coreConfig.IsUserProfile() {
+		tmp.AppendVar("profile", coreConfig.ProfileDir)
+	}
 	tmp.AppendVar(CornsIdentifier+"_dirname", coreConfig.CornDirName)
 	tmp.AppendVar(RtIdentifier+"_dirname", coreConfig.RuntimeDirName)
 	return tmp
