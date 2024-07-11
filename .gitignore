@@ -57,4 +57,5 @@ Thumbs.db
 # Miscs
 go.sum
 cr_testf
+.local
 
