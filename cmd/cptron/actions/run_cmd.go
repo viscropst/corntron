@@ -73,13 +73,13 @@ func (c *runCmd) InsertFlags(flag *cptron.CmdFlag) error {
 func (c *runCmd) Exec(core *cryphtron.Core) error {
 	var err error
 
-	err = core.ProcessRtBootstrap()
+	err = core.ProcessRtBootstrap(false)
 	if err != nil {
 		newErr := errors.New("error while bootstrapping")
 		return errors.Join(newErr, err)
 	}
 
-	err = core.ProcessRtMirror()
+	err = core.ProcessRtMirror(false)
 	if err != nil {
 		newErr := errors.New("error while processing mirror")
 		return errors.Join(newErr, err)

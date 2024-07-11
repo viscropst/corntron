@@ -50,16 +50,16 @@ func (c *runCorn) InsertFlags(flag *cptron.CmdFlag) error {
 }
 
 func (c *runCorn) Exec(core *cryphtron.Core) error {
-	err := core.ProcessRtBootstrap()
+	err := core.ProcessRtBootstrap(true)
 	if err != nil {
 		newErr := errors.New("error while bootstrapping")
-		return errors.Join(newErr, err)
+		cptron.CliLog().Println(errors.Join(newErr, err))
 	}
 
-	err = core.ProcessRtMirror()
+	err = core.ProcessRtMirror(true)
 	if err != nil {
 		newErr := errors.New("error while processing mirror")
-		return errors.Join(newErr, err)
+		cptron.CliLog().Println(errors.Join(newErr, err))
 	}
 	return core.ExecCorn(c.appName, c.globalWaiting, c.args...)
 }

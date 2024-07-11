@@ -1,11 +1,14 @@
 package cryphtron
 
 import (
+	"cryphtron/core"
 	"cryphtron/internal"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/rs/zerolog"
 )
 
 func (c Core) ComposeRtEnv() *internal.ValueScope {
@@ -27,7 +30,9 @@ func (c Core) ComposeRtEnv() *internal.ValueScope {
 	return c.ValueScope
 }
 
-func (c Core) ProcessRtMirror() error {
+// ProcessRtBootstrap will execute bootstrap for each runtime.
+// If ifResume is true, it will skip if runtime mirror cannot execute.
+func (c Core) ProcessRtMirror(ifResume bool) error {
 	mirrorType := c.Config.UnwrapMirrorType()
 	c.Prepare()
 	for _, config := range c.RuntimesEnv {
@@ -36,13 +41,16 @@ func (c Core) ProcessRtMirror() error {
 		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteMirrors(mirrorType)
 		if err != nil {
-			return fmt.Errorf("mirror[%s]:%s", mirrorType, err.Error())
+			err = fmt.Errorf(core.RtIdentifier+" mirror[%s]:%s", mirrorType, err.Error())
+			return err
 		}
 	}
 	return nil
 }
 
-func (c Core) ProcessRtBootstrap() error {
+// ProcessRtBootstrap will execute bootstrap for each runtime.
+// If ifResume is true, it will skip if runtime bootstrap cannot execute.
+func (c Core) ProcessRtBootstrap(ifResume bool) error {
 	c.Prepare()
 	currentRtDir := c.Config.RtWithRunningDir()
 	if ifFolderNotExists(currentRtDir) {
@@ -62,8 +70,12 @@ func (c Core) ProcessRtBootstrap() error {
 		err := config.ExecuteBootstrap()
 		if err != nil {
 			_ = os.RemoveAll(bootstrapDir)
-			return fmt.Errorf("bootstrsp[%s]:%s",
+			err = fmt.Errorf(core.RtIdentifier+" bootstrsp[%s]:%s",
 				config.DirName, err.Error())
+			core.LogCLI(zerolog.ErrorLevel).Println(err)
+			if ifResume {
+				return err
+			}
 		}
 	}
 	return nil
