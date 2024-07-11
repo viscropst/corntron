@@ -43,6 +43,7 @@ func zeroLogger(level ...zerolog.Level) xLogger {
 	zerolog.FormattedLevels[zerolog.ErrorLevel] = "error:"
 	zerolog.FormattedLevels[zerolog.WarnLevel] = "WARN:>"
 	zerolog.FormattedLevels[zerolog.FatalLevel] = "fatal:"
+	zerolog.FormattedLevels[zerolog.DebugLevel] = "debug:"
 	zLog.logger = zerolog.New(cw)
 	return zLog
 }
