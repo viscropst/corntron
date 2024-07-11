@@ -15,7 +15,7 @@ type ValueScope struct {
 
 const valueRefFormat = "#{%s}"
 const selectorPrefix = "+"
-const platArchSeprator = ":"
+const platArchSeprator = "-"
 const funcSeprator = ":"
 
 func OsId(prefix string) string {

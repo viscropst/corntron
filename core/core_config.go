@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/rs/zerolog"
@@ -69,6 +70,8 @@ func (c MainConfig) IsUserProfile() bool {
 }
 
 const profileAsCurrentDir = "${currentdir}"
+
+const platId = "${platid}"
 
 var defaultCoreConfig = MainConfig{
 	CurrentDir:     execDirWithoutLink,
@@ -161,6 +164,8 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	}
 	if path, ok := result.RunningDirByPlatfrom[internal.PlatId("")]; ok {
 		result.RunningDir = path
+		result.RunningDir = strings.ReplaceAll(path,
+			platId, internal.PlatId(""))
 	}
 
 	if !filepath.IsAbs(result.RunningDir) {
