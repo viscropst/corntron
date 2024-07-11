@@ -72,7 +72,30 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("PROCESSOR_ARCHITECTURE")
 		c.Env["ProgramFiles(x86)"] = c.Environ["PROGRAMFILES"] + " (x86)"
 		c.Env["PSExecutionPolicyPreference"] = "RemoteSigned"
-	case "linux", "freebsd", "openbsd", "macos", "ios", "android":
+	case "linux", "freebsd", "openbsd":
+		c.assignWithEnviron("SSH_AUTH_SOCK")
+		c.assignWithEnviron("SSH_ASKPASS")
+		c.assignWithEnviron("DISPLAY")
+		c.assignWithEnviron("WAYLAND_DISPLAY")
+		c.assignWithEnviron("SESSION_MANAGER")
+		c.assignWithEnviron("XDG_DATA_DIRS")
+		c.assignWithEnviron("XDG_CONFIG_DIRS")
+		c.assignWithEnviron("XDG_CONFIG_HOME")
+		c.assignWithEnviron("XDG_RUNTIME_DIR")
+		c.assignWithEnviron("XDG_CACHE_HOME")
+		c.assignWithEnviron("XDG_SESSION_TYPE")
+		c.assignWithEnviron("XDG_SESSION_PATH")
+		c.assignWithEnviron("XDG_SESSION_CLASS")
+		c.assignWithEnviron("XDG_SEAT_PATH")
+		c.assignWithEnviron("XDG_CURRENT_DESKTOP")
+		c.assignWithEnviron("XDG_SESSION_DESKTOP")
+		c.assignWithEnviron("ICEAUTHORITY")
+		c.assignWithEnviron("XAUTHORITY")
+		c.assignWithEnviron("DBUS_SESSION_BUS_ADDRESS")
+		c.assignWithEnviron("GTK_RC_FILES")
+		c.assignWithEnviron("GTK2_RC_FILES")
+		fallthrough
+	case "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
 		c.assignWithEnviron("LANG")
