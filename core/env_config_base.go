@@ -77,8 +77,7 @@ func (c *envConfig) ExecuteBootstrap() error {
 		}
 		bootstraps = append(bootstraps, v)
 	}
-	c.BootstrapExec = append(c.BootstrapExec, bootstraps...)
-	for _, command := range c.BootstrapExec {
+	for _, command := range bootstraps {
 		cmd := command.Prepare().
 			SetEnv(c.Env)
 		cmd.Env["PATH"] = strings.Replace(
