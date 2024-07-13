@@ -100,6 +100,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("PWD")
 		c.assignWithEnviron("LANG")
 		c.assignWithEnviron("TMPDIR")
+		c.assignWithEnviron("TERM")
 		if c.ProfileDir != "" {
 			c.Env["HOME"] = c.ProfileDir
 		} else {
