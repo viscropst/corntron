@@ -34,12 +34,13 @@ const (
 type envConfig struct {
 	coreConfig *MainConfig
 	internal.ValueScope
-	envDirname    string
-	envName       string
-	ID            string    `toml:"-"`
-	CacheDir      string    `toml:"cache_dir"`
-	DirName       string    `toml:"dir_name"`
-	BootstrapExec []Command `toml:"bootstrap_exec"`
+	envDirname       string
+	envName          string
+	ID               string    `toml:"-"`
+	CacheDir         string    `toml:"cache_dir"`
+	DirName          string    `toml:"dir_name"`
+	BootstrapExec    []Command `toml:"bootstrap_exec"`
+	IsCommonPlatform bool      `toml:"is_common_platform"`
 }
 
 func (c envConfig) setCore(coreConfig MainConfig) envConfig {

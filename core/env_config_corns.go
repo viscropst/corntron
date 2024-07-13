@@ -1,14 +1,11 @@
 package core
 
 import (
+	"errors"
 	"path/filepath"
 )
 
 const CornsIdentifier = "corn"
-
-func (c *envConfig) cornsDir() string {
-	return c.coreConfig.CornsPath()
-}
 
 type CornsEnvConfig struct {
 	envConfig
@@ -46,12 +43,15 @@ func (c *CornsEnvConfig) initCornVars() {
 	vars := make(map[string]string)
 
 	if coreConfig != nil {
-		baseDir := coreConfig.CornsPath()
+		baseDir := coreConfig.CornDir()
 		vars = map[string]string{
 			CornsIdentifier + "_dir":      coreConfig.CornWithRunningDir(),
 			CornsIdentifier + "_cache":    filepath.Join(baseDir, c.CacheDir),
 			CornsIdentifier + "_home":     filepath.Join(baseDir, "_home"),
 			CornsIdentifier + "_dir_envs": filepath.Join(baseDir, c.envDirname),
+		}
+		if c.IsCommonPlatform {
+			vars[CornsIdentifier+"_dir"] = baseDir
 		}
 	}
 	if c.Top != nil {
@@ -67,12 +67,16 @@ func (c *CornsEnvConfig) initCornVars() {
 
 func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 	result := CornsEnvConfig{}
+	if base.coreConfig == nil {
+		return result, errors.New("could not loading the env wihout core config")
+	}
 	result.envConfig = base
 	result.ID = CornsIdentifier + "_" + name
 	result.envName = name
 	result.initCornVars()
 
-	loadPath := filepath.Join(result.cornsDir(), result.envDirname)
+	loadPath := filepath.Join(
+		result.coreConfig.CornDir(), result.envDirname)
 	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
 		return result, err

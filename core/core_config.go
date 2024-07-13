@@ -24,11 +24,11 @@ type MainConfig struct {
 	ProfileDir           string            `toml:"profile_dir,omitempty"`
 }
 
-func (c MainConfig) RuntimesPath() string {
+func (c MainConfig) RuntimeDir() string {
 	return filepath.Join(c.CurrentDir, c.RuntimeDirName)
 }
 
-func (c MainConfig) CornsPath() string {
+func (c MainConfig) CornDir() string {
 	return filepath.Join(c.CurrentDir, c.CornDirName)
 }
 
@@ -159,14 +159,18 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 		result.ProfileDir = filepath.Join(basePath, result.ProfileDir)
 	}
 
+	result.RunningDir = platId
+	if path, ok := result.RunningDirByPlatfrom[platId]; ok {
+		result.RunningDir = path + result.RunningDir
+	}
 	if path, ok := result.RunningDirByPlatfrom[internal.OsId("")]; ok {
 		result.RunningDir = path
 	}
 	if path, ok := result.RunningDirByPlatfrom[internal.PlatId("")]; ok {
 		result.RunningDir = path
-		result.RunningDir = strings.ReplaceAll(path,
-			platId, internal.PlatId(""))
 	}
+	result.RunningDir = strings.ReplaceAll(result.RunningDir,
+		platId, internal.PlatId(""))
 
 	if !filepath.IsAbs(result.RunningDir) {
 		result.RunningDir = filepath.Join(basePath, result.RunningDir)

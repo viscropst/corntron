@@ -2,13 +2,10 @@ package core
 
 import (
 	"cryphtron/internal"
+	"errors"
 	"path/filepath"
 	"strings"
 )
-
-func (c *envConfig) runtimesDir() string {
-	return c.coreConfig.RuntimesPath()
-}
 
 type RtEnvConfig struct {
 	envConfig
@@ -62,7 +59,7 @@ func (c *RtEnvConfig) initRtVars() {
 	vars := make(map[string]string)
 
 	if coreConfig := c.coreConfig; coreConfig != nil {
-		baseDir := coreConfig.RuntimesPath()
+		baseDir := coreConfig.RuntimeDir()
 		vars = map[string]string{
 			RtIdentifier + "_dir":   coreConfig.RtWithRunningDir(),
 			RtIdentifier + "_cache": filepath.Join(baseDir, c.CacheDir),
@@ -83,6 +80,9 @@ func (c *RtEnvConfig) initRtVars() {
 
 func LoadRtEnv(name string, base envConfig) (RtEnvConfig, error) {
 	result := RtEnvConfig{}
+	if base.coreConfig == nil {
+		return result, errors.New("could not loading the env wihout core config")
+	}
 	result.envConfig = base
 	result.ID = RtIdentifier + "_" + name
 	result.envName = name
@@ -91,7 +91,7 @@ func LoadRtEnv(name string, base envConfig) (RtEnvConfig, error) {
 	}
 	result.initRtVars()
 	loadPath := filepath.Join(
-		result.runtimesDir(), result.envDirname)
+		result.coreConfig.RuntimeDir(), result.envDirname)
 	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
 		return result, err
