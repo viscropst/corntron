@@ -72,7 +72,7 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("PROCESSOR_ARCHITECTURE")
 		c.Env["ProgramFiles(x86)"] = c.Environ["PROGRAMFILES"] + " (x86)"
 		c.Env["PSExecutionPolicyPreference"] = "RemoteSigned"
-	case "linux", "freebsd", "openbsd":
+	case "linux", "freebsd", "openbsd", "macos", "darwin", "ios", "android":
 		c.assignWithEnviron("SSH_AUTH_SOCK")
 		c.assignWithEnviron("SSH_ASKPASS")
 		c.assignWithEnviron("DISPLAY")
@@ -94,8 +94,6 @@ func (c *Core) Prepare() {
 		c.assignWithEnviron("DBUS_SESSION_BUS_ADDRESS")
 		c.assignWithEnviron("GTK_RC_FILES")
 		c.assignWithEnviron("GTK2_RC_FILES")
-		fallthrough
-	case "macos", "ios", "android":
 		c.assignWithEnviron("USER")
 		c.assignWithEnviron("PWD")
 		c.assignWithEnviron("LANG")
