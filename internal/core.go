@@ -44,6 +44,20 @@ func (c *Core) assignWithEnviron(key string) {
 	}
 }
 
+func (c *Core) assertWithEnviron(args ...string) bool {
+	if len(args) == 0 {
+		return false
+	}
+	key := args[0]
+	v, ok := c.Environ[key]
+	if len(args) == 1 {
+		return ok
+	} else {
+		value := args[1]
+		return ok && v == value
+	}
+}
+
 func (c *Core) Prepare() {
 	if c.Environ != nil {
 		return
@@ -86,37 +100,47 @@ func (c *Core) Prepare() {
 		} else {
 			c.assignWithEnviron("HOME")
 		}
-		if _, ok := c.Environ["DESKTOP_SESSION"]; ok {
-			c.assignWithEnviron("DISPLAY")
-			c.assignWithEnviron("SESSION_MANAGER")
-			c.assignWithEnviron("XDG_DATA_DIRS")
-			c.assignWithEnviron("XDG_CONFIG_DIRS")
-			c.assignWithEnviron("XDG_CONFIG_HOME")
-			c.assignWithEnviron("XDG_RUNTIME_DIR")
-			c.assignWithEnviron("XDG_CACHE_HOME")
-			c.assignWithEnviron("XDG_SESSION_TYPE")
-			c.assignWithEnviron("XDG_SESSION_PATH")
-			c.assignWithEnviron("XDG_SESSION_CLASS")
-			c.assignWithEnviron("XDG_SEAT_PATH")
-			c.assignWithEnviron("XDG_CURRENT_DESKTOP")
-			c.assignWithEnviron("XDG_SESSION_DESKTOP")
-			c.assignWithEnviron("ICEAUTHORITY")
-			c.assignWithEnviron("XAUTHORITY")
-			c.assignWithEnviron("GTK_RC_FILES")
-			c.assignWithEnviron("GTK2_RC_FILES")
-			c.assignWithEnviron("INPUT_METHOD")
-			c.assignWithEnviron("XMODIFIERS")
-			c.assignWithEnviron("GTK_IM_MODULE")
-			c.assignWithEnviron("QT_IM_MODULE")
-		}
-		if c.Environ["DESKTOP_SESSION"] == "plasma" {
-			c.assignWithEnviron("PAM_KWALLET5_LOGIN")
-		}
-		if c.Environ["XDG_SESSION_TYPE"] == "wayland" {
-			c.assignWithEnviron("WAYLAND_DISPLAY")
+		if c.assertWithEnviron("DESKTOP_SESSION") {
+			c.unixWithDesktop()
 		}
 
 	default:
 	}
 
+}
+
+func (c *Core) unixWithDesktop() {
+	c.assignWithEnviron("DISPLAY")
+	c.assignWithEnviron("SESSION_MANAGER")
+	c.assignWithEnviron("XDG_DATA_DIRS")
+	c.assignWithEnviron("XDG_CONFIG_DIRS")
+	c.assignWithEnviron("XDG_CONFIG_HOME")
+	c.assignWithEnviron("XDG_RUNTIME_DIR")
+	c.assignWithEnviron("XDG_CACHE_HOME")
+	c.assignWithEnviron("XDG_SESSION_TYPE")
+	c.assignWithEnviron("XDG_SESSION_PATH")
+	c.assignWithEnviron("XDG_SESSION_CLASS")
+	c.assignWithEnviron("XDG_SEAT_PATH")
+	c.assignWithEnviron("XDG_CURRENT_DESKTOP")
+	c.assignWithEnviron("XDG_SESSION_DESKTOP")
+	c.assignWithEnviron("ICEAUTHORITY")
+	c.assignWithEnviron("XAUTHORITY")
+	c.assignWithEnviron("GTK_RC_FILES")
+	c.assignWithEnviron("GTK2_RC_FILES")
+	if c.assertWithEnviron("DESKTOP_SESSION", "plasma") {
+		c.assignWithEnviron("PAM_KWALLET5_LOGIN")
+		c.assignWithEnviron("QT_WAYLAND_DECORATIONS")
+	}
+
+	if c.assertWithEnviron("XDG_SESSION_TYPE", "wayland") {
+		c.assignWithEnviron("WAYLAND_DISPLAY")
+		c.assignWithEnviron("QT_WAYLAND_RECONNECT")
+	}
+
+	if c.assertWithEnviron("XDG_SESSION_TYPE", "x11") {
+		c.assignWithEnviron("INPUT_METHOD")
+		c.assignWithEnviron("XMODIFIERS")
+		c.assignWithEnviron("QT_IM_MODULE")
+		c.assignWithEnviron("GTK_IM_MODULE")
+	}
 }
