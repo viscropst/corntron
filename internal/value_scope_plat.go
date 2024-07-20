@@ -10,15 +10,15 @@ func platMapping[v any](key string, src map[string]v) v {
 		result = v0
 	}
 
-	if v0, ok := src[key+utils.OsId(selectorPrefix)]; ok {
+	if v0, ok := src[key+utils.OsID(selectorPrefix)]; ok {
 		result = v0
 	}
 
-	if v0, ok := src[key+utils.ArchId(selectorPrefix)]; ok {
+	if v0, ok := src[key+utils.ArchID(selectorPrefix)]; ok {
 		result = v0
 	}
 
-	if v0, ok := src[key+utils.PlatId(selectorPrefix)]; ok {
+	if v0, ok := src[key+utils.PlatID(selectorPrefix)]; ok {
 		result = v0
 	}
 	return result

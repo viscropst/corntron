@@ -56,11 +56,11 @@ func (v ValueScope) funcMapping(key string, src map[string]string) string {
 		if !strings.HasPrefix(k, keyFn[0]) {
 			continue
 		}
-		kFn := strings.Split(k, funcSeprator)
-		if len(kFn) < 2 {
+		innerKeyFn := strings.Split(k, funcSeprator)
+		if len(innerKeyFn) < 2 {
 			break
 		}
-		result = v.resolveFn(kFn, v0)
+		result = v.resolveFn(innerKeyFn, v0)
 		if len(result) > 0 {
 			break
 		}

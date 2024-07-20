@@ -9,26 +9,26 @@ var Arch = archNoPrefix
 var Platform = platNoPrefix
 
 func osNoPrefix() string {
-	return OsId("")
+	return OsID("")
 }
 func archNoPrefix() string {
-	return ArchId("")
+	return ArchID("")
 }
 func platNoPrefix() string {
-	return PlatId("")
+	return PlatID("")
 }
 
-func OsId(prefix string) string {
+func OsID(prefix string) string {
 	goosSuffix := prefix + runtime.GOOS
 	return goosSuffix
 }
 
-func ArchId(prefix string) string {
+func ArchID(prefix string) string {
 	goarchSuffix := prefix + runtime.GOARCH
 	return goarchSuffix
 }
 
-func PlatId(prefix string) string {
+func PlatID(prefix string) string {
 	goplatSuffix := prefix +
 		runtime.GOOS +
 		platArchSeprator +
