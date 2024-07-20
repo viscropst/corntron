@@ -14,47 +14,6 @@ type ValueScope struct {
 }
 
 const valueRefFormat = "#{%s}"
-const selectorPrefix = "+"
-const funcSeprator = ":"
-
-func platMapping[v any](key string, src map[string]v) v {
-	var result v
-	if v0, ok := src[key]; ok {
-		result = v0
-	}
-
-	if v0, ok := src[key+utils.OsId(selectorPrefix)]; ok {
-		result = v0
-	}
-
-	if v0, ok := src[key+utils.ArchId(selectorPrefix)]; ok {
-		result = v0
-	}
-
-	if v0, ok := src[key+utils.PlatId(selectorPrefix)]; ok {
-		result = v0
-	}
-	return result
-}
-
-func (v ValueScope) funcMapping(key string, src map[string]string) string {
-	var result string
-	keyFn := strings.Split(key, funcSeprator)
-	for k, v0 := range src {
-		if !strings.HasPrefix(k, keyFn[0]) {
-			continue
-		}
-		kFn := strings.Split(k, funcSeprator)
-		if len(kFn) < 2 {
-			break
-		}
-		result = v.resolveFn(kFn, v0)
-		if len(result) > 0 {
-			break
-		}
-	}
-	return result
-}
 
 func (v ValueScope) mappingScope(key string) string {
 	var result string
@@ -70,6 +29,10 @@ func (v ValueScope) mappingScope(key string) string {
 	envRes := platMapping(keyFn[0], v.Env)
 	if len(envRes) > 0 {
 		result = envRes
+	}
+
+	if tmp := environMapping(keyFn[0]); len(tmp) > 0 {
+		result = tmp
 	}
 
 	if v.Top != nil && result == "" {

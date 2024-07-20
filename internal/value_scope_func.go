@@ -47,6 +47,27 @@ var fnMaps = map[string]func(args ...string) string{
 	},
 }
 
+const funcSeprator = ":"
+
+func (v ValueScope) funcMapping(key string, src map[string]string) string {
+	var result string
+	keyFn := strings.Split(key, funcSeprator)
+	for k, v0 := range src {
+		if !strings.HasPrefix(k, keyFn[0]) {
+			continue
+		}
+		kFn := strings.Split(k, funcSeprator)
+		if len(kFn) < 2 {
+			break
+		}
+		result = v.resolveFn(kFn, v0)
+		if len(result) > 0 {
+			break
+		}
+	}
+	return result
+}
+
 func (v ValueScope) resolveFn(keyFn []string, result string) string {
 	for _, v := range keyFn[1:] {
 		idxLeft := strings.IndexRune(v, rune(fnQuotting[0]))

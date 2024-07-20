@@ -6,9 +6,24 @@ import (
 	"strings"
 )
 
+var environ map[string]string
+
+func environMapping(key string) string {
+	var result string
+	canMapping := strings.HasSuffix(key, selectorPrefix+"environ")
+	if !canMapping {
+		return result
+	}
+	k := strings.TrimSuffix(key, selectorPrefix+"environ")
+	if v0, ok := environ[k]; ok {
+		result = v0
+	}
+	return result
+}
+
 func (c *Core) fillEnviron() {
-	if c.Environ == nil {
-		c.Environ = make(map[string]string)
+	if environ == nil {
+		environ = make(map[string]string)
 	}
 	for _, s := range os.Environ() {
 		pairs := strings.SplitN(s, "=", 2)
@@ -22,8 +37,9 @@ func (c *Core) fillEnviron() {
 		default:
 			key = pairs[0]
 		}
-		c.Environ[key] = pairs[1]
+		environ[key] = pairs[1]
 	}
+	c.Environ = environ
 }
 
 const PathPlaceHolder = "+{PATH}"
