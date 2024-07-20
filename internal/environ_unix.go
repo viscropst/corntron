@@ -43,12 +43,14 @@ func (c *Core) unixEnvWithDesktop() {
 	c.assignWithEnviron("GTK2_RC_FILES")
 	if c.assertWithEnviron("DESKTOP_SESSION", "plasma") {
 		c.assignWithEnviron("PAM_KWALLET5_LOGIN")
-		c.assignWithEnviron("QT_WAYLAND_DECORATIONS")
+		c.assignWithEnviron("KDE_SESSION_VERSION")
+		c.assignWithEnviron("KDE_FULL_SESSION")
 	}
 
 	if c.assertWithEnviron("XDG_SESSION_TYPE", "wayland") {
 		c.assignWithEnviron("WAYLAND_DISPLAY")
 		c.assignWithEnviron("QT_WAYLAND_RECONNECT")
+		c.assignWithEnviron("QT_WAYLAND_DECORATIONS")
 	}
 
 	if c.assertWithEnviron("XDG_SESSION_TYPE", "x11") {
