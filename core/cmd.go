@@ -7,6 +7,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/rs/zerolog"
 )
 
 type splitString struct {
@@ -144,6 +146,8 @@ func (c *Command) Execute(vars ...map[string]string) error {
 	if err != nil {
 		return err
 	}
+
+	LogCLI(zerolog.InfoLevel).Println("executing command", cmd.String())
 	err = cmd.Start()
 	if err != nil {
 		return err
