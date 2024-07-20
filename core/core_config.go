@@ -157,17 +157,17 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 
 func prepareProfileDir(src MainConfig, basePath string) string {
 	result := src.ProfileDir
-	if result != profileAsUserProfile &&
-		filepath.IsLocal(src.ProfileDir) {
-		result = filepath.Join(basePath, src.ProfileDir)
-	} else {
+	if result == profileAsUserProfile {
 		result, _ = os.UserHomeDir()
 	}
 	if result == "" {
 		result = profileAsCurrentDir
 	}
 	if result == profileAsCurrentDir {
-		result = filepath.Join(basePath, "profile")
+		return filepath.Join(basePath, "profile")
+	}
+	if !filepath.IsAbs(result) {
+		return filepath.Join(basePath, result)
 	}
 	return result
 }
