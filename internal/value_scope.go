@@ -179,34 +179,12 @@ func (v *ValueScope) PrepareScope() {
 	v.scopeReady = true
 }
 
-func (v *ValueScope) modifyMap(from, to map[string]string,
-	beforeAdd ...func(k, a, b string) string) map[string]string {
-	if len(from) == 0 {
-		return to
-	}
-	if to == nil {
-		to = make(map[string]string)
-	}
-	for k, v1 := range from {
-		v0, ok := to[k]
-
-		if ok && len(beforeAdd) > 0 {
-			to[k] = beforeAdd[0](k, v0, v1)
-		} else if !ok {
-			to[k] = v1
-		} else {
-			to[k] = v0
-		}
-	}
-	return to
-}
-
 func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 	v.PrepareScope()
 	if len(environ) == 0 {
 		return v
 	}
-	v.Env = v.modifyMap(environ, v.Env, func(k, a, b string) string {
+	v.Env = utils.ModifyMap(environ, v.Env, func(k, a, b string) string {
 		if a == b {
 			return a
 		}
@@ -232,7 +210,7 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 
 func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
 	v.PrepareScope()
-	v.Vars = v.modifyMap(varToAdd, v.Vars)
+	v.Vars = utils.ModifyMap(varToAdd, v.Vars)
 	v.scopeReady = false
 	return v
 }
