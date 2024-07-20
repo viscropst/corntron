@@ -1,7 +1,7 @@
 package core
 
 import (
-	"cryphtron/internal"
+	"cryphtron/internal/utils"
 	"errors"
 	"io/fs"
 	"os"
@@ -163,14 +163,14 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	if path, ok := result.RunningDirByPlatfrom[platId]; ok {
 		result.RunningDir = path + result.RunningDir
 	}
-	if path, ok := result.RunningDirByPlatfrom[internal.OsId("")]; ok {
+	if path, ok := result.RunningDirByPlatfrom[utils.OS()]; ok {
 		result.RunningDir = path
 	}
-	if path, ok := result.RunningDirByPlatfrom[internal.PlatId("")]; ok {
+	if path, ok := result.RunningDirByPlatfrom[utils.Platform()]; ok {
 		result.RunningDir = path
 	}
 	result.RunningDir = strings.ReplaceAll(result.RunningDir,
-		platId, internal.PlatId(""))
+		platId, utils.Platform())
 
 	if !filepath.IsAbs(result.RunningDir) {
 		result.RunningDir = filepath.Join(basePath, result.RunningDir)

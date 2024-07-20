@@ -1,8 +1,8 @@
 package internal
 
 import (
+	"cryphtron/internal/utils"
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -15,26 +15,7 @@ type ValueScope struct {
 
 const valueRefFormat = "#{%s}"
 const selectorPrefix = "+"
-const platArchSeprator = "-"
 const funcSeprator = ":"
-
-func OsId(prefix string) string {
-	goosSuffix := prefix + runtime.GOOS
-	return goosSuffix
-}
-
-func ArchId(prefix string) string {
-	goarchSuffix := prefix + runtime.GOARCH
-	return goarchSuffix
-}
-
-func PlatId(prefix string) string {
-	goplatSuffix := prefix +
-		runtime.GOOS +
-		platArchSeprator +
-		runtime.GOARCH
-	return goplatSuffix
-}
 
 func platMapping[v any](key string, src map[string]v) v {
 	var result v
@@ -42,15 +23,15 @@ func platMapping[v any](key string, src map[string]v) v {
 		result = v0
 	}
 
-	if v0, ok := src[key+OsId(selectorPrefix)]; ok {
+	if v0, ok := src[key+utils.OsId(selectorPrefix)]; ok {
 		result = v0
 	}
 
-	if v0, ok := src[key+ArchId(selectorPrefix)]; ok {
+	if v0, ok := src[key+utils.ArchId(selectorPrefix)]; ok {
 		result = v0
 	}
 
-	if v0, ok := src[key+PlatId(selectorPrefix)]; ok {
+	if v0, ok := src[key+utils.PlatId(selectorPrefix)]; ok {
 		result = v0
 	}
 	return result

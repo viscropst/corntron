@@ -2,6 +2,7 @@ package core
 
 import (
 	"cryphtron/internal"
+	"cryphtron/internal/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -19,7 +20,7 @@ func (sp *splitString) ToArray() []string {
 	if len(sp.Replaces) == 2 {
 		sp.SourceStr = strings.ReplaceAll(
 			sp.SourceStr, sp.Replaces[0], sp.Replaces[1])
-		if sp.Replaces[0] == "\n" && internal.OsId("") == "windows" {
+		if sp.Replaces[0] == "\n" && utils.OS() == "windows" {
 			sp.SourceStr = strings.ReplaceAll(sp.SourceStr, "\r", "")
 		}
 	}
@@ -43,9 +44,9 @@ type Command struct {
 
 func (c *Command) CanRunning() bool {
 	var canRunning = len(c.PlatStr) == 0
-	canRunning = canRunning || c.PlatStr == internal.ArchId("")
-	canRunning = canRunning || c.PlatStr == internal.OsId("")
-	canRunning = canRunning || c.PlatStr == internal.PlatId("")
+	canRunning = canRunning || c.PlatStr == utils.Arch()
+	canRunning = canRunning || c.PlatStr == utils.OS()
+	canRunning = canRunning || c.PlatStr == utils.Platform()
 	return canRunning
 }
 

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"cryphtron/internal/utils"
 	"errors"
 	"path/filepath"
 )
@@ -9,10 +10,11 @@ const CornsIdentifier = "corn"
 
 type CornsEnvConfig struct {
 	envConfig
-	MetaOnly    bool      `toml:"meta-only"`
-	DependCorns []string  `toml:"depend-corns"`
-	ConfigExec  []Command `toml:"config-exec"`
-	Exec        Command   `toml:"exec"`
+	MetaOnly    bool               `toml:"meta-only"`
+	DependCorns []string           `toml:"depend-corns"`
+	ConfigExec  []Command          `toml:"config-exec"`
+	Exec        Command            `toml:"exec"`
+	ExecByPlats map[string]Command `toml:"exec-by-plat"`
 }
 
 func (c CornsEnvConfig) ExecuteConfig() error {
@@ -92,6 +94,14 @@ func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 
 	for idx := range result.ConfigExec {
 		result.ConfigExec[idx].Top = &result.ValueScope
+	}
+
+	if exec, ok := result.ExecByPlats[utils.OS()]; ok {
+		result.Exec = exec
+	}
+
+	if exec, ok := result.ExecByPlats[utils.Platform()]; ok {
+		result.Exec = exec
 	}
 
 	result.Exec.Top = &result.ValueScope
