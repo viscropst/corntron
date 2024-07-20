@@ -71,11 +71,11 @@ func (c MainConfig) IsUserProfile() bool {
 
 const profileAsCurrentDir = "${currentdir}"
 
-const platId = "${platid}"
+const platID = "${platid}"
 
 var defaultCoreConfig = MainConfig{
 	CurrentDir:     execDirWithoutLink,
-	RunningDir:     execDirWithoutLink,
+	RunningDir:     platID,
 	RuntimeDirName: "runtimes",
 	CornDirName:    "corns",
 	ProfileDir:     profileAsUserProfile,
@@ -146,10 +146,6 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 		result.CurrentDir = basePath
 	}
 
-	if result.RunningDir == execDirWithoutLink {
-		result.RunningDir = basePath
-	}
-
 	if result.ProfileDir == profileAsCurrentDir {
 		result.ProfileDir = filepath.Join(basePath, "profile")
 	}
@@ -159,21 +155,31 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 		result.ProfileDir = filepath.Join(basePath, result.ProfileDir)
 	}
 
-	result.RunningDir = platId
-	if path, ok := result.RunningDirByPlatfrom[platId]; ok {
-		result.RunningDir = path + result.RunningDir
-	}
-	if path, ok := result.RunningDirByPlatfrom[utils.OS()]; ok {
-		result.RunningDir = path
-	}
-	if path, ok := result.RunningDirByPlatfrom[utils.Platform()]; ok {
-		result.RunningDir = path
-	}
-	result.RunningDir = strings.ReplaceAll(result.RunningDir,
-		platId, utils.Platform())
+	result.RunningDir = prepareRunningDir(
+		result, basePath)
 
-	if !filepath.IsAbs(result.RunningDir) {
-		result.RunningDir = filepath.Join(basePath, result.RunningDir)
+	return result
+}
+
+func prepareRunningDir(src MainConfig, basePath string) string {
+	result := src.RunningDir
+	if result == execDirWithoutLink {
+		return basePath
+	}
+	if path, ok := src.RunningDirByPlatfrom[platID]; ok {
+		result = path + result
+	}
+	if path, ok := src.RunningDirByPlatfrom[utils.OS()]; ok {
+		result = path
+	}
+	if path, ok := src.RunningDirByPlatfrom[utils.Platform()]; ok {
+		result = path
+	}
+	result = strings.ReplaceAll(result,
+		platID, utils.Platform())
+
+	if !filepath.IsAbs(result) {
+		result = filepath.Join(basePath, result)
 	}
 
 	return result
