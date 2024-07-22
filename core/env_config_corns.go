@@ -97,14 +97,39 @@ func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 	}
 
 	if exec, ok := result.ExecByPlats[utils.OS()]; ok {
-		result.Exec = exec
+		result.Exec = setExec(result, exec)
 	}
 
 	if exec, ok := result.ExecByPlats[utils.Platform()]; ok {
-		result.Exec = exec
+		result.Exec = setExec(result, exec)
 	}
 
 	result.Exec.Top = &result.ValueScope
 
 	return result, nil
+}
+
+func setExec(conf CornsEnvConfig, src Command) Command {
+	result := conf.Exec
+	result.WithNoWait = src.WithNoWait
+	result.WithEnviron = src.WithEnviron
+	if len(src.Exec) > 0 && len(src.Args) > 0 {
+		return src
+	}
+	if len(src.Exec) > 0 {
+		result.Exec = src.Exec
+	}
+	if len(src.Args) > 0 {
+		result.Args = src.Args
+	}
+	if arr := result.ArgStr.ToArray(); len(arr) > 0 {
+		result.Args = append(result.Args, arr...)
+	}
+	if len(src.Vars) > 0 {
+		result.AppendVarsByNew(src.Vars)
+	}
+	if len(src.Env) > 0 {
+		_ = result.AppendEnv(src.Env)
+	}
+	return result
 }

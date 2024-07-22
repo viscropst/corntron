@@ -69,20 +69,6 @@ func (c *Command) SetEnv(environ map[string]string) *Command {
 	return c
 }
 
-func (c *Command) appendVars(src map[string]string) {
-	filter := func(k, a, b string) string {
-		if a == b {
-			return c.Expand(a)
-		}
-		if a == "" {
-			return c.Expand(b)
-		} else {
-			return c.Expand(a)
-		}
-	}
-	c.Vars = utils.ModifyMap(src, c.Vars, filter)
-}
-
 func (c *Command) Prepare(vars ...map[string]string) *Command {
 	c.cmd = exec.Cmd{
 		Stderr: os.Stderr,
@@ -90,7 +76,7 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 		Stdin:  os.Stdin,
 	}
 	if len(vars) > 0 {
-		c.appendVars(vars[0])
+		c.AppendVarsByNew(vars[0])
 	}
 	for idx := range c.Args {
 		c.Args[idx] = c.Expand(c.Args[idx])

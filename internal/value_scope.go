@@ -178,6 +178,20 @@ func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
 	return v
 }
 
+func (c *ValueScope) AppendVarsByNew(src map[string]string) {
+	filter := func(k, a, b string) string {
+		if a == b {
+			return c.Expand(a)
+		}
+		if a == "" {
+			return c.Expand(b)
+		} else {
+			return c.Expand(a)
+		}
+	}
+	c.Vars = utils.ModifyMap(src, c.Vars, filter)
+}
+
 func (v *ValueScope) AppendVar(key, val string) *ValueScope {
 	varToAdd := map[string]string{key: val}
 	return v.AppendVars(varToAdd)
