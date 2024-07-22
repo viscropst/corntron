@@ -6,11 +6,14 @@ import (
 	"strings"
 )
 
+type VarMap = map[string]string
+
 type ValueScope struct {
 	scopeReady bool
 	Top        *ValueScope       `toml:"-"`
-	Vars       map[string]string `toml:"vars"`
-	Env        map[string]string `toml:"envs"`
+	Vars       VarMap            `toml:"vars"`
+	Env        VarMap            `toml:"envs"`
+	EnvByPlat  map[string]VarMap `toml:"envs-by-plat"`
 }
 
 const valueRefFormat = "#{%s}"
@@ -31,6 +34,15 @@ func (v ValueScope) mappingScope(key, altKey string) string {
 		result = envRes
 	}
 
+	platRes := platMapping(keyFn[0], altKey, v.EnvByPlat)
+	if platRes != nil {
+		result = platMapping(keyFn[0], altKey, platRes)
+	}
+
+	if tmp := v.funcMapping(keyFn[0], v.Env); len(tmp) > 0 {
+		result = tmp
+	}
+
 	if tmp := environMapping(keyFn[0]); len(tmp) > 0 {
 		result = tmp
 	}
@@ -44,7 +56,12 @@ func (v ValueScope) mappingScope(key, altKey string) string {
 		result = v.resolveFn(keyFn, result)
 	}
 
-	if result == "" {
+	keyFn = strings.Split(altKey, funcSeprator)
+	if len(keyFn) > 1 && !(result == "" || result == key) && key != altKey {
+		result = v.resolveFn(keyFn, result)
+	}
+
+	if result == "" && !hasEnvironSelector(key) {
 		result = key
 	}
 
@@ -139,11 +156,33 @@ func (v *ValueScope) PrepareScope() {
 		v.Vars[k] = v.expandValueWithKey(k, v0)
 	}
 
-	for k, v0 := range v.Env {
-		v.Env[k] = v.expandValueWithKey(k, v0)
-	}
+	v.prepareEnvs()
 
 	v.scopeReady = true
+}
+
+func (v *ValueScope) expandEnvs(src VarMap) VarMap {
+	modifier := func(k, a, b string) (string, string) {
+		tmpKeyFunc := strings.Split(k, funcSeprator)
+		tmpKey := tmpKeyFunc[0]
+		tmpVal := v.expandValueWithKey(k, b)
+		if tmp := v.resolveFn(tmpKeyFunc, tmpVal); len(tmp) > 0 {
+			tmpVal = tmp
+		}
+		return tmpKey, tmpVal
+	}
+	return utils.AppendMap(src, v.Env, modifier)
+}
+
+func (v *ValueScope) prepareEnvs() {
+	v.Env = v.expandEnvs(v.Env)
+
+	v.Env = v.expandEnvs(v.EnvByPlat[utils.OS()])
+
+	v.Env = v.expandEnvs(v.EnvByPlat[utils.Arch()])
+
+	v.Env = v.expandEnvs(v.EnvByPlat[utils.Platform()])
+
 }
 
 func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
@@ -151,7 +190,7 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 	if len(environ) == 0 {
 		return v
 	}
-	v.Env = utils.ModifyMap(environ, v.Env, func(k, a, b string) string {
+	v.Env = utils.ModifyMapByMap(environ, v.Env, func(k, a, b string) string {
 		if a == b {
 			return a
 		}
@@ -177,7 +216,7 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 
 func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
 	v.PrepareScope()
-	v.Vars = utils.ModifyMap(varToAdd, v.Vars)
+	v.Vars = utils.ModifyMapByMap(varToAdd, v.Vars)
 	v.scopeReady = false
 	return v
 }
@@ -193,7 +232,7 @@ func (c *ValueScope) AppendVarsByNew(src map[string]string) {
 			return c.Expand(a)
 		}
 	}
-	c.Vars = utils.ModifyMap(src, c.Vars, filter)
+	c.Vars = utils.ModifyMapByMap(src, c.Vars, filter)
 }
 
 func (v *ValueScope) AppendVar(key, val string) *ValueScope {

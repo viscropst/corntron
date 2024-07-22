@@ -8,9 +8,13 @@ import (
 
 var environ map[string]string
 
+func hasEnvironSelector(str string) bool {
+	return strings.HasSuffix(str, selectorPrefix+"environ")
+}
+
 func environMapping(key string) string {
 	var result string
-	canMapping := strings.HasSuffix(key, selectorPrefix+"environ")
+	canMapping := hasEnvironSelector(key)
 	if !canMapping {
 		return result
 	}

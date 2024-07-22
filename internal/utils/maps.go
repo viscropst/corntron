@@ -1,12 +1,38 @@
 package utils
 
-func ModifyMap(from, to map[string]string,
-	beforeAdd ...func(k, a, b string) string) map[string]string {
+func AppendMap[value any](from, to map[string]value,
+	proc ...func(k string, a, b value) (string, value)) map[string]value {
 	if len(from) == 0 {
 		return to
 	}
 	if to == nil {
-		to = make(map[string]string)
+		to = make(map[string]value)
+	}
+	result := to
+	for key, val := range from {
+		tmpKey, tmpVal := key, val
+		tmpOrig, ok := to[key]
+
+		if len(proc) > 0 && ok {
+			tmpKey, tmpVal = proc[0](tmpKey, tmpOrig, tmpVal)
+		} else if len(proc) > 0 && !ok {
+			tmpKey, tmpVal = proc[0](tmpKey, tmpVal, tmpVal)
+		} else {
+			tmpKey, tmpVal = proc[0](tmpKey, tmpOrig, tmpOrig)
+		}
+
+		result[tmpKey] = tmpVal
+	}
+	return result
+}
+
+func ModifyMapByMap[v any](from, to map[string]v,
+	beforeAdd ...func(k string, a, b v) v) map[string]v {
+	if len(from) == 0 {
+		return to
+	}
+	if to == nil {
+		to = make(map[string]v)
 	}
 	for k, v1 := range from {
 		v0, ok := to[k]

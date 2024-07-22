@@ -43,7 +43,9 @@ var fnMaps = map[string]func(args ...string) string{
 	},
 	"ospth": func(args ...string) string {
 		src := args[0]
-		return strings.ReplaceAll(src, "/", argReplace("/#os/"))
+		src = strings.ReplaceAll(src, "/", argReplace("/#os/"))
+		src = strings.ReplaceAll(src, ";", string(os.PathListSeparator))
+		return strings.Trim(src, string(os.PathListSeparator))
 	},
 }
 
