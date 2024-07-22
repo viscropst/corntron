@@ -15,18 +15,18 @@ type ValueScope struct {
 
 const valueRefFormat = "#{%s}"
 
-func (v ValueScope) mappingScope(key string) string {
+func (v ValueScope) mappingScope(key, altKey string) string {
 	var result string
 
 	keyFn := strings.Split(key, funcSeprator)
-	varRes := platMapping(keyFn[0], v.Vars)
+	varRes := platMapping(keyFn[0], altKey, v.Vars)
 	if len(varRes) > 0 {
 		result = varRes
 	}
 	if tmp := v.funcMapping(keyFn[0], v.Vars); len(tmp) > 0 {
 		result = tmp
 	}
-	envRes := platMapping(keyFn[0], v.Env)
+	envRes := platMapping(keyFn[0], altKey, v.Env)
 	if len(envRes) > 0 {
 		result = envRes
 	}
@@ -37,7 +37,7 @@ func (v ValueScope) mappingScope(key string) string {
 
 	if v.Top != nil && result == "" {
 		v.Top.PrepareScope()
-		result = v.Top.mappingScope(key)
+		result = v.Top.mappingScope(key, altKey)
 	}
 
 	if len(keyFn) > 1 && !(result == "" || result == key) {
@@ -52,6 +52,10 @@ func (v ValueScope) mappingScope(key string) string {
 }
 
 func (v ValueScope) expandValue(str string) string {
+	return v.expandValueWithKey("", str)
+}
+
+func (v ValueScope) expandValueWithKey(key, str string) string {
 	idx := 0
 	var buf = make([]byte, 0, 2*len(str))
 
@@ -80,7 +84,7 @@ func (v ValueScope) expandValue(str string) string {
 		} else {
 			buf = append(buf,
 				v.selectScopeVal(
-					name, str[i:i+offset+1])...)
+					name, key, str[i:i+offset+1])...)
 		}
 
 		i = i + offset
@@ -113,8 +117,8 @@ func (v *ValueScope) innerResolve(inner string) (string, int) {
 	return name, offset
 }
 
-func (v *ValueScope) selectScopeVal(name, alt string) string {
-	scopeValue := v.mappingScope(name)
+func (v *ValueScope) selectScopeVal(name, origName, alt string) string {
+	scopeValue := v.mappingScope(name, origName)
 
 	if scopeValue != "" && scopeValue == name {
 		return alt
@@ -132,11 +136,11 @@ func (v *ValueScope) PrepareScope() {
 	}
 
 	for k, v0 := range v.Vars {
-		v.Vars[k] = v.expandValue(v0)
+		v.Vars[k] = v.expandValueWithKey(k, v0)
 	}
 
 	for k, v0 := range v.Env {
-		v.Env[k] = v.expandValue(v0)
+		v.Env[k] = v.expandValueWithKey(k, v0)
 	}
 
 	v.scopeReady = true
@@ -163,7 +167,7 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 			return string(buf)
 		}
 		if a == "" {
-			return v.expandValue(b)
+			return v.expandValueWithKey(k, b)
 		}
 		return a
 	})

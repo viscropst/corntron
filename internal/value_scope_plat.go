@@ -4,21 +4,22 @@ import "cryphtron/internal/utils"
 
 const selectorPrefix = "+"
 
-func platMapping[v any](key string, src map[string]v) v {
+func platMapping[v any](key string, altKey string, src map[string]v) v {
 	var result v
 	if v0, ok := src[key]; ok {
 		result = v0
 	}
 
-	if v0, ok := src[key+utils.OsID(selectorPrefix)]; ok {
+	var tmpKey = key + utils.OsID(selectorPrefix)
+	if v0, ok := src[tmpKey]; ok && altKey != tmpKey {
 		result = v0
 	}
-
-	if v0, ok := src[key+utils.ArchID(selectorPrefix)]; ok {
+	tmpKey = key + utils.ArchID(selectorPrefix)
+	if v0, ok := src[tmpKey]; ok && altKey != tmpKey {
 		result = v0
 	}
-
-	if v0, ok := src[key+utils.PlatID(selectorPrefix)]; ok {
+	tmpKey = key + utils.PlatID(selectorPrefix)
+	if v0, ok := src[tmpKey]; ok && altKey != tmpKey {
 		result = v0
 	}
 	return result
