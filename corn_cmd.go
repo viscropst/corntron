@@ -12,9 +12,9 @@ import (
 func (c *Core) ExecCmd(command string, isWaiting bool, args ...string) error {
 	scope := c.ComposeRtEnv()
 	cmd := core.Command{
-		Exec:       command,
-		Args:       args,
-		WithNoWait: !isWaiting,
+		Exec:        command,
+		Args:        args,
+		WithWaiting: isWaiting,
 	}
 
 	return c.execCmd(&cmd, scope)
@@ -40,7 +40,7 @@ func (c *Core) execCmd(command *core.Command, scope *internal.ValueScope) error 
 	if exec, err := c.checkByPATH(command, scope); err == nil {
 		command.Exec = exec
 	}
-	err := command.SetEnv(scope.Env).Execute(scope.Vars)
+	err := command.SetEnv(scope.Env).ExecWithAttr(scope.Vars)
 	if err != nil {
 		newErr := errors.New("error while executing")
 		return errors.Join(newErr, err)

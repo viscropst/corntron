@@ -25,7 +25,7 @@ func (c CornsEnvConfig) ExecuteConfig() error {
 		if !c0.CanRunning() {
 			continue
 		}
-		c0.WithNoWait = false
+		c0.WithWaiting = true
 		c0.Top = &c.ValueScope
 
 		c0.AppendEnv(map[string]string{
@@ -111,7 +111,7 @@ func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 
 func setExec(conf CornsEnvConfig, src Command) Command {
 	result := conf.Exec
-	result.WithNoWait = src.WithNoWait
+	result.WithWaiting = src.WithWaiting
 	result.WithEnviron = src.WithEnviron
 	if len(src.Exec) > 0 && len(src.Args) > 0 {
 		return src

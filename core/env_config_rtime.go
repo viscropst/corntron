@@ -43,7 +43,7 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 		if !c0.CanRunning() {
 			continue
 		}
-		c0.WithNoWait = false
+		c0.WithWaiting = false
 		c0.Top = &c.ValueScope
 		c0.Env["PATH"] = strings.Replace(
 			c0.Env["PATH"], internal.PathPlaceHolder, c.Vars["pth_environ"], 1)

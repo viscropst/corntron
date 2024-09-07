@@ -45,7 +45,7 @@ func (c *runCorn) BeforeCore(coreConfig *core.MainConfig) error {
 }
 
 func (c *runCorn) InsertFlags(flag *cptron.CmdFlag) error {
-	c.globalWaiting = !flag.NoWaiting
+	c.globalWaiting = flag.IsWaiting
 	return nil
 }
 

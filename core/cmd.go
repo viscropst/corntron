@@ -41,7 +41,7 @@ type Command struct {
 	WorkDir string      `toml:"work-dir"`
 	internal.ValueScope
 	WithEnviron bool `toml:"with-environ"`
-	WithNoWait  bool `toml:"with-no-wait"`
+	WithWaiting bool `toml:"with-waiting"`
 }
 
 func (c *Command) CanRunning() bool {
@@ -121,6 +121,38 @@ func (c *Command) prepareCmd() (*exec.Cmd, error) {
 	return &cmd, nil
 }
 
+func (c *Command) exec(cmd *exec.Cmd) error {
+	err := cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	if c.WithWaiting {
+		return cmd.Wait()
+	}
+
+	return cmd.Process.Release()
+}
+
+func (c *Command) ExecWithAttr(vars ...map[string]string) error {
+	c.Prepare(vars...)
+
+	if v, ok := internal.Commands[c.Exec]; ok {
+		return v(c.Args)
+	}
+
+	cmd, err := c.prepareCmd()
+	if err != nil {
+		return err
+	}
+
+	LogCLI(zerolog.InfoLevel).Println("executing command", cmd.String())
+
+	c.setSysProcAttr(cmd)
+
+	return c.exec(cmd)
+}
+
 func (c *Command) Execute(vars ...map[string]string) error {
 	c.Prepare(vars...)
 
@@ -134,14 +166,6 @@ func (c *Command) Execute(vars ...map[string]string) error {
 	}
 
 	LogCLI(zerolog.InfoLevel).Println("executing command", cmd.String())
-	err = cmd.Start()
-	if err != nil {
-		return err
-	}
 
-	if !c.WithNoWait {
-		return cmd.Wait()
-	}
-
-	return cmd.Process.Release()
+	return c.exec(cmd)
 }

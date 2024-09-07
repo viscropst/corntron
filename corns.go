@@ -87,13 +87,7 @@ func (c *Core) execCorn(name string, isWaiting bool, args ...string) error {
 				name + ") on current platform")
 	}
 	cmd.Args = append(cmd.Args, args...)
-	origWait := cmd.WithNoWait
-	if isWaiting {
-		cmd.WithNoWait = !isWaiting
-	}
-	if origWait == isWaiting {
-		cmd.WithNoWait = origWait
-	}
+	cmd.WithWaiting = isWaiting
 	return c.execCmd(cmd, scope)
 }
 

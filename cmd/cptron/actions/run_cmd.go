@@ -66,7 +66,7 @@ func (c *runCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
 }
 
 func (c *runCmd) InsertFlags(flag *cptron.CmdFlag) error {
-	c.withWaiting = !flag.NoWaiting
+	c.withWaiting = !flag.IsWaiting
 	return nil
 }
 
