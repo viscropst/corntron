@@ -40,8 +40,9 @@ type Command struct {
 	ArgStr  splitString `toml:"arg-str"`
 	WorkDir string      `toml:"work-dir"`
 	internal.ValueScope
-	WithEnviron bool `toml:"with-environ"`
-	WithWaiting bool `toml:"with-waiting"`
+	WithEnviron  bool `toml:"with-environ"`
+	WithWaiting  bool `toml:"with-waiting"`
+	IsBackground bool `toml:"is-background"`
 }
 
 func (c *Command) CanRunning() bool {
