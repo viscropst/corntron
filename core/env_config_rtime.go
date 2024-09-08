@@ -1,10 +1,8 @@
 package core
 
 import (
-	"cryphtron/internal"
 	"errors"
 	"path/filepath"
-	"strings"
 )
 
 type RtEnvConfig struct {
@@ -43,11 +41,7 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 		if !c0.CanRunning() {
 			continue
 		}
-		c0.WithWaiting = false
-		c0.Top = &c.ValueScope
-		c0.Env["PATH"] = strings.Replace(
-			c0.Env["PATH"], internal.PathPlaceHolder, c.Vars["pth_environ"], 1)
-		err := c0.Execute()
+		err := c.executeCommand(command)
 		if err != nil {
 			return err
 		}

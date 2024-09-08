@@ -79,20 +79,24 @@ func (c *envConfig) ExecuteBootstrap() error {
 		bootstraps = append(bootstraps, v)
 	}
 	for _, command := range bootstraps {
-		cmd := command.Prepare().
-			SetEnv(c.Env)
-		cmd.Env["PATH"] = strings.Replace(
-			cmd.Env["PATH"],
-			internal.PathPlaceHolder,
-			c.Vars["pth_environ"], 1)
-
-		cmd.WithWaiting = true
-		err := cmd.Execute()
+		err := c.executeCommand(command)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func (c *envConfig) executeCommand(command Command) error {
+	cmd := command.Prepare().
+		SetEnv(c.Env)
+	cmd.Env["PATH"] = strings.Replace(
+		cmd.Env["PATH"],
+		internal.PathPlaceHolder,
+		c.Vars["pth_environ"], 1)
+
+	cmd.WithWaiting = true
+	return cmd.Execute()
 }
 
 func BaseEnv(coreConfig MainConfig, altEnvDirname ...string) envConfig {
