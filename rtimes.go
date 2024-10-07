@@ -49,6 +49,22 @@ func (c Core) ProcessRtMirror(ifResume bool) error {
 }
 
 // ProcessRtBootstrap will execute bootstrap for each runtime.
+// If ifResume is true, it will skip if runtime config cannot execute.
+func (c Core) ProcessRtConfig(ifResume bool) error {
+	for _, config := range c.RuntimesEnv {
+		config.PrepareScope()
+		config.AppendEnv(c.Env)
+		config.Vars["pth_environ"] = c.Environ["PATH"]
+		err := config.ExecuteConfig()
+		if err != nil {
+			err = fmt.Errorf("%s config: %s", config.ID, err.Error())
+			return err
+		}
+	}
+	return nil
+}
+
+// ProcessRtBootstrap will execute bootstrap for each runtime.
 // If ifResume is true, it will skip if runtime bootstrap cannot execute.
 func (c Core) ProcessRtBootstrap(ifResume bool) error {
 	c.Prepare()

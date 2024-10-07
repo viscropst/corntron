@@ -42,6 +42,7 @@ type envConfig struct {
 	DirName          string    `toml:"dir_name"`
 	BootstrapExec    []Command `toml:"bootstrap_exec"`
 	IsCommonPlatform bool      `toml:"is_common_platform"`
+	ConfigExec       []Command `toml:"config-exec"`
 }
 
 func (c envConfig) setCore(coreConfig MainConfig) envConfig {
@@ -65,6 +66,21 @@ func (c *envConfig) setCacheDirname(altCacheDirname ...string) {
 	if c.CacheDir == "" {
 		c.CacheDir = "_cache"
 	}
+}
+
+func (c *envConfig) ExecuteConfig() error {
+	c.PrepareScope()
+	for _, command := range c.ConfigExec {
+		if !command.CanRunning() {
+			continue
+		}
+		command.Top = &c.ValueScope
+		err := c.executeCommand(command)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c *envConfig) ExecuteBootstrap() error {

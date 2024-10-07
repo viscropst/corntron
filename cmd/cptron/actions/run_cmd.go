@@ -85,5 +85,11 @@ func (c *runCmd) Exec(core *cryphtron.Core) error {
 		return errors.Join(newErr, err)
 	}
 
+	err = core.ProcessRtMirror(true)
+	if err != nil {
+		newErr := errors.New("error while processing config")
+		cptron.CliLog().Println(errors.Join(newErr, err))
+	}
+
 	return core.ExecCmd(c.Execute, c.withWaiting, c.ExecArgs...)
 }

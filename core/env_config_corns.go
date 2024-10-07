@@ -12,24 +12,8 @@ type CornsEnvConfig struct {
 	envConfig
 	MetaOnly    bool               `toml:"meta-only"`
 	DependCorns []string           `toml:"depend-corns"`
-	ConfigExec  []Command          `toml:"config-exec"`
 	Exec        Command            `toml:"exec"`
 	ExecByPlats map[string]Command `toml:"exec-by-plat"`
-}
-
-func (c CornsEnvConfig) ExecuteConfig() error {
-	c.PrepareScope()
-	for _, command := range c.ConfigExec {
-		if !command.CanRunning() {
-			continue
-		}
-		command.Top = &c.ValueScope
-		err := c.executeCommand(command)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (c *CornsEnvConfig) initCornVars() {

@@ -61,5 +61,11 @@ func (c *runCorn) Exec(core *cryphtron.Core) error {
 		newErr := errors.New("error while processing mirror")
 		cptron.CliLog().Println(errors.Join(newErr, err))
 	}
+
+	err = core.ProcessRtConfig(true)
+	if err != nil {
+		newErr := errors.New("error while processing config")
+		cptron.CliLog().Println(errors.Join(newErr, err))
+	}
 	return core.ExecCorn(c.appName, c.globalWaiting, c.args...)
 }
