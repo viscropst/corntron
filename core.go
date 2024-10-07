@@ -12,11 +12,11 @@ import (
 func LoadCoreConfigWithRuningBase(runningBase string, altBases ...string) core.MainConfig {
 	result := LoadCoreConfig(altBases...)
 	if len(runningBase) > 0 && !filepath.IsAbs(runningBase) {
-		result.RunningDir = filepath.Join(result.CurrentDir, runningBase)
+		result.CurrentPlatformDir = filepath.Join(result.CurrentDir, runningBase)
 		return result
 	}
 	if len(runningBase) > 0 && filepath.IsAbs(runningBase) {
-		result.RunningDir = runningBase
+		result.CurrentPlatformDir = runningBase
 		return result
 	}
 	return result

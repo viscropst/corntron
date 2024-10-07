@@ -2,6 +2,7 @@ package core
 
 import (
 	"cryphtron/internal"
+	"path/filepath"
 	"strings"
 )
 
@@ -104,11 +105,14 @@ func BaseEnv(coreConfig MainConfig, altEnvDirname ...string) envConfig {
 	tmp.setCacheDirname()
 	tmp.setEnvDirname(altEnvDirname...)
 	tmp = tmp.setCore(coreConfig)
-	tmp.AppendVar("base_dir", coreConfig.RunningDir)
+	tmp.AppendVar("base_dir", coreConfig.CurrentDir)
+	tmp.AppendVar("base_platform_dir", coreConfig.CurrentPlatformDir)
 	if !coreConfig.IsUserProfile() {
 		tmp.AppendVar("profile", coreConfig.ProfileDir)
 	}
 	tmp.AppendVar(CornsIdentifier+"_dirname", coreConfig.CornDirName)
+	tmp.AppendVar(CornsIdentifier+"_home", filepath.Join(coreConfig.CornDir(), "_home"))
 	tmp.AppendVar(RtIdentifier+"_dirname", coreConfig.RuntimeDirName)
+	tmp.AppendVar(RtIdentifier+"_home", filepath.Join(coreConfig.RuntimeDir(), "_home"))
 	return tmp
 }

@@ -14,14 +14,14 @@ import (
 )
 
 type MainConfig struct {
-	CurrentDir           string            `toml:"base_dir,omitempty"`
-	RunningDir           string            `toml:"-"`
-	RuntimeDirName       string            `toml:"runtime_dirname,omitempty"`
-	CornDirName          string            `toml:"corn_dirname,omitempty"`
-	MirrorType           string            `toml:"mirror_type,omitempty"`
-	WithCorn             bool              `toml:"with_corn"`
-	RunningDirByPlatfrom map[string]string `toml:"running_dir,omitempty"`
-	ProfileDir           string            `toml:"profile_dir,omitempty"`
+	CurrentDir         string            `toml:"base_dir,omitempty"`
+	CurrentPlatformDir string            `toml:"-"`
+	RuntimeDirName     string            `toml:"runtime_dirname,omitempty"`
+	CornDirName        string            `toml:"corn_dirname,omitempty"`
+	MirrorType         string            `toml:"mirror_type,omitempty"`
+	WithCorn           bool              `toml:"with_corn"`
+	PlatformDirs       map[string]string `toml:"platform_dir,omitempty"`
+	ProfileDir         string            `toml:"profile_dir,omitempty"`
 }
 
 func (c MainConfig) RuntimeDir() string {
@@ -33,11 +33,11 @@ func (c MainConfig) CornDir() string {
 }
 
 func (c MainConfig) RtWithRunningDir() string {
-	return filepath.Join(c.RunningDir, c.RuntimeDirName)
+	return filepath.Join(c.CurrentPlatformDir, c.RuntimeDirName)
 }
 
 func (c MainConfig) CornWithRunningDir() string {
-	return filepath.Join(c.RunningDir, c.CornDirName)
+	return filepath.Join(c.CurrentPlatformDir, c.CornDirName)
 }
 
 func (c MainConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
@@ -74,11 +74,11 @@ const profileAsCurrentDir = "${currentdir}"
 const platID = "${platid}"
 
 var defaultCoreConfig = MainConfig{
-	CurrentDir:     execDirWithoutLink,
-	RunningDir:     platID,
-	RuntimeDirName: "runtimes",
-	CornDirName:    "corns",
-	ProfileDir:     profileAsUserProfile,
+	CurrentDir:         execDirWithoutLink,
+	CurrentPlatformDir: platID,
+	RuntimeDirName:     "runtimes",
+	CornDirName:        "corns",
+	ProfileDir:         profileAsUserProfile,
 }
 
 func loadConfigRegular(config string, value interface{}, altBases ...string) error {
@@ -149,7 +149,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	result.ProfileDir = prepareProfileDir(
 		result, basePath)
 
-	result.RunningDir = prepareRunningDir(
+	result.CurrentPlatformDir = prepareRunningDir(
 		result, basePath)
 
 	return result
@@ -173,17 +173,17 @@ func prepareProfileDir(src MainConfig, basePath string) string {
 }
 
 func prepareRunningDir(src MainConfig, basePath string) string {
-	result := src.RunningDir
+	result := src.CurrentPlatformDir
 	if result == execDirWithoutLink {
 		return basePath
 	}
-	if path, ok := src.RunningDirByPlatfrom[platID]; ok {
+	if path, ok := src.PlatformDirs[platID]; ok {
 		result = path + result
 	}
-	if path, ok := src.RunningDirByPlatfrom[utils.OS()]; ok {
+	if path, ok := src.PlatformDirs[utils.OS()]; ok {
 		result = path
 	}
-	if path, ok := src.RunningDirByPlatfrom[utils.Platform()]; ok {
+	if path, ok := src.PlatformDirs[utils.Platform()]; ok {
 		result = path
 	}
 	result = strings.ReplaceAll(result,
