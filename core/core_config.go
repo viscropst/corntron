@@ -9,13 +9,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/BurntSushi/toml"
 	"github.com/rs/zerolog"
 )
 
 type MainConfig struct {
 	CurrentDir         string            `toml:"base_dir,omitempty"`
 	CurrentPlatformDir string            `toml:"-"`
+	CurrentWorkDir     string            `toml:"-"`
 	RuntimeDirName     string            `toml:"runtime_dirname,omitempty"`
 	CornDirName        string            `toml:"corn_dirname,omitempty"`
 	MirrorType         string            `toml:"mirror_type,omitempty"`
@@ -105,20 +105,9 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	}
 
 	tomlFilename := path.Join(basePath, config+".toml")
-	stat, _ := os.Stat(tomlFilename)
-	if stat == nil || !stat.Mode().IsRegular() {
-		errFmt.Path = tomlFilename
-		errFmt.Err = errors.New("could not stat that file")
-		return &errFmt
-	}
-
-	tomlFile, _ := os.Open(tomlFilename)
-	tomlDecoder := toml.NewDecoder(tomlFile)
-	//tomlDecoder.DisallowUnknownFields()
-	_, err := tomlDecoder.Decode(value)
-	if err != nil {
-		errFmt.Path = tomlFilename
-		errFmt.Err = err
+	pathErr := utils.LoadTomlFile(tomlFilename, value)
+	if pathErr != nil {
+		errFmt.Err = pathErr.Err
 		return &errFmt
 	}
 	return nil
@@ -144,6 +133,11 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 
 	if result.CurrentDir == execDirWithoutLink {
 		result.CurrentDir = basePath
+	}
+
+	result.CurrentWorkDir, err = os.Getwd()
+	if err != nil {
+		result.CurrentWorkDir = basePath
 	}
 
 	result.ProfileDir = prepareProfileDir(

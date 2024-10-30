@@ -1,10 +1,12 @@
 package cptron
 
 import (
+	"cryphtron/core"
 	"errors"
 	"flag"
 	"os"
 	"path"
+	"strings"
 )
 
 type FlagInfo struct {
@@ -73,6 +75,12 @@ func (f *CmdFlag) Parse() (CmdAction, error) {
 		Name:    os.Args[idxArgAct],
 		Index:   idxArgAct,
 		CmdName: f.host.Name(),
+	}
+	if fileArg := os.Args[idxArgAct]; strings.HasSuffix(fileArg, core.CornConfigExt) {
+		action := f.actions["run-"+core.CornsIdentifier+"-config"]
+		info.Index = idxArgAct - 1
+		_ = action.InsertFlags(f)
+		return action, action.ParseArg(info)
 	}
 	if action, ok := f.actions[os.Args[idxArgAct]]; ok {
 		_ = action.InsertFlags(f)
