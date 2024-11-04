@@ -1,0 +1,10 @@
+$:
+  api_trigger_vscode:
+    clouddev:
+      docker:
+        build: .ide/Dockerfile
+      services:
+        - vscode
+      stages:
+        - name: ready
+          type: vscode:go
