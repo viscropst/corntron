@@ -102,7 +102,7 @@ func (c *Command) prepareCmd() (*exec.Cmd, error) {
 		Dir:    c.cmd.Dir,
 	}
 	cmd.Path = c.Exec
-	if pth,_:=filepath.Split(c.Exec);pth == "" {
+	if pth, _ := filepath.Split(c.Exec); pth == "" {
 		var err0 error
 		_ = os.Setenv("PATH", c.Env["PATH"])
 		cmd.Path, err0 = exec.LookPath(c.Exec)
@@ -123,15 +123,14 @@ func (c *Command) prepareCmd() (*exec.Cmd, error) {
 }
 
 func (c *Command) exec(cmd *exec.Cmd) error {
+	if c.WithWaiting {
+		return cmd.Run()
+	}
+
 	err := cmd.Start()
 	if err != nil {
 		return err
 	}
-
-	if c.WithWaiting {
-		return cmd.Wait()
-	}
-
 	return cmd.Process.Release()
 }
 
@@ -149,7 +148,9 @@ func (c *Command) ExecWithAttr(vars ...map[string]string) error {
 
 	LogCLI(zerolog.InfoLevel).Println("executing command", cmd.String())
 
-	c.setSysProcAttr(cmd)
+	if !c.WithWaiting {
+		c.setSysProcAttr(cmd)
+	}
 
 	return c.exec(cmd)
 }

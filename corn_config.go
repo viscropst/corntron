@@ -63,7 +63,9 @@ func (c *Core) execCornConfig(cornConfig core.CornsEnvConfig, isWaiting bool, ar
 				cornConfig.ID + ") on current platform")
 	}
 	cmd.Args = append(cmd.Args, args...)
-	cmd.WithWaiting = isWaiting
+	if !cmd.WithWaiting {
+		cmd.WithWaiting = isWaiting
+	}
 	return c.execCmd(cmd, scope)
 }
 
