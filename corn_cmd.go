@@ -25,9 +25,10 @@ func (c *Core) checkByPATH(command *core.Command, scope *internal.ValueScope) (s
 	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, c.Environ["PATH"], 1)
 	scope.Env["PATH"] = pthVal
 
-	os.Setenv("PATH", scope.Env["PATH"])
-	defer os.Unsetenv("PATH")
-	if path, err := exec.LookPath(command.Exec); err != nil {
+	_ = os.Setenv("PATH", scope.Env["PATH"])
+	path, err := exec.LookPath(command.Exec)
+	_ = os.Unsetenv("PATH")
+	if err != nil {
 		errBuilder := strings.Builder{}
 		errBuilder.WriteString("exec argument invalid: the command could not found")
 		return command.Exec, errors.New(errBuilder.String())

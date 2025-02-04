@@ -4,7 +4,6 @@
 package internal
 
 func (c *Core) prepareEnvsByEnviron() {
-	c.assignWithEnviron("PATH")
 	c.assignWithEnviron("USERNAME")
 	c.assignWithEnviron("APPDATA")
 	c.assignWithEnviron("TEMP")

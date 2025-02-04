@@ -110,6 +110,6 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 }
 
 func ifFolderNotExists(path string) bool {
-	stat, _ := os.Stat(path)
-	return stat == nil || (stat != nil && !stat.IsDir())
+	stat, err := os.Stat(path)
+	return err != nil || !stat.IsDir()
 }

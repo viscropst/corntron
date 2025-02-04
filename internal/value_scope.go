@@ -2,7 +2,6 @@ package internal
 
 import (
 	"cryphtron/internal/utils"
-	"os"
 	"strings"
 )
 
@@ -185,7 +184,7 @@ func (v *ValueScope) prepareEnvs() {
 
 }
 
-func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
+func (v *ValueScope) AppendEnvs(environ map[string]string) *ValueScope {
 	v.PrepareScope()
 	if len(environ) == 0 {
 		return v
@@ -194,21 +193,25 @@ func (v *ValueScope) AppendEnv(environ map[string]string) *ValueScope {
 		if a == b {
 			return a
 		}
-		if k == "PATH" {
-			a = strings.ReplaceAll(a, ";", string(os.PathListSeparator))
-			b = strings.ReplaceAll(b, ";", string(os.PathListSeparator))
-			a = strings.ReplaceAll(a, "/", string(os.PathSeparator))
-			b = strings.ReplaceAll(b, "/", string(os.PathSeparator))
-			var buf []byte
-			buf = append(buf, b...)
-			buf = append(buf, os.PathListSeparator)
-			buf = append(buf, a...)
-			return string(buf)
-		}
 		if a == "" {
 			return v.expandValueWithKey(k, b)
 		}
 		return a
+	})
+	v.scopeReady = false
+	return v
+}
+
+func (v *ValueScope) ModifyEnv(key, value string) *ValueScope {
+	v.PrepareScope()
+	if len(key) == 0 {
+		return v
+	}
+	v.Env = utils.ModifyMapByPair(v.Env, key, value, func(k, a, b string) string {
+		if a == b {
+			return a
+		}
+		return v.expandValueWithKey(k, b)
 	})
 	v.scopeReady = false
 	return v

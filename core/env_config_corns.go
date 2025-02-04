@@ -104,7 +104,7 @@ func setExec(conf CornsEnvConfig, src Command) Command {
 		result.AppendVarsByNew(src.Vars)
 	}
 	if len(src.Env) > 0 {
-		_ = result.AppendEnv(src.Env)
+		_ = result.AppendEnvs(src.Env)
 	}
 	return result
 }

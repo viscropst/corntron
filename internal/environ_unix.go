@@ -4,7 +4,6 @@
 package internal
 
 func (c *Core) prepareEnvsByEnviron() {
-	c.assignWithEnviron("PATH")
 	c.assignWithEnviron("SSH_AUTH_SOCK")
 	c.assignWithEnviron("SSH_ASKPASS")
 	c.assignWithEnviron("USER")

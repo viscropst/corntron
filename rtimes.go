@@ -3,30 +3,27 @@ package cryphtron
 import (
 	"cryphtron/core"
 	"cryphtron/internal"
+	"cryphtron/internal/utils"
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/rs/zerolog"
 )
 
 func (c Core) ComposeRtEnv() *internal.ValueScope {
 	c.Prepare()
+	pthValue := ""
 	for _, config := range c.RuntimesEnv {
 		config.PrepareScope()
 		mirrorEnv := config.UnwrapMirrorsEnv(c.Config.UnwrapMirrorType())
 		for k, v := range mirrorEnv {
 			mirrorEnv[k] = config.Expand(v)
 		}
-		pthArr := strings.SplitN(config.Env["PATH"], string(os.PathListSeparator), 2)
-		if len(pthArr) > 1 && pthArr[0] == internal.PathPlaceHolder {
-			idxAfter := strings.Index(internal.PathPlaceHolder, pthArr[0])
-			config.Env["PATH"] = config.Env["PATH"][idxAfter+len(pthArr[0])+1:]
-		}
-		c.AppendEnv(config.Env).AppendEnv(mirrorEnv)
+		pthValue = utils.AppendToPathList(pthValue, config.Env["PATH"])
+		c.AppendEnvs(config.Env).AppendEnvs(mirrorEnv)
 	}
-
+	c.Env["PATH"] = pthValue
 	return c.ValueScope
 }
 
@@ -37,7 +34,7 @@ func (c Core) ProcessRtMirror(ifResume bool) error {
 	c.Prepare()
 	for _, config := range c.RuntimesEnv {
 		config.PrepareScope()
-		config.AppendEnv(c.Env)
+		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteMirrors(mirrorType)
 		if err != nil {
@@ -53,7 +50,7 @@ func (c Core) ProcessRtMirror(ifResume bool) error {
 func (c Core) ProcessRtConfig(ifResume bool) error {
 	for _, config := range c.RuntimesEnv {
 		config.PrepareScope()
-		config.AppendEnv(c.Env)
+		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteConfig()
 		if err != nil {
@@ -81,7 +78,7 @@ func (c Core) ProcessRtBootstrap(ifResume bool) error {
 		}
 		_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
 		config.PrepareScope()
-		config.AppendEnv(c.Env)
+		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteBootstrap()
 		if err != nil {

@@ -102,6 +102,7 @@ func (c *Command) prepareCmd() (*exec.Cmd, error) {
 		Dir:    c.cmd.Dir,
 	}
 	cmd.Path = c.Exec
+	c.Env["PATH"] = utils.AppendToPath(c.Env["PATH"])
 	if pth, _ := filepath.Split(c.Exec); pth == "" {
 		var err0 error
 		_ = os.Setenv("PATH", c.Env["PATH"])

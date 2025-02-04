@@ -47,3 +47,18 @@ func ModifyMapByMap[v any](from, to map[string]v,
 	}
 	return to
 }
+
+func ModifyMapByPair[v any](to map[string]v, key string, value v, beforeAdd ...func(k string, a, b v) v) map[string]v {
+	if to == nil {
+		to = make(map[string]v)
+	}
+	v0, ok := to[key]
+	if ok && len(beforeAdd) > 0 {
+		to[key] = beforeAdd[0](key, v0, value)
+	} else if !ok {
+		to[key] = value
+	} else {
+		to[key] = v0
+	}
+	return to
+}
