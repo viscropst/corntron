@@ -21,7 +21,7 @@ type CmdFlag struct {
 	argLen      int
 	osArgLen    int
 	actions     map[string]CmdAction
-	IsWaiting   bool
+	NoWaiting   bool
 	ConfigBase  string
 	EnvDirname  string
 	RuntimeBase string
@@ -45,9 +45,9 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 		CliLog().Printf("actions was: %v \n", actKeys)
 		CliLog().Println("options has:")
 		result.host.PrintDefaults()
-		CliExit(nil, !IsInTerminal() || !result.IsWaiting)
+		CliExit(nil, !IsInTerminal() || !result.NoWaiting)
 	}
-	result.host.BoolVar(&result.IsWaiting, "no-wait", false, "executing cryptron without waiting")
+	result.host.BoolVar(&result.NoWaiting, "no-wait", false, "executing cryptron without waiting")
 	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<cryphtron config folder>")
 	result.host.StringVar(&result.RunningBase, "running-base", "", "/path/to/your/<cryphtron running folder>")
 	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")

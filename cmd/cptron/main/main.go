@@ -25,7 +25,7 @@ func main() {
 	errLogger := cptron.CliLog(zerolog.ErrorLevel)
 
 	action, err := flags.Parse()
-	defer cptron.CliExit(err, err != nil && !flags.IsWaiting)
+	defer cptron.CliExit(err, err != nil && (!cptron.IsInTerminal()))
 	if err != nil {
 		errLogger.Println(err)
 		return
