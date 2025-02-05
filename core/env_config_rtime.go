@@ -21,6 +21,21 @@ func (c *RtEnvConfig) UnwrapMirrorsEnv(key MirrorType) map[string]string {
 	return result
 }
 
+func (c RtEnvConfig) Copy(src ...RtEnvConfig) RtEnvConfig {
+	result := RtEnvConfig{}
+	if len(src) > 0 {
+		tmp := src[0]
+		result.envConfig = tmp.envConfig.Copy()
+		result.MirrorEnv = tmp.MirrorEnv
+		result.MirrorExec = tmp.MirrorExec
+	} else {
+		result.envConfig = c.envConfig.Copy()
+		result.MirrorEnv = c.MirrorEnv
+		result.MirrorExec = c.MirrorExec
+	}
+	return result
+}
+
 func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 	mirrorExec, ok := c.MirrorExec[mirrorType]
 	if !ok {

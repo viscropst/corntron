@@ -14,8 +14,8 @@ func (c Core) ComposeCornEnv(corn *core.CornsEnvConfig) *internal.ValueScope {
 	for _, depends := range corn.DependCorns {
 		config := c.CornsEnv[depends]
 		config.AppendVars(corn.Vars)
-		config.PrepareScope()
-		corn.AppendEnv(config.Env)
+		config.RePrepareScope()
+		corn.AppendEnvs(config.Env)
 		corn.AppendVars(config.Vars)
 	}
 	return &corn.ValueScope

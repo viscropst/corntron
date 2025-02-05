@@ -2,6 +2,7 @@ package cryphtron
 
 import (
 	"cryphtron/core"
+	"cryphtron/internal/utils"
 	"errors"
 	"os"
 	"path/filepath"
@@ -14,14 +15,18 @@ func (c *Core) prepareCornConfig(corn core.CornsEnvConfig) (*core.CornsEnvConfig
 		_ = os.MkdirAll(currentCornDir, os.ModeDir|0o666)
 	}
 	scope := c.ComposeRtEnv()
-	corn.AppendEnv(scope.Env)
+	tmpCorn := corn.Copy()
+	tmpCorn.RePrepareScope()
+	tmpCorn.ModifyEnv("PATH",
+		utils.AppendToPathList(corn.Env["PATH"], scope.Env["PATH"]))
+	tmpCorn.AppendEnvs(scope.Env)
 	if !corn.MetaOnly {
 		bootstrapDir := filepath.Join(currentCornDir, corn.DirName)
-		corn.Vars["pth_environ"] = c.Environ["PATH"]
+		tmpCorn.Vars["pth_environ"] = c.Environ["PATH"]
 		if ifFolderNotExists(bootstrapDir) {
 			_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
-			corn.AppendEnv(c.Env)
-			err = corn.ExecuteBootstrap()
+			tmpCorn.AppendEnvs(c.Env)
+			err = tmpCorn.ExecuteBootstrap()
 			if err != nil {
 				_ = os.RemoveAll(bootstrapDir)
 				newErr := errors.New(
@@ -32,7 +37,7 @@ func (c *Core) prepareCornConfig(corn core.CornsEnvConfig) (*core.CornsEnvConfig
 		}
 	}
 
-	err = corn.ExecuteConfig()
+	err = tmpCorn.ExecuteConfig()
 	if err != nil {
 		newErr := errors.New("error while configure " +
 			core.CornsIdentifier + "[" + corn.ID + "]:")
@@ -45,9 +50,9 @@ func (c *Core) prepareCornConfig(corn core.CornsEnvConfig) (*core.CornsEnvConfig
 		if err != nil {
 			return nil, err
 		}
-		corn.AppendVars(cfg.Vars)
+		tmpCorn.AppendVars(cfg.Vars)
 	}
-	return &corn, nil
+	return &tmpCorn, nil
 }
 
 func (c *Core) execCornConfig(cornConfig core.CornsEnvConfig, isWaiting bool, args ...string) error {

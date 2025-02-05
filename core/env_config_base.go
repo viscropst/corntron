@@ -3,7 +3,6 @@ package core
 import (
 	"cryphtron/internal"
 	"path/filepath"
-	"strings"
 )
 
 type MirrorType string
@@ -74,7 +73,7 @@ func (c *envConfig) ExecuteConfig() error {
 		if !command.CanRunning() {
 			continue
 		}
-		command.Top = &c.ValueScope
+		command.ValueScope = c.ValueScope
 		err := c.executeCommand(command)
 		if err != nil {
 			return err
@@ -107,13 +106,35 @@ func (c *envConfig) ExecuteBootstrap() error {
 func (c *envConfig) executeCommand(command Command) error {
 	cmd := command.Prepare().
 		SetEnv(c.Env)
-	cmd.Env["PATH"] = strings.Replace(
-		cmd.Env["PATH"],
-		internal.PathPlaceHolder,
-		c.Vars["pth_environ"], 1)
-
 	cmd.WithWaiting = true
 	return cmd.Execute()
+}
+
+func (c envConfig) Copy(src ...envConfig) envConfig {
+	var result envConfig
+	if len(src) > 0 {
+		tmp := src[0]
+		result.coreConfig = tmp.coreConfig
+		result.ValueScope = tmp.ValueScope
+		result.envDirname = tmp.envDirname
+		result.envName = tmp.envName
+		result.ID = tmp.ID
+		result.CacheDir = tmp.CacheDir
+		result.IsCommonPlatform = tmp.IsCommonPlatform
+		result.BootstrapExec = tmp.BootstrapExec
+		result.ConfigExec = tmp.ConfigExec
+	} else {
+		result.coreConfig = c.coreConfig
+		result.ValueScope = c.ValueScope
+		result.envDirname = c.envDirname
+		result.envName = c.envName
+		result.ID = c.ID
+		result.CacheDir = c.CacheDir
+		result.IsCommonPlatform = c.IsCommonPlatform
+		result.BootstrapExec = c.BootstrapExec
+		result.ConfigExec = c.ConfigExec
+	}
+	return result
 }
 
 func BaseEnv(coreConfig MainConfig, altEnvDirname ...string) envConfig {

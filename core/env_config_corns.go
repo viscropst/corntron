@@ -104,7 +104,26 @@ func setExec(conf CornsEnvConfig, src Command) Command {
 		result.AppendVarsByNew(src.Vars)
 	}
 	if len(src.Env) > 0 {
-		_ = result.AppendEnv(src.Env)
+		_ = result.AppendEnvs(src.Env)
+	}
+	return result
+}
+
+func (c CornsEnvConfig) Copy(src ...CornsEnvConfig) CornsEnvConfig {
+	result := CornsEnvConfig{}
+	if len(src) > 0 {
+		tmp := src[0]
+		result.envConfig = tmp.envConfig.Copy()
+		result.MetaOnly = tmp.MetaOnly
+		result.DependCorns = tmp.DependCorns
+		result.Exec = tmp.Exec
+		result.ExecByPlats = tmp.ExecByPlats
+	} else {
+		result.envConfig = c.envConfig.Copy()
+		result.MetaOnly = c.MetaOnly
+		result.DependCorns = c.DependCorns
+		result.Exec = c.Exec
+		result.ExecByPlats = c.ExecByPlats
 	}
 	return result
 }
