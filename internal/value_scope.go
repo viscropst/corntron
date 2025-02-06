@@ -156,9 +156,7 @@ func (v *ValueScope) PrepareScope() {
 		v.Top.PrepareScope()
 	}
 
-	for k, v0 := range v.Vars {
-		v.Vars[k] = v.expandValueWithKey(k, v0)
-	}
+	v.Vars = v.expandVars(v.Vars)
 
 	v.prepareEnvs()
 
@@ -176,6 +174,19 @@ func (v *ValueScope) expandEnvs(src VarMap) VarMap {
 		return tmpKey, tmpVal
 	}
 	return utils.AppendMap(src, v.Env, modifier)
+}
+
+func (v *ValueScope) expandVars(src VarMap) VarMap {
+	modifier := func(k, a, b string) (string, string) {
+		tmpKeyFunc := strings.Split(k, funcSeprator)
+		tmpKey := tmpKeyFunc[0]
+		tmpVal := v.expandValueWithKey(k, b)
+		if tmp := v.resolveFn(tmpKeyFunc, tmpVal); len(tmp) > 0 {
+			tmpVal = tmp
+		}
+		return tmpKey, tmpVal
+	}
+	return utils.AppendMap(src, v.Vars, modifier)
 }
 
 func (v *ValueScope) prepareEnvs() {
