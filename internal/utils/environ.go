@@ -45,7 +45,7 @@ func AppendToPathList(src, value string) string {
 	if src == value {
 		return src
 	}
-	value = strings.ReplaceAll(value, "/", string(os.PathSeparator))
+	value = NormalizePath(value)
 	if len(src) == 0 {
 		return value
 	}

@@ -1,6 +1,7 @@
 package cmds
 
 import (
+	"cryphtron/internal/utils"
 	"errors"
 	"flag"
 	"net/http"
@@ -27,6 +28,12 @@ func WgetCmd(args []string) error {
 			" correct usage was: " + WgetCmdID + " src [options]")
 	}
 
+	wd, _ := os.Getwd()
+	dst := wd
+	if len(args) > 1 {
+		dst = utils.NormalizePath(args[1])
+	}
+
 	srcURL := args[0]
 
 	client := http.DefaultClient
@@ -48,6 +55,5 @@ func WgetCmd(args []string) error {
 		return err
 	}
 
-	wd, _ := os.Getwd()
-	return ioToFile(resp.Body, wd)
+	return utils.IOToFile(resp.Body, dst)
 }

@@ -1,12 +1,12 @@
 package internal
 
 import (
-	"os"
+	"cryphtron/internal/utils"
 	"strings"
 )
 
 var argStr = map[string]string{
-	"/#os/": string(os.PathSeparator),
+	"/#os/": utils.OSPathSeparator,
 }
 
 func argReplace(s string) string {
@@ -43,9 +43,9 @@ var fnMaps = map[string]func(args ...string) string{
 	},
 	"ospth": func(args ...string) string {
 		src := args[0]
-		src = strings.ReplaceAll(src, "/", argReplace("/#os/"))
-		src = strings.ReplaceAll(src, ";", string(os.PathListSeparator))
-		return strings.Trim(src, string(os.PathListSeparator))
+		src = strings.ReplaceAll(src, utils.PathSeparator, argReplace("/#os/"))
+		src = strings.ReplaceAll(src, utils.PathListSeparator, utils.OSPathListSeparator)
+		return strings.Trim(src, utils.OSPathListSeparator)
 	},
 }
 
