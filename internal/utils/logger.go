@@ -11,6 +11,8 @@ type xLogger struct {
 	level  zerolog.Level
 }
 
+var CLIOutputLevel = zerolog.DebugLevel
+
 func (l xLogger) With(options ...zerolog.Context) xLogger {
 	tmp := &l
 	tmp.logger = options[0].Logger()
@@ -44,6 +46,7 @@ func zeroLogger(level ...zerolog.Level) xLogger {
 	zerolog.FormattedLevels[zerolog.WarnLevel] = "WARN:>"
 	zerolog.FormattedLevels[zerolog.FatalLevel] = "fatal:"
 	zerolog.FormattedLevels[zerolog.DebugLevel] = "debug:"
+	zerolog.SetGlobalLevel(CLIOutputLevel)
 	zLog.logger = zerolog.New(cw)
 	return zLog
 }
