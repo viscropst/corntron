@@ -51,8 +51,7 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 		env[k] = v
 	}
 	for _, command := range mirrorExec {
-		c0 := command.Prepare().
-			SetEnv(env)
+		c0 := command.SetEnv(env)
 		if !c0.CanRunning() {
 			continue
 		}

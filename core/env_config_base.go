@@ -104,9 +104,13 @@ func (c *envConfig) ExecuteBootstrap() error {
 }
 
 func (c *envConfig) executeCommand(command Command) error {
-	cmd := command.Prepare().
+	if c.Top != nil {
+		command.Top = c.Top
+	}
+	cmd := command.
+		Prepare(c.Vars).
 		SetEnv(c.Env)
-	cmd.WithWaiting = true
+	cmd.GlobalWaiting = true
 	return cmd.Execute()
 }
 

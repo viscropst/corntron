@@ -47,7 +47,7 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 		result.host.PrintDefaults()
 		CliExit(nil, !IsInTerminal() || !result.NoWaiting)
 	}
-	result.host.BoolVar(&result.NoWaiting, "no-wait", false, "executing cryptron without waiting")
+	result.host.BoolVar(&result.NoWaiting, "no-waiting", false, "executing cryptron without waiting")
 	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<cryphtron config folder>")
 	result.host.StringVar(&result.RunningBase, "running-base", "", "/path/to/your/<cryphtron running folder>")
 	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")

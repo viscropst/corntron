@@ -12,9 +12,9 @@ import (
 func (c *Core) ExecCmd(command string, isWaiting bool, args ...string) error {
 	scope := c.ComposeRtEnv()
 	cmd := core.Command{
-		Exec:        command,
-		Args:        args,
-		WithWaiting: isWaiting,
+		Exec:          command,
+		Args:          args,
+		GlobalWaiting: isWaiting,
 	}
 
 	return c.execCmd(&cmd, scope)

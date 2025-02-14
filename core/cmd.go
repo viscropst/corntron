@@ -3,6 +3,7 @@ package core
 import (
 	"cryphtron/internal"
 	"cryphtron/internal/utils"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,16 +34,21 @@ func (sp *splitString) ToArray() []string {
 }
 
 type Command struct {
-	cmd     exec.Cmd
-	Exec    string      `toml:"exec"`
-	PlatStr string      `toml:"platform"`
-	Args    []string    `toml:"args"`
-	ArgStr  splitString `toml:"arg-str"`
-	WorkDir string      `toml:"work-dir"`
+	workDir       string
+	withWaiting   bool
+	stdIn         io.Reader
+	stdOut        io.Writer
+	stdErr        io.Writer
+	GlobalWaiting bool        `toml:"-"`
+	Exec          string      `toml:"exec"`
+	PlatStr       string      `toml:"platform"`
+	Args          []string    `toml:"args"`
+	ArgStr        splitString `toml:"arg-str"`
+	WorkDir       string      `toml:"work-dir"`
 	internal.ValueScope
-	WithEnviron  bool `toml:"with-environ"`
-	WithWaiting  bool `toml:"with-waiting"`
-	IsBackground bool `toml:"is-background"`
+	WithEnviron   bool `toml:"with-environ"`
+	WithNoWaiting bool `toml:"with-no-waiting"`
+	IsBackground  bool `toml:"is-background"`
 }
 
 func (c *Command) CanRunning() bool {
@@ -71,10 +77,13 @@ func (c *Command) SetEnv(environ map[string]string) *Command {
 }
 
 func (c *Command) Prepare(vars ...map[string]string) *Command {
-	c.cmd = exec.Cmd{
-		Stderr: os.Stderr,
-		Stdout: os.Stdout,
-		Stdin:  os.Stdin,
+	c.stdErr = os.Stderr
+	c.stdOut = os.Stdout
+	c.stdIn = os.Stdin
+	if !c.WithNoWaiting {
+		c.withWaiting = c.GlobalWaiting && utils.IsInTerminal()
+	} else {
+		c.withWaiting = !c.WithNoWaiting
 	}
 	if len(vars) > 0 {
 		c.AppendVarsByNew(vars[0])
@@ -85,7 +94,7 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 	c.Exec = c.Expand(c.Exec)
 	if len(c.WorkDir) > 0 {
 		c.WorkDir = c.Expand(c.WorkDir)
-		c.cmd.Dir = filepath.FromSlash(c.WorkDir)
+		c.workDir = filepath.FromSlash(c.WorkDir)
 	}
 	if c.ArgStr.SourceStr != "" {
 		c.ArgStr.SourceStr = c.Expand(c.ArgStr.SourceStr)
@@ -96,10 +105,10 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 
 func (c *Command) prepareCmd() (*exec.Cmd, error) {
 	cmd := exec.Cmd{
-		Stdin:  c.cmd.Stdin,
-		Stdout: c.cmd.Stdout,
-		Stderr: c.cmd.Stderr,
-		Dir:    c.cmd.Dir,
+		Stdin:  c.stdIn,
+		Stdout: c.stdOut,
+		Stderr: c.stdErr,
+		Dir:    c.workDir,
 	}
 	cmd.Path = utils.NormalizePath(c.Exec)
 	c.Env["PATH"] = utils.AppendToPath(c.Env["PATH"])
@@ -124,7 +133,7 @@ func (c *Command) prepareCmd() (*exec.Cmd, error) {
 }
 
 func (c *Command) exec(cmd *exec.Cmd) error {
-	if c.WithWaiting {
+	if c.withWaiting {
 		return cmd.Run()
 	}
 
@@ -149,9 +158,8 @@ func (c *Command) ExecWithAttr(vars ...map[string]string) error {
 
 	LogCLI(zerolog.InfoLevel).Println("executing command", cmd.String())
 
-	if !c.WithWaiting {
-		c.setSysProcAttr(cmd)
-	}
+	attr := utils.GetNewProcGroupAttr(c.IsBackground, !c.withWaiting)
+	cmd.SysProcAttr = &attr
 
 	return c.exec(cmd)
 }

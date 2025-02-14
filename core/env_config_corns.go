@@ -86,8 +86,12 @@ func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 
 func setExec(conf CornsEnvConfig, src Command) Command {
 	result := conf.Exec
-	result.WithWaiting = src.WithWaiting
-	result.WithEnviron = src.WithEnviron
+	if src.WithNoWaiting {
+		result.WithNoWaiting = src.WithNoWaiting
+	}
+	if src.WithEnviron {
+		result.WithEnviron = src.WithEnviron
+	}
 	if len(src.Exec) > 0 && len(src.Args) > 0 {
 		return src
 	}
