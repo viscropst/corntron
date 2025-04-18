@@ -4,12 +4,11 @@ import (
 	"cryphtron"
 	"cryphtron/cmd/cptron"
 	ct_core "cryphtron/core"
+	"cryphtron/internal/utils/log"
 	"errors"
 	"os"
 	"runtime"
 	"strings"
-
-	"github.com/rs/zerolog"
 )
 
 type runCmd struct {
@@ -42,7 +41,7 @@ func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
 			}
 		default:
 		}
-		cptron.CliLog(zerolog.WarnLevel).Println("no command to exec,will use default shell or cmd")
+		cptron.CliLog(log.WarnLevel).Println("no command to exec,will use default shell or cmd")
 	}
 
 	if len(c.Execute) == 0 {

@@ -2,11 +2,10 @@ package cptron
 
 import (
 	"cryphtron/core"
+	"cryphtron/internal/utils"
 	"log"
-
-	"github.com/rs/zerolog"
 )
 
-func CliLog(levels ...zerolog.Level) *log.Logger {
+func CliLog(levels ...utils.LogLevel) *log.Logger {
 	return core.LogCLI(levels...)
 }

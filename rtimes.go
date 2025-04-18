@@ -4,11 +4,10 @@ import (
 	"cryphtron/core"
 	"cryphtron/internal"
 	"cryphtron/internal/utils"
+	"cryphtron/internal/utils/log"
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/rs/zerolog"
 )
 
 func (c Core) ComposeRtEnv() *internal.ValueScope {
@@ -88,7 +87,7 @@ func (c Core) ProcessRtBootstrap(ifResume bool) error {
 			_ = os.RemoveAll(bootstrapDir)
 			err = fmt.Errorf(core.RtIdentifier+" bootstrsp[%s]:%s",
 				config.DirName, err.Error())
-			core.LogCLI(zerolog.ErrorLevel).Println(err)
+			core.LogCLI(log.ErrorLevel).Println(err)
 			if ifResume {
 				return err
 			}

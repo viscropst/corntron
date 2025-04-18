@@ -2,14 +2,13 @@ package core
 
 import (
 	"cryphtron/internal/utils"
+	"cryphtron/internal/utils/log"
 	"errors"
 	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/rs/zerolog"
 )
 
 type MainConfig struct {
@@ -117,7 +116,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	basePath, _ := os.Executable()
 	basePath, _ = filepath.EvalSymlinks(basePath)
 	if len(basePath) == 0 && len(altBases) == 0 {
-		LogCLI(zerolog.FatalLevel).Println("Could not load workdir,use altBase instead")
+		LogCLI(log.FatalLevel).Println("Could not load workdir,use altBase instead")
 	}
 	basePath = filepath.Dir(basePath)
 
@@ -128,7 +127,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	var result = defaultCoreConfig
 	err := loadConfigRegular("core", &result, basePath)
 	if err != nil {
-		LogCLI(zerolog.WarnLevel).Println(err.Error())
+		LogCLI(log.WarnLevel).Println(err.Error())
 	}
 
 	if result.CurrentDir == execDirWithoutLink {

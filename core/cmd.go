@@ -3,13 +3,12 @@ package core
 import (
 	"cryphtron/internal"
 	"cryphtron/internal/utils"
+	"cryphtron/internal/utils/log"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-
-	"github.com/rs/zerolog"
 )
 
 type splitString struct {
@@ -156,7 +155,7 @@ func (c *Command) ExecWithAttr(vars ...map[string]string) error {
 		return err
 	}
 
-	LogCLI(zerolog.InfoLevel).Println("executing command", cmd.String())
+	LogCLI(log.InfoLevel).Println("executing command", cmd.String())
 
 	attr := utils.GetNewProcGroupAttr(c.IsBackground, !c.withWaiting)
 	cmd.SysProcAttr = &attr
@@ -176,7 +175,7 @@ func (c *Command) Execute(vars ...map[string]string) error {
 		return err
 	}
 
-	LogCLI(zerolog.InfoLevel).Println("executing command", cmd.String())
+	LogCLI(log.InfoLevel).Println("executing command", cmd.String())
 
 	return c.exec(cmd)
 }
