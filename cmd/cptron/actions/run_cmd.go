@@ -28,8 +28,8 @@ func (c *runCmd) ActionName() string {
 
 func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
 	argCmdIdx := info.Index + 1
-	if len(os.Args) > argCmdIdx && len(os.Args[argCmdIdx]) > 0 {
-		c.Execute = os.Args[argCmdIdx]
+	if len(os.Args) > argCmdIdx && len(info.Args[argCmdIdx]) > 0 {
+		c.Execute = info.Args[argCmdIdx]
 	} else {
 		switch runtime.GOOS {
 		case "windows":
@@ -54,7 +54,7 @@ func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
 	}
 
 	if len(os.Args) > argCmdIdx+1 {
-		c.ExecArgs = os.Args[argCmdIdx+1:]
+		c.ExecArgs = info.Args[argCmdIdx+1:]
 	}
 
 	return nil
@@ -64,9 +64,9 @@ func (c *runCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
 	return nil
 }
 
-func (c *runCmd) InsertFlags(flag *cptron.CmdFlag) error {
+func (c *runCmd) BeforeLoad(flag *cptron.CmdFlag) (string, []string) {
 	c.withWaiting = !flag.NoWaiting
-	return nil
+	return c.BaseAction.BeforeLoad(flag)
 }
 
 func (c *runCmd) Exec(core *cryphtron.Core) error {

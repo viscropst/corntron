@@ -8,8 +8,8 @@ import (
 
 type CmdAction interface {
 	ActionName() string
-	InsertFlags(flag *CmdFlag) error
 	ParseArg(info FlagInfo) error
+	BeforeLoad(flags *CmdFlag) (string, []string)
 	BeforeCore(coreConfig *core.MainConfig) error
 	Exec(core *cryphtron.Core) error
 }
@@ -20,16 +20,20 @@ func (b BaseAction) ActionName() string {
 	return "empty"
 }
 
-func (b BaseAction) InsertFlags(flag *CmdFlag) error {
-	return nil
-}
-
 func (b BaseAction) ParseArg(info FlagInfo) error {
 	return nil
 }
 
-func (b BaseAction) BeforeCore(coreConfig *core.MainConfig) error {
+func (b BaseAction) BeforeCore(flags *CmdFlag, coreConfig *core.MainConfig) error {
 	return nil
+}
+
+func (b BaseAction) BeforeLoad(flags *CmdFlag) (string, []string) {
+	var confBase []string
+	if len(flags.ConfigBase) > 0 {
+		confBase = append(confBase, flags.ConfigBase)
+	}
+	return flags.RunningBase, confBase
 }
 
 func (b BaseAction) Exec(core *cryphtron.Core) error {

@@ -2,6 +2,7 @@ package cptron
 
 import (
 	"cryphtron/core"
+	"cryphtron/internal/utils/log"
 	"errors"
 	"flag"
 	"os"
@@ -10,23 +11,27 @@ import (
 )
 
 type FlagInfo struct {
-	Name    string
-	Index   int
-	CmdName string
+	Name     string
+	Index    int
+	CmdName  string
+	TotalLen int
+	Args     []string
 }
 
 type CmdFlag struct {
-	host        *flag.FlagSet
-	flagLen     int
-	argLen      int
-	osArgLen    int
-	actions     map[string]CmdAction
-	NoWaiting   bool
-	ConfigBase  string
-	EnvDirname  string
-	RuntimeBase string
-	EditorBase  string
-	RunningBase string
+	host             *flag.FlagSet
+	flagLen          int
+	argLen           int
+	osArgLen         int
+	actions          map[string]CmdAction
+	args             []string
+	NoWaiting        bool
+	ConfigBase       string
+	EnvDirname       string
+	RuntimeBase      string
+	EditorBase       string
+	RunningBase      string
+	PassToCornConfig bool
 }
 
 func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
@@ -57,33 +62,48 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 }
 
 func (f *CmdFlag) Parse() (CmdAction, error) {
-	err := f.host.Parse(os.Args[1:])
-	if err != nil {
+	startIdx := 1
+	f.args = os.Args
+	if len(f.args) > 2 {
+		if len(f.args[1]) < 2 {
+			startIdx += 1
+		}
+		if sp := strings.Split(strings.TrimSpace(f.args[startIdx]), " "); len(sp) > 1 {
+			f.args = make([]string, 1)
+			f.args[0] = os.Args[0]
+			f.args = append(f.args, sp...)
+			f.args = append(f.args, os.Args[startIdx+1:]...)
+		}
+	}
+	err := f.host.Parse(f.args[startIdx:])
+	if err != nil && !f.PassToCornConfig {
 		return nil, err
 	}
 	f.flagLen = f.host.NFlag() * 2
 	f.argLen = f.host.NArg()
-	f.osArgLen = len(os.Args) - 1
+	f.osArgLen = len(f.args) - 1
 	if (f.osArgLen-f.argLen) < 0 || (f.argLen+f.flagLen) == 0 {
 		return nil, errors.New("invalid length of args,use '-help' for usage")
 	}
-	idxArgAct := f.flagLen + 1
+	idxArgAct := startIdx - 1
+	idxArgAct = idxArgAct + f.flagLen + 1
 	if (f.osArgLen + 1) < (idxArgAct + f.argLen) {
 		idxArgAct -= 1
 	}
 	info := FlagInfo{
-		Name:    os.Args[idxArgAct],
-		Index:   idxArgAct,
-		CmdName: f.host.Name(),
+		Name:     os.Args[idxArgAct],
+		Index:    idxArgAct,
+		CmdName:  f.host.Name(),
+		TotalLen: f.osArgLen,
+		Args:     f.args,
 	}
-	if fileArg := os.Args[idxArgAct]; strings.HasSuffix(fileArg, core.CornConfigExt) {
+	CliLog(log.DebugLevel).Println("startIndex", startIdx)
+	if fileArg := f.args[idxArgAct]; strings.HasSuffix(fileArg, core.CornConfigExt) {
 		action := f.actions["run-"+core.CornsIdentifier+"-config"]
 		info.Index = idxArgAct - 1
-		_ = action.InsertFlags(f)
 		return action, action.ParseArg(info)
 	}
-	if action, ok := f.actions[os.Args[idxArgAct]]; ok {
-		_ = action.InsertFlags(f)
+	if action, ok := f.actions[f.args[idxArgAct]]; ok {
 		return action, action.ParseArg(info)
 	}
 	return nil, errors.New("invalid action,use '-help' for actions")

@@ -5,7 +5,9 @@ import (
 	"cryphtron/cmd/cptron"
 	"cryphtron/cmd/cptron/actions"
 	"cryphtron/internal/utils/log"
+	"net/url"
 	"os"
+	"strings"
 )
 
 type cliFlags struct {
@@ -22,6 +24,13 @@ func main() {
 
 	flags := cliFlags{}.Init()
 	errLogger := cptron.CliLog(log.ErrorLevel)
+	if !strings.HasSuffix(os.Args[0], "debug") {
+		log.CLIOutputLevel = log.InfoLevel
+	}
+	cptron.CliLog(log.DebugLevel).Println(os.Args, "len:", len(os.Args))
+	for i, v := range os.Args {
+		cptron.CliLog(log.DebugLevel).Println("arg", i, "was", v, "url value", url.QueryEscape(v), "len", len(v))
+	}
 
 	action, err := flags.Parse()
 	defer cptron.CliExit(err, err != nil && (!cptron.IsInTerminal()))
@@ -30,11 +39,8 @@ func main() {
 		return
 	}
 
-	var confBase []string
-	if len(flags.ConfigBase) > 0 {
-		confBase = append(confBase, flags.ConfigBase)
-	}
-	coreConfig := cryphtron.LoadCoreConfigWithRuningBase(flags.RunningBase, confBase...)
+	runningBase, confBase := action.BeforeLoad(flags.CmdFlag)
+	coreConfig := cryphtron.LoadCoreConfigWithRuningBase(runningBase, confBase...)
 
 	err = action.BeforeCore(&coreConfig)
 	if err != nil {
