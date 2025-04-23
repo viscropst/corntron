@@ -61,8 +61,7 @@ func (c *runCornConfig) BeforeLoad(flags *cptron.CmdFlag) (string, []string) {
 		base := c.fileName
 		if filepath.IsLocal(c.fileName) {
 			wd, _ := os.Getwd()
-			flags.ConfigBase = filepath.Join(wd, base)
-
+			base = filepath.Join(wd, base)
 		}
 		flags.ConfigBase = filepath.Dir(base)
 	}
