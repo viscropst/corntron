@@ -52,22 +52,13 @@ var fnMaps = map[string]func(args ...string) string{
 const funcSeprator = ":"
 
 func (v ValueScope) funcMapping(key string, src map[string]string) string {
-	var result string
 	keyFn := strings.Split(key, funcSeprator)
-	for k, v0 := range src {
-		if !strings.HasPrefix(k, keyFn[0]) {
-			continue
-		}
-		innerKeyFn := strings.Split(k, funcSeprator)
-		if len(innerKeyFn) < 2 {
-			break
-		}
-		result = v.resolveFn(innerKeyFn, v0)
-		if len(result) > 0 {
-			break
-		}
+	resultKey, resultValue := platMappingWithKey(keyFn[0], key, src)
+	innerKeyFn := strings.Split(resultKey, funcSeprator)
+	if len(innerKeyFn) > 1 {
+		resultValue = v.resolveFn(innerKeyFn, resultValue)
 	}
-	return result
+	return resultValue
 }
 
 func (v ValueScope) resolveFn(keyFn []string, result string) string {

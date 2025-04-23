@@ -1,6 +1,9 @@
 package internal
 
-import "cryphtron/internal/utils"
+import (
+	"cryphtron/internal/utils"
+	"strings"
+)
 
 const selectorPrefix = "+"
 
@@ -23,4 +26,33 @@ func platMapping[v any](key string, altKey string, src map[string]v) v {
 		result = v0
 	}
 	return result
+}
+
+func platMappingWithKey[v any](key string, altKey string, src map[string]v) (string, v) {
+	var result = key
+	for k := range src {
+		if !strings.HasPrefix(k, key) {
+			continue
+		}
+
+		splitFunc := strings.Split(k, funcSeprator)
+		splitSelector := strings.Split(splitFunc[0], selectorPrefix)
+		if len(splitSelector) < 2 {
+			result = k
+			continue
+		}
+		if len(splitSelector) >= 2 && splitSelector[1] == utils.OS() {
+			result = k
+			break
+		}
+		if len(splitSelector) >= 2 && splitSelector[1] == utils.Arch() {
+			result = k
+			break
+		}
+		if len(splitSelector) >= 2 && splitSelector[1] == utils.Platform() {
+			result = k
+			break
+		}
+	}
+	return result, platMapping(key, altKey, src)
 }
