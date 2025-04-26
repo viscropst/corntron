@@ -1,4 +1,5 @@
-//go:build !windows && !appengine
+//go:build !linux && !windows && !appengine
+// +build !linux,!windows,!appengine
 
 package utils
 
