@@ -17,7 +17,12 @@ func (c *Core) prepareEnvsByEnviron() {
 	} else {
 		c.assignWithEnviron("HOME")
 	}
-	if c.assertWithEnviron("DESKTOP_SESSION") {
+	if c.assertWithEnviron("DESKTOP_SESSION") ||
+		c.assertWithEnviron("XDG_SESSION_TYPE") {
+		c.unixEnvWithDesktop()
+	}
+	if c.assertWithEnviron("XDG_SEAT") ||
+		c.assertWithEnviron("DISPLAY") {
 		c.unixEnvWithDesktop()
 	}
 }
