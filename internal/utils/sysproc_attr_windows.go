@@ -9,7 +9,7 @@ import (
 
 const CREATE_NO_WINDOW = 0x08000000
 
-func GetNewProcGroupAttr(isBackground, newGroup bool) syscall.SysProcAttr {
+func GetNewProcGroupAttr(isBackground, newGroup bool) *syscall.SysProcAttr {
 	result := syscall.SysProcAttr{}
 	var flag uint32 = syscall.CREATE_UNICODE_ENVIRONMENT
 	if newGroup || IsInTerminal() {
@@ -20,5 +20,5 @@ func GetNewProcGroupAttr(isBackground, newGroup bool) syscall.SysProcAttr {
 		result.HideWindow = true
 	}
 	result.CreationFlags = flag
-	return result
+	return &result
 }

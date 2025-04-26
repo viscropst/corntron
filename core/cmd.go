@@ -158,7 +158,9 @@ func (c *Command) ExecWithAttr(vars ...map[string]string) error {
 	LogCLI(log.InfoLevel).Println("executing command", cmd.String())
 
 	attr := utils.GetNewProcGroupAttr(c.IsBackground, !c.withWaiting)
-	cmd.SysProcAttr = &attr
+	if attr != nil {
+		cmd.SysProcAttr = attr
+	}
 
 	return c.exec(cmd)
 }
