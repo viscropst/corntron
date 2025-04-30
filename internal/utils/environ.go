@@ -45,7 +45,19 @@ func AppendToPathList(src, value string) string {
 	if src == value {
 		return src
 	}
-	value = NormalizePath(value)
+	if strings.Contains(value, PathListSeparator) {
+		tmp := ""
+		for _, v := range strings.Split(value, PathListSeparator) {
+			tmp = tmp + OSPathListSeparator + NormalizePath(v)
+		}
+		if len(tmp) > 1 {
+			value = tmp[1:]
+		} else {
+			value = tmp
+		}
+	} else {
+		value = NormalizePath(value)
+	}
 	if len(src) == 0 {
 		return value
 	}
@@ -55,11 +67,11 @@ func AppendToPathList(src, value string) string {
 	if strings.Contains(value, src) {
 		return value
 	}
-	pthList := strings.Split(src, string(os.PathListSeparator))
+	pthList := strings.Split(src, string(OSPathListSeparator))
 	for _, a := range pthList {
 		if a == value {
 			return src
 		}
 	}
-	return src + string(os.PathListSeparator) + value
+	return src + OSPathListSeparator + value
 }
