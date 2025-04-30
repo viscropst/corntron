@@ -5,22 +5,29 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 const defaultMod = 0666
 
-func IOToFile(from io.Reader, to string) error {
-	return ioToFile(from, NormalizePath(to))
+func IOToFile(from io.Reader, to string, bar *pb.ProgressBar) error {
+	return ioToFile(from, NormalizePath(to), bar)
 }
 
-func ioToFile(from io.Reader, to string) error {
+func ioToFile(from io.Reader, to string, bar *pb.ProgressBar) error {
 	toFile, err := os.OpenFile(
 		to, os.O_CREATE|os.O_RDWR, defaultMod)
 	if err != nil {
 		return err
 	}
-	_, err = io.Copy(toFile, from)
+	if bar != nil {
+
+	}
+	barReader := bar.NewProxyReader(from)
+	_, err = io.Copy(toFile, barReader)
 	_ = toFile.Close()
+	bar.Finish()
 	return err
 }
 
@@ -31,7 +38,8 @@ func CopyToFile(from os.FileInfo, to string, excludes ...string) error {
 func copyToFile(from os.FileInfo, to string, excludes ...string) error {
 	if !from.IsDir() {
 		fileSrc, _ := os.Open(from.Name())
-		err := ioToFile(fileSrc, to)
+		bar := pb.Default.Start64(from.Size())
+		err := ioToFile(fileSrc, to, bar)
 		_ = fileSrc.Close()
 		return err
 	} else {

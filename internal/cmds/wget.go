@@ -2,10 +2,13 @@ package cmds
 
 import (
 	"cryphtron/internal/utils"
+	"cryphtron/internal/utils/log"
 	"errors"
 	"flag"
 	"net/http"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 const WgetCmdID = "wgt"
@@ -54,6 +57,7 @@ func WgetCmd(args []string) error {
 	if err != nil {
 		return err
 	}
-
-	return utils.IOToFile(resp.Body, dst)
+	utils.LogCLI(log.InfoLevel).Println(WgetCmdName+":", "Downloading", dst, "from", srcURL)
+	bar := pb.Default.Start64(resp.ContentLength)
+	return utils.IOToFile(resp.Body, dst, bar)
 }
