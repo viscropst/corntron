@@ -110,7 +110,8 @@ func (c *envConfig) executeCommand(command Command) error {
 	cmd := command.
 		Prepare(c.Vars).
 		SetEnv(c.Env)
-	cmd.GlobalWaiting = true
+	cmd.withWaiting = true
+
 	return cmd.Execute()
 }
 
@@ -124,6 +125,7 @@ func (c envConfig) Copy(src ...envConfig) envConfig {
 		result.envName = tmp.envName
 		result.ID = tmp.ID
 		result.CacheDir = tmp.CacheDir
+		result.DirName = tmp.DirName
 		result.IsCommonPlatform = tmp.IsCommonPlatform
 		result.BootstrapExec = tmp.BootstrapExec
 		result.ConfigExec = tmp.ConfigExec
@@ -134,6 +136,7 @@ func (c envConfig) Copy(src ...envConfig) envConfig {
 		result.envName = c.envName
 		result.ID = c.ID
 		result.CacheDir = c.CacheDir
+		result.DirName = c.DirName
 		result.IsCommonPlatform = c.IsCommonPlatform
 		result.BootstrapExec = c.BootstrapExec
 		result.ConfigExec = c.ConfigExec
