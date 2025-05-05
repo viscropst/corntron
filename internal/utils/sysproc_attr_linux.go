@@ -3,13 +3,12 @@
 
 package utils
 
-import "syscall"
+import (
+	"syscall"
+)
 
 func GetNewProcGroupAttr(isBackground, newGroup bool) *syscall.SysProcAttr {
 	result := syscall.SysProcAttr{}
-	if newGroup {
-		result.Setpgid = true
-		result.Foreground = true
-	}
+	result.Setpgid = newGroup
 	return &result
 }
