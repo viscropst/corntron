@@ -2,6 +2,7 @@ package internal
 
 import (
 	"cryphtron/internal/utils"
+	"cryphtron/internal/utils/log"
 	"strings"
 )
 
@@ -46,6 +47,22 @@ var fnMaps = map[string]func(args ...string) string{
 		src = strings.ReplaceAll(src, utils.PathSeparator, argReplace("/#os/"))
 		src = strings.ReplaceAll(src, utils.PathListSeparator, utils.OSPathListSeparator)
 		return strings.Trim(src, utils.OSPathListSeparator)
+	},
+	"webreq": func(args ...string) string {
+		origin := args[0]
+		funcArgs := strings.Split(args[1], ",")
+		if len(funcArgs) == 0 && funcArgs[0] == "" {
+			utils.LogCLI(log.PanicLevel).Println("empty url while doing web request")
+		}
+		if len(funcArgs) < 2 {
+			funcArgs = append(funcArgs, "GET")
+		}
+		result, err := utils.HttpRequestString(funcArgs[0], funcArgs[1:]...)
+		if err != nil {
+			utils.LogCLI(log.ErrorLevel).Println("error while doing web request:", err)
+			return origin
+		}
+		return result
 	},
 }
 
