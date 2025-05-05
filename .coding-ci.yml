@@ -17,12 +17,12 @@ $:
   stages:
     - name: build-binaries
       ifModify: 
-        - "**/*.js"
+        - "**/*.go"
         - "go.mod"
       script: sh .build/build-binaries.sh
     - name: push-binaries
       ifModify:
-        - "**/*.js"
+        - "**/*.go"
         - "go.mod"
       script: sh .build/push-binaries.sh
 
