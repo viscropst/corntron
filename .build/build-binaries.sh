@@ -26,13 +26,14 @@ for sys in $os; do
         [ $arch == "loong64" -a $sys != "linux" ] && continue
         export GOOS=$sys
         export GOARCH=$arch
-        echo "output file:" $out_dir/$file_name
         for bin in $binaries; do
             file_name=$bin"_"$arch
             [ $sys != "windows" ] && file_name=$file_name'_'$os
             [ $sys == "windows" ] && file_name=$file_name'.exe'
             mkdir -p $out_dir
-            CGO_ENABLED=0 go build -o $out_dir/$file_name $PWD/cmd/$bin/main/main.go || exit 1
+            echo "output file:" $out_dir/$file_name
+            echo "build binary:" $bin
+            CGO_ENABLED=0 go build -o $out_dir/$file_name $PWD/cmd/$bin/main || exit 1
         done
     done
 done
