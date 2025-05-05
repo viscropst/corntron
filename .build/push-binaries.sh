@@ -2,7 +2,9 @@
 
 out_dir=$PWD/out
 version="staging"
-[ ${CODING_BRANCH} -neq "main" ] && version=${CODING_BRANCH}
+[ ${CODING_BRANCH} != "main" ] && version=${CODING_BRANCH}
+
+apk add --no-cache curl
 
 GENERIC_ARTIFACTS_MACHINE="visoft-generic.pkg.coding.net"
 GENERIC_ARTIFACTS_STORE="/imetnide/binary"
