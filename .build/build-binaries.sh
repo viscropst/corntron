@@ -31,9 +31,9 @@ for sys in $os; do
             [ $sys != "windows" ] && file_name=$file_name'_'$sys
             [ $sys == "windows" ] && file_name=$file_name'.exe'
             mkdir -p $out_dir
-            echo "output file:" $out_dir/$file_name
+            echo "output file:" $out_dir/$bin/$file_name
             echo "build binary:" $bin
-            CGO_ENABLED=0 go build -o $out_dir/$file_name $PWD/cmd/$bin/main || exit 1
+            CGO_ENABLED=0 go build -o $out_dir/$bin/$file_name $PWD/cmd/$bin/main || exit 1
         done
     done
 done
