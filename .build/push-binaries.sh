@@ -1,6 +1,6 @@
 #!/bin/sh
 
-out_dir = $PWD/out
+out_dir=$PWD/out
 version="staging"
 [ ${CODING_BRANCH} -neq "main" ] && version=${CODING_BRANCH}
 

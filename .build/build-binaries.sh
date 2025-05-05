@@ -32,7 +32,7 @@ for sys in $os; do
             [ $sys != "windows" ] && file_name=$file_name'_'$os
             [ $sys == "windows" ] && file_name=$file_name'.exe'
             mkdir -p $out_dir
-            CGO_ENABLED=0 go build -o $out_dir/$file_name $PWD/cmd/$bin/main/main.go
+            CGO_ENABLED=0 go build -o $out_dir/$file_name $PWD/cmd/$bin/main/main.go || exit 1
         done
     done
 done
