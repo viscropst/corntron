@@ -12,12 +12,12 @@ $:
 .building-binary: &building-binary
     - name: build-binaries
       image: golang:alpine
-      script: .build/build-binaries.sh
+      script: sh .build/build-binaries.sh
 
 .release-binary: &release-binary
     - *building-binary
     - name: push-binaries
-      script: .build/push-binaries.sh
+      script: sh .build/push-binaries.sh
 
 'rel-*':
   tag_push:
