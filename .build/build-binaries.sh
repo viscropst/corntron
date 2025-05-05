@@ -28,7 +28,7 @@ for sys in $os; do
         export GOARCH=$arch
         for bin in $binaries; do
             file_name=$bin"_"$arch
-            [ $sys != "windows" ] && file_name=$file_name'_'$os
+            [ $sys != "windows" ] && file_name=$file_name'_'$sys
             [ $sys == "windows" ] && file_name=$file_name'.exe'
             mkdir -p $out_dir
             echo "output file:" $out_dir/$file_name
