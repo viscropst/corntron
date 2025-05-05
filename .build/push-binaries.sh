@@ -15,8 +15,8 @@ for binary in `ls ${out_dir}/`;
 do
     for filename in `ls ${out_dir}/${binary}`;
     do
-        file=${out_dir}"/"${filename}
         artifact_file=${binary}"/"${filename}
+        file=${out_dir}"/"${artifact_file} 
         echo "now pushing" $file "with version:" $version
         echo "artifact file was:" ${artifact_file}
         curl -T $file \
