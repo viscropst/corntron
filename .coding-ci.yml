@@ -19,11 +19,13 @@ $:
       ifModify: 
         - "**/*.go"
         - "go.mod"
+        - ".build/*.sh"
       script: sh .build/build-binaries.sh
     - name: push-binaries
       ifModify:
         - "**/*.go"
         - "go.mod"
+        - ".build/*.sh"
       script: sh .build/push-binaries.sh
 
 'rel-*':
