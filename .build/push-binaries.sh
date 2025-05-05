@@ -11,8 +11,9 @@ GENERIC_ARTIFACTS_PWD=9dfcfc87722fdc68c7883d2f82c314ffb6135a93
 
 for binary in `ls ${out_dir}/`;
 do
-    echo "now pushing" $binary "with version:" $version
-    curl -T ${binary} \
+    file=${out_dir}"/"${binary}
+    echo "now pushing" $file "with version:" $version
+    curl -T $file \
         -u ${GENERIC_ARTIFACTS_USER}:${GENERIC_ARTIFACTS_PWD} \
         "https://"${GENERIC_ARTIFACTS_MACHINE}${GENERIC_ARTIFACTS_STORE}"/"${binary}"?version="${version}
 done
