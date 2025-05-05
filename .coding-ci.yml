@@ -8,22 +8,27 @@ $:
       stages:
         - name: ready
           type: vscode:go
-
-.building-binary: &building-binary
-    - name: build-binaries
-      image: golang:alpine
-      script: sh .build/build-binaries.sh
-
+    
 .release-binary: &release-binary
-    - *building-binary
+  docker:
+    image: golang:alpine
+    volumes:
+      - main:/root/.cache/go-build:copy-on-write
+  stages:
+    - name: build-binaries
+      ifModify: 
+        - "**/*.js"
+        - "go.mod"
+      script: sh .build/build-binaries.sh
     - name: push-binaries
+      ifModify:
+        - "**/*.js"
+        - "go.mod"
       script: sh .build/push-binaries.sh
 
 'rel-*':
   tag_push:
-    - stages:
-      - *release-binary
+    - *release-binary
 'main':
   push:
-    - stages:
-      - *release-binary
+    - *release-binary
