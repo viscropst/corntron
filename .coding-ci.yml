@@ -24,6 +24,6 @@ $:
     - stages:
       - *release-binary
 'main':
-  tag_push:
+  push:
     - stages:
       - *release-binary
