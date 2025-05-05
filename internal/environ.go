@@ -42,17 +42,3 @@ func (c *Core) assignWithEnviron(key string) {
 		c.Env[key] = v
 	}
 }
-
-func (c *Core) assertWithEnviron(args ...string) bool {
-	if len(args) == 0 {
-		return false
-	}
-	key := args[0]
-	v, ok := c.Environ[key]
-	if len(args) == 1 {
-		return ok
-	} else {
-		value := args[1]
-		return ok && v == value
-	}
-}
