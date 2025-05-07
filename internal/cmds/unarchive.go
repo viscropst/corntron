@@ -7,10 +7,13 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 const UnzipCmdName = "uzip"
 const UntarCmdName = "utar"
+
+const UnzipIncludeAll = "all"
 
 func init() {
 	AppendCmd(CmdName(UnzipCmdName), UnzipCmd)
@@ -20,7 +23,7 @@ func init() {
 type unArchiveFlags struct {
 	*flag.FlagSet
 	IncludeFiles string
-	OutputFile   string
+	OutputPath   string
 	SourceFile   string
 	RemoveSrc    bool
 }
@@ -28,11 +31,41 @@ type unArchiveFlags struct {
 func unarchiveFlags(cmdName string) *unArchiveFlags {
 	result := unArchiveFlags{}
 	result.FlagSet = flag.NewFlagSet(cmdName, flag.ContinueOnError)
-	result.StringVar(&result.IncludeFiles, "include-files", "all", "which files to unarchive")
+	result.StringVar(&result.IncludeFiles, "include-files", UnzipIncludeAll, "which files to unarchive")
 	result.StringVar(&result.SourceFile, "src", "", "source archive file")
-	result.StringVar(&result.OutputFile, "out", "", "output path")
+	result.StringVar(&result.OutputPath, "out", "", "output path")
 	result.BoolVar(&result.RemoveSrc, "remove-src", false, "remove source file after unarchiving")
 	return &result
+}
+
+func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
+	err := f.Parse(args)
+	if err != nil {
+		return nil, err
+	}
+	src := utils.NormalizePath(f.SourceFile)
+	if len(src) == 0 {
+		return nil, errors.New("no source file specified")
+	}
+	srcStat, _ := os.Stat(src)
+	if srcStat == nil {
+		return nil, errors.New("source file does not exist")
+	}
+	if srcStat.IsDir() {
+		return nil, errors.New("source file is a directory")
+	}
+	f.SourceFile = src
+	out := utils.NormalizePath(f.OutputPath)
+	if len(out) == 0 {
+		out = filepath.Dir(src)
+	}
+	f.OutputPath = out
+	if len(f.IncludeFiles) == 0 || f.IncludeFiles == UnzipIncludeAll {
+		f.IncludeFiles = UnzipIncludeAll
+		return nil, nil
+	}
+	f.IncludeFiles = strings.TrimSpace(f.IncludeFiles)
+	return strings.Split(f.IncludeFiles, ","), nil
 }
 
 func UnzipCmd(args []string) error {
@@ -44,36 +77,22 @@ func UntarCmd(args []string) error {
 }
 
 func UnArchiveCmd(cmdName string, args []string) error {
-	flag := unarchiveFlags(cmdName)
-	err := flag.Parse(args)
+	flags := unarchiveFlags(cmdName)
+	includes, err := flags.normalizeFlags(args)
 	if err != nil {
 		return err
 	}
-	src := utils.NormalizePath(flag.SourceFile)
-	if len(src) == 0 {
-		return errors.New("no source file specified")
-	}
-	srcStat, _ := os.Stat(src)
-	if srcStat == nil {
-		return errors.New("source file does not exist")
-	}
-	if srcStat.IsDir() {
-		return errors.New("source file is a directory")
-	}
-	out := utils.NormalizePath(flag.OutputFile)
-	if len(out) == 0 {
-		out = filepath.Dir(src)
-	}
-	utils.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", src, "to", out)
-	srcFile, err := os.Open(src)
+	utils.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", flags.SourceFile, "to", flags.OutputPath)
+	srcFile, err := os.Open(flags.SourceFile)
 	if err != nil {
 		return err
 	}
-	switch flag.Name() {
+
+	switch flags.Name() {
 	case UntarCmdName:
-		err = untar(srcFile, flag)
+		err = utils.UnTarFromFile(srcFile, flags.OutputPath, includes...)
 	case UnzipCmdName:
-		err = unzip(srcFile, flag)
+		err = utils.UnZipFromFile(srcFile, flags.OutputPath, includes...)
 	default:
 		err = errors.New("unknown command")
 	}
@@ -81,16 +100,8 @@ func UnArchiveCmd(cmdName string, args []string) error {
 		return err
 	}
 	utils.CloseFileAndFinishBar(srcFile, nil)
-	if flag.RemoveSrc {
+	if flags.RemoveSrc {
 		return os.RemoveAll(utils.NormalizePath(srcFile.Name()))
 	}
 	return nil
-}
-
-func unzip(src *os.File, flags *unArchiveFlags) error {
-	return utils.UnZipFromFile(src, flags.OutputFile)
-}
-
-func untar(src *os.File, flags *unArchiveFlags) error {
-	return utils.UnTarFromFile(src, flags.OutputFile)
 }
