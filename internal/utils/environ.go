@@ -33,14 +33,14 @@ func makeEnvironMap() map[string]string {
 	return tmp
 }
 func AppendToPath(value string) string {
-	if assertWithEnviron("PATH", value) {
+	if AssertWithEnviron("PATH", value) {
 		return value
 	}
 	pathValue := environ["PATH"]
 	return AppendToPathList(pathValue, value)
 }
 
-func assertWithEnviron(args ...string) bool {
+func AssertWithEnviron(args ...string) bool {
 	if len(args) == 0 {
 		return false
 	}

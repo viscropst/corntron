@@ -3,6 +3,8 @@
 
 package internal
 
+import "cryphtron/internal/utils"
+
 func (c *Core) prepareEnvsByEnviron() {
 	c.assignWithEnviron("SSH_AUTH_SOCK")
 	c.assignWithEnviron("SSH_ASKPASS")
@@ -18,12 +20,12 @@ func (c *Core) prepareEnvsByEnviron() {
 	} else {
 		c.assignWithEnviron("HOME")
 	}
-	if c.assertWithEnviron("DESKTOP_SESSION") ||
-		c.assertWithEnviron("XDG_SESSION_TYPE") {
+	if utils.AssertWithEnviron("DESKTOP_SESSION") ||
+		utils.AssertWithEnviron("XDG_SESSION_TYPE") {
 		c.unixEnvWithDesktop()
 	}
-	if c.assertWithEnviron("XDG_SEAT") ||
-		c.assertWithEnviron("DISPLAY") {
+	if utils.AssertWithEnviron("XDG_SEAT") ||
+		utils.AssertWithEnviron("DISPLAY") {
 		c.unixEnvWithDesktop()
 	}
 }
@@ -49,26 +51,26 @@ func (c *Core) unixEnvWithDesktop() {
 	c.assignWithEnviron("GTK_RC_FILES")
 	c.assignWithEnviron("GTK2_RC_FILES")
 	c.assignWithEnviron("DCONF_PROFILE")
-	c.assertWithEnviron("GDK_BACKEND")
+	c.assignWithEnviron("GDK_BACKEND")
 	c.assignWithEnviron("QT_QPA_PLATFORM")
-	if c.assertWithEnviron("QT_ENABLE_HIGHDPI_SCALING", "1") {
+	if utils.AssertWithEnviron("QT_ENABLE_HIGHDPI_SCALING", "1") {
 		c.assignWithEnviron("QT_ENABLE_HIGHDPI_SCALING")
 		c.assignWithEnviron("QT_AUTO_SCREEN_SCALE_FACTOR")
 	}
-	if c.assertWithEnviron("DESKTOP_SESSION", "plasma") {
+	if utils.AssertWithEnviron("DESKTOP_SESSION", "plasma") {
 		c.assignWithEnviron("PAM_KWALLET5_LOGIN")
 		c.assignWithEnviron("KDE_SESSION_VERSION")
 		c.assignWithEnviron("KDE_FULL_SESSION")
 	}
 
-	if c.assertWithEnviron("XDG_SESSION_TYPE", "wayland") {
+	if utils.AssertWithEnviron("XDG_SESSION_TYPE", "wayland") {
 		c.assignWithEnviron("WAYLAND_DISPLAY")
 		c.assignWithEnviron("QT_WAYLAND_RECONNECT")
 		c.assignWithEnviron("QT_WAYLAND_DECORATIONS")
 		c.assignWithEnviron("MOZ_ENABLE_WAYLAND")
 	}
 
-	if c.assertWithEnviron("XDG_SESSION_TYPE", "x11") {
+	if utils.AssertWithEnviron("XDG_SESSION_TYPE", "x11") {
 		c.assignWithEnviron("INPUT_METHOD")
 		c.assignWithEnviron("XMODIFIERS")
 		c.assignWithEnviron("QT_IM_MODULE")
