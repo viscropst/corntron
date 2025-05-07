@@ -2,9 +2,11 @@ package cmds
 
 import (
 	"cryphtron/internal/utils"
+	"cryphtron/internal/utils/log"
 	"errors"
 	"flag"
 	"os"
+	"path/filepath"
 )
 
 const UnzipCmdName = "uzip"
@@ -48,11 +50,25 @@ func UnArchiveCmd(cmdName string, args []string) error {
 		return err
 	}
 	src := utils.NormalizePath(flag.SourceFile)
+	if len(src) == 0 {
+		return errors.New("no source file specified")
+	}
+	srcStat, _ := os.Stat(src)
+	if srcStat == nil {
+		return errors.New("source file does not exist")
+	}
+	if srcStat.IsDir() {
+		return errors.New("source file is a directory")
+	}
+	out := utils.NormalizePath(flag.OutputFile)
+	if len(out) == 0 {
+		out = filepath.Dir(src)
+	}
+	utils.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", src, "to", out)
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
-	defer utils.CloseFileAndFinishBar(srcFile, nil)
 	switch flag.Name() {
 	case UntarCmdName:
 		err = untar(srcFile, flag)
@@ -64,8 +80,8 @@ func UnArchiveCmd(cmdName string, args []string) error {
 	if err != nil {
 		return err
 	}
+	utils.CloseFileAndFinishBar(srcFile, nil)
 	if flag.RemoveSrc {
-		utils.CloseFileAndFinishBar(srcFile, nil)
 		return os.RemoveAll(utils.NormalizePath(srcFile.Name()))
 	}
 	return nil
