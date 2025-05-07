@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"cryphtron/internal/utils"
+	"errors"
 	"flag"
 	"os"
 )
@@ -19,6 +20,7 @@ type unArchiveFlags struct {
 	IncludeFiles string
 	OutputFile   string
 	SourceFile   string
+	RemoveSrc    bool
 }
 
 func unarchiveFlags(cmdName string) *unArchiveFlags {
@@ -27,6 +29,7 @@ func unarchiveFlags(cmdName string) *unArchiveFlags {
 	result.StringVar(&result.IncludeFiles, "include-files", "all", "which files to unarchive")
 	result.StringVar(&result.SourceFile, "src", "", "source archive file")
 	result.StringVar(&result.OutputFile, "out", "", "output path")
+	result.BoolVar(&result.RemoveSrc, "remove-src", false, "remove source file after unarchiving")
 	return &result
 }
 
@@ -49,11 +52,21 @@ func UnArchiveCmd(cmdName string, args []string) error {
 	if err != nil {
 		return err
 	}
+	defer utils.CloseFileAndFinishBar(srcFile, nil)
 	switch flag.Name() {
 	case UntarCmdName:
-		return untar(srcFile, flag)
+		err = untar(srcFile, flag)
 	case UnzipCmdName:
-		return unzip(srcFile, flag)
+		err = unzip(srcFile, flag)
+	default:
+		err = errors.New("unknown command")
+	}
+	if err != nil {
+		return err
+	}
+	if flag.RemoveSrc {
+		utils.CloseFileAndFinishBar(srcFile, nil)
+		return os.RemoveAll(utils.NormalizePath(srcFile.Name()))
 	}
 	return nil
 }

@@ -12,22 +12,25 @@ import (
 const defaultMod = 0666
 
 func IOToFile(from io.Reader, to string, bar *pb.ProgressBar) error {
-	return ioToFile(from, NormalizePath(to), bar)
+	return ioToFile(from, NormalizePath(to), defaultMod, bar)
 }
 
-func ioToFile(from io.Reader, to string, bar *pb.ProgressBar) error {
+func ioToFile(from io.Reader, to string, mod os.FileMode, bar *pb.ProgressBar) error {
+	if mod == 0 {
+		mod = defaultMod
+	}
 	toFile, err := os.OpenFile(
-		to, os.O_CREATE|os.O_RDWR, defaultMod)
+		to, os.O_CREATE|os.O_RDWR|os.O_TRUNC, mod)
 	if err != nil {
 		return err
 	}
+	defer CloseFileAndFinishBar(toFile, bar)
 	if bar != nil {
-
+		barReader := bar.NewProxyReader(from)
+		_, err = io.Copy(toFile, barReader)
+	} else {
+		_, err = io.Copy(toFile, from)
 	}
-	barReader := bar.NewProxyReader(from)
-	_, err = io.Copy(toFile, barReader)
-	_ = toFile.Close()
-	bar.Finish()
 	return err
 }
 
@@ -39,9 +42,7 @@ func copyToFile(from os.FileInfo, to string, excludes ...string) error {
 	if !from.IsDir() {
 		fileSrc, _ := os.Open(from.Name())
 		bar := pb.Default.Start64(from.Size())
-		err := ioToFile(fileSrc, to, bar)
-		_ = fileSrc.Close()
-		return err
+		return ioToFile(fileSrc, to, defaultMod, bar)
 	} else {
 		if from == nil {
 			_ = os.Mkdir(to, os.ModeDir|defaultMod)
@@ -64,4 +65,24 @@ func copyToFile(from os.FileInfo, to string, excludes ...string) error {
 				}
 			})
 	}
+}
+
+func CloseFileAndFinishBar(file io.Closer, bar *pb.ProgressBar) {
+	if file != nil {
+		_ = file.Close()
+	}
+	if bar != nil {
+		bar.Finish()
+	}
+}
+
+func copyFromFile(file io.Reader, to string, fileInfo os.FileInfo) error {
+	if fileInfo == nil {
+		fileInfo = file.(fs.FileInfo)
+	}
+	if err := os.MkdirAll(filepath.Dir(to), defaultMod); err != nil {
+		return err
+	}
+	filePb := pb.Default.Start64(fileInfo.Size())
+	return ioToFile(file, to, fileInfo.Mode(), filePb)
 }
