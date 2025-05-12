@@ -10,14 +10,19 @@ import (
 	"strings"
 )
 
-const UnzipCmdName = "uzip"
-const UntarCmdName = "utar"
+const UnzipCmdId = "uzip"
+const UntarCmdId = "utar"
+
+var (
+	UnzipCmdName = CmdName(UnzipCmdId)
+	UntarCmdName = CmdName(UntarCmdId)
+)
 
 const UnzipIncludeAll = "all"
 
 func init() {
-	AppendCmd(CmdName(UnzipCmdName), UnzipCmd)
-	AppendCmd(CmdName(UntarCmdName), UntarCmd)
+	AppendCmd(UnzipCmdName, UnzipCmd)
+	AppendCmd(UntarCmdName, UntarCmd)
 }
 
 type unArchiveFlags struct {

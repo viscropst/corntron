@@ -8,6 +8,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0
 	github.com/mattn/go-isatty v0.0.20
 	github.com/rs/zerolog v1.34.0
+	github.com/ulikunitz/xz v0.5.12
 )
 
 require (

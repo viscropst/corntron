@@ -6,6 +6,8 @@ import (
 	"io"
 	"io/fs"
 	"path/filepath"
+
+	"github.com/ulikunitz/xz"
 )
 
 func TarReader(src fs.File) (*tar.Reader, error) {
@@ -16,10 +18,13 @@ func TarReader(src fs.File) (*tar.Reader, error) {
 	if isTgz(st) {
 		return tgzReader(src)
 	}
+	if isXz(st) {
+		return xzReader(src)
+	}
 	return tarFromReader(src)
 }
 
-func tarFromReader(src io.ReadCloser) (*tar.Reader, error) {
+func tarFromReader(src io.Reader) (*tar.Reader, error) {
 	return tar.NewReader(src), nil
 }
 
@@ -35,4 +40,17 @@ func tgzReader(src fs.File) (*tar.Reader, error) {
 		return nil, err
 	}
 	return tarFromReader(gzReader)
+}
+
+func isXz(src fs.FileInfo) bool {
+	ext := filepath.Ext(src.Name())
+	return ext == "xz"
+}
+
+func xzReader(src fs.File) (*tar.Reader, error) {
+	xzReader, err := xz.NewReader(src)
+	if err != nil {
+		return nil, err
+	}
+	return tarFromReader(xzReader)
 }
