@@ -31,6 +31,7 @@ type unArchiveFlags struct {
 	OutputPath   string
 	SourceFile   string
 	RemoveSrc    bool
+	BaseDir      string
 }
 
 func unarchiveFlags(cmdName string) *unArchiveFlags {
@@ -40,6 +41,7 @@ func unarchiveFlags(cmdName string) *unArchiveFlags {
 	result.StringVar(&result.SourceFile, "src", "", "source archive file")
 	result.StringVar(&result.OutputPath, "out", "", "output path")
 	result.BoolVar(&result.RemoveSrc, "remove-src", false, "remove source file after unarchiving")
+	result.StringVar(&result.BaseDir, "base-dir", "", "base dir in archive file")
 	return &result
 }
 
@@ -92,15 +94,7 @@ func UnArchiveCmd(cmdName string, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	switch flags.Name() {
-	case UntarCmdName:
-		err = utils.UnTarFromFile(srcFile, flags.OutputPath, includes...)
-	case UnzipCmdName:
-		err = utils.UnZipFromFile(srcFile, flags.OutputPath, includes...)
-	default:
-		err = errors.New("unknown command")
-	}
+	err = unarchive(srcFile, flags, includes...)
 	if err != nil {
 		return err
 	}
@@ -109,4 +103,17 @@ func UnArchiveCmd(cmdName string, args []string) error {
 		return os.RemoveAll(utils.NormalizePath(srcFile.Name()))
 	}
 	return nil
+}
+
+func unarchive(srcFile *os.File, flags *unArchiveFlags, includes ...string) error {
+	switch flags.Name() {
+	case UntarCmdName:
+		return utils.UnTarFromFileWithBaseDir(
+			srcFile, flags.OutputPath, flags.BaseDir, includes...)
+	case UnzipCmdName:
+		return utils.UnZipFromFileWithBaseDir(
+			srcFile, flags.OutputPath, flags.BaseDir, includes...)
+	default:
+		return errors.New("unknown command")
+	}
 }

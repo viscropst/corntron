@@ -2,6 +2,7 @@ package unarchive
 
 import (
 	"io/fs"
+	"path/filepath"
 	"strings"
 )
 
@@ -23,4 +24,14 @@ func IsInInclude(src inArchiveFileInfo, includes ...string) bool {
 		}
 	}
 	return false
+}
+
+func FileNameInArchive(fileName, baseDir string) string {
+	result := filepath.Join(fileName)
+	hasPrefix := strings.HasPrefix(result, baseDir)
+	if len(baseDir) > 0 && hasPrefix {
+		result = strings.TrimPrefix(fileName, baseDir)
+		result = filepath.Clean(result)
+	}
+	return result
 }

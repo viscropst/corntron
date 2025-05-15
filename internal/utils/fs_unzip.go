@@ -9,6 +9,9 @@ import (
 )
 
 func UnZipFromFile(src *os.File, dst string, include ...string) error {
+	return UnZipFromFileWithBaseDir(src, dst, "", include...)
+}
+func UnZipFromFileWithBaseDir(src *os.File, dst string, baseDir string, include ...string) error {
 	reader, err := unarchive.ZipReader(src)
 	if err != nil {
 		return err
@@ -20,7 +23,8 @@ func UnZipFromFile(src *os.File, dst string, include ...string) error {
 		if err != nil {
 			return err
 		}
-		dstFile := filepath.Join(dst, NormalizePath(file.Name))
+		fileName := unarchive.FileNameInArchive(file.Name, baseDir)
+		dstFile := filepath.Join(dst, fileName)
 		err = copyFromFile(tmp, dstFile, file.FileInfo())
 		if err != nil {
 			return err
