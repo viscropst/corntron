@@ -19,6 +19,9 @@ func ioToFile(from io.Reader, to string, mod os.FileMode, bar *pb.ProgressBar) e
 	if mod == 0 {
 		mod = defaultMod
 	}
+	if st, _ := os.Stat(filepath.Dir(to)); st == nil {
+		_ = os.MkdirAll(filepath.Dir(to), os.ModeDir|defaultMod)
+	}
 	toFile, err := os.OpenFile(
 		to, os.O_CREATE|os.O_RDWR|os.O_TRUNC, mod)
 	if err != nil {
@@ -82,6 +85,9 @@ func copyFromFile(file io.Reader, to string, fileInfo os.FileInfo) error {
 	}
 	if err := os.MkdirAll(filepath.Dir(to), defaultMod); err != nil {
 		return err
+	}
+	if fileInfo.IsDir() {
+		return os.MkdirAll(filepath.Dir(to), defaultMod)
 	}
 	filePb := pb.Default.Start64(fileInfo.Size())
 	return ioToFile(file, to, fileInfo.Mode(), filePb)
