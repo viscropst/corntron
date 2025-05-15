@@ -87,14 +87,15 @@ func (v ValueScope) funcMapping(key string, src map[string]string) string {
 }
 
 func (v ValueScope) resolveFn(keyFn []string, result string) string {
-	for _, v := range keyFn[1:] {
-		idxLeft := strings.IndexRune(v, rune(fnQuotting[0]))
-		idxRight := strings.IndexRune(v, rune(fnQuotting[1]))
+	for _, fv := range keyFn[1:] {
+		idxLeft := strings.IndexRune(fv, rune(fnQuotting[0]))
+		idxRight := strings.IndexRune(fv, rune(fnQuotting[1]))
 		hasQuote := idxLeft > 0 && idxRight > 0
 		if hasQuote {
-			fnName := v[:idxLeft]
+			fnName := fv[:idxLeft]
+			fnValue := v.expandValue(fv[idxLeft+1 : idxRight])
 			if fn, ok := fnMaps[fnName]; ok {
-				result = fn(result, v[idxLeft+1:idxRight])
+				result = fn(result, fnValue)
 			}
 		}
 	}
