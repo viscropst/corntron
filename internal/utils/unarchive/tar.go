@@ -30,8 +30,8 @@ func tarFromReader(src io.Reader) (*tar.Reader, error) {
 
 func isTgz(src fs.FileInfo) bool {
 	ext := filepath.Ext(src.Name())
-	return ext == "gz" ||
-		ext == "tgz"
+	return ext == ".gz" ||
+		ext == ".tgz"
 }
 
 func tgzReader(src fs.File) (*tar.Reader, error) {
@@ -44,7 +44,7 @@ func tgzReader(src fs.File) (*tar.Reader, error) {
 
 func isXz(src fs.FileInfo) bool {
 	ext := filepath.Ext(src.Name())
-	return ext == "xz"
+	return ext == ".xz"
 }
 
 func xzReader(src fs.File) (*tar.Reader, error) {
