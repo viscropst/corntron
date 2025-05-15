@@ -32,6 +32,7 @@ func (c *Core) prepareEnvsByEnviron() {
 
 func (c *Core) unixEnvWithDesktop() {
 	c.assignWithEnviron("DISPLAY")
+	c.assignWithEnviron("WINDOWID")
 	c.assignWithEnviron("SESSION_MANAGER")
 	c.assignWithEnviron("XDG_DATA_DIRS")
 	c.assignWithEnviron("XDG_CONFIG_DIRS")
