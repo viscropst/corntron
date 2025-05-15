@@ -10,10 +10,10 @@ const CornsIdentifier = "corn"
 
 type CornsEnvConfig struct {
 	envConfig
-	MetaOnly    bool               `toml:"meta-only"`
-	DependCorns []string           `toml:"depend-corns"`
+	MetaOnly    bool               `toml:"meta_only"`
+	DependCorns []string           `toml:"depend_corns"`
 	Exec        Command            `toml:"exec"`
-	ExecByPlats map[string]Command `toml:"exec-by-plat"`
+	ExecByPlats map[string]Command `toml:"exec_by_plat"`
 }
 
 func (c *CornsEnvConfig) initCornVars() {

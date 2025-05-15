@@ -13,8 +13,8 @@ import (
 
 type splitString struct {
 	SourceStr string    `toml:"src"`
-	SplitStr  string    `toml:"split-str"`
-	SplitNum  int8      `toml:"split-num"`
+	SplitStr  string    `toml:"split_str"`
+	SplitNum  int8      `toml:"split_num"`
 	Replaces  [2]string `toml:"replaces"`
 }
 
@@ -42,12 +42,12 @@ type Command struct {
 	Exec          string      `toml:"exec"`
 	PlatStr       string      `toml:"platform"`
 	Args          []string    `toml:"args"`
-	ArgStr        splitString `toml:"arg-str"`
-	WorkDir       string      `toml:"work-dir"`
+	ArgStr        splitString `toml:"arg_str"`
+	WorkDir       string      `toml:"work_dir"`
 	internal.ValueScope
-	WithEnviron   bool `toml:"with-environ"`
-	WithNoWaiting bool `toml:"with-no-waiting"`
-	IsBackground  bool `toml:"is-background"`
+	WithEnviron   bool `toml:"with_environ"`
+	WithNoWaiting bool `toml:"with_no_waiting"`
+	IsBackground  bool `toml:"is_background"`
 }
 
 func (c *Command) CanRunning() bool {

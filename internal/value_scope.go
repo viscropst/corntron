@@ -12,7 +12,7 @@ type ValueScope struct {
 	Top        *ValueScope       `toml:"-"`
 	Vars       VarMap            `toml:"vars"`
 	Env        VarMap            `toml:"envs"`
-	EnvByPlat  map[string]VarMap `toml:"envs-by-plat"`
+	EnvByPlat  map[string]VarMap `toml:"envs_by_plat"`
 }
 
 const valueRefFormat = "#{%s}"

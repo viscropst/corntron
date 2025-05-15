@@ -41,7 +41,7 @@ type envConfig struct {
 	DirName          string    `toml:"dir_name"`
 	BootstrapExec    []Command `toml:"bootstrap_exec"`
 	IsCommonPlatform bool      `toml:"is_common_platform"`
-	ConfigExec       []Command `toml:"config-exec"`
+	ConfigExec       []Command `toml:"config_exec"`
 }
 
 func (c envConfig) setCore(coreConfig MainConfig) envConfig {
