@@ -2,6 +2,7 @@ package unarchive
 
 import (
 	"archive/tar"
+	"compress/bzip2"
 	"compress/gzip"
 	"io"
 	"io/fs"
@@ -20,6 +21,9 @@ func TarReader(src fs.File) (*tar.Reader, error) {
 	}
 	if isXz(st) {
 		return xzReader(src)
+	}
+	if isBz2(st) {
+		return bz2Reader(src)
 	}
 	return tarFromReader(src)
 }
@@ -53,4 +57,14 @@ func xzReader(src fs.File) (*tar.Reader, error) {
 		return nil, err
 	}
 	return tarFromReader(xzReader)
+}
+
+func isBz2(src fs.FileInfo) bool {
+	ext := filepath.Ext(src.Name())
+	return ext == ".bz2"
+}
+
+func bz2Reader(src fs.File) (*tar.Reader, error) {
+	bz2Reader := bzip2.NewReader(src)
+	return tarFromReader(bz2Reader)
 }
