@@ -3,6 +3,7 @@ package internal
 import (
 	"cryphtron/internal/utils"
 	"cryphtron/internal/utils/log"
+	"encoding/json"
 	"net/url"
 	"strings"
 )
@@ -71,6 +72,49 @@ var fnMaps = map[string]func(args ...string) string{
 			return origin
 		}
 		return strings.TrimSpace(result)
+	},
+	"gh-rel-ver": func(args ...string) string {
+		origin := args[0]
+		funcArgs := strings.Split(args[1], ",")
+		if len(funcArgs) == 0 && funcArgs[0] == "" {
+			utils.LogCLI(log.PanicLevel).Println("empty owner and project while doing gh-latest-rel")
+		}
+		project := strings.Split(funcArgs[0], "/")
+		if len(project) < 2 {
+			utils.LogCLI(log.PanicLevel).Println("unknown fromat of owner and project while doing gh-latest-rel")
+		}
+		apiPath := "/" + project[0] + "/" + project[1] + "/releases"
+		tagName := "latest"
+		if len(funcArgs) > 1 {
+			tagName = funcArgs[1]
+		}
+		if tagName == "latest" {
+			apiPath = apiPath + "/latest"
+		} else {
+			apiPath = apiPath + "/tags/" + tagName
+		}
+		domain := "github.com"
+		if len(funcArgs) > 2 {
+			domain = funcArgs[2]
+		}
+		apiUrl := "api." + domain + "/repos" + apiPath
+		url, err := url.Parse("https://" + apiUrl)
+		if err != nil {
+			return origin
+		}
+		result, err := utils.HttpRequestBytes(url.String(), "GET")
+		if err != nil {
+			utils.LogCLI(log.ErrorLevel).Println("error while doing gh-latest-rel:", err)
+			return origin
+		}
+		var ghRelease struct {
+			TagName string `json:"tag_name"`
+		}
+		err = json.Unmarshal(result, &ghRelease)
+		if err != nil {
+			return origin
+		}
+		return strings.TrimSpace(ghRelease.TagName)
 	},
 }
 
