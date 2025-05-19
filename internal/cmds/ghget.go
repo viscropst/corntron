@@ -76,7 +76,7 @@ func WgetGhCmd(args []string) error {
 		apiUrl = apiUrl + "/tags/" + flags.Tag
 	}
 	utils.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Getting latest version of", flags.ArticaftName, "from", apiUrl)
-	result, err := utils.HttpRequestBytes(apiUrl)
+	result, err := utils.HttpRequestBytes("https://"+apiUrl, "GET")
 	if err != nil {
 		return err
 	}
