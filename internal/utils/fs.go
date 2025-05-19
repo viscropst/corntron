@@ -92,3 +92,11 @@ func copyFromFile(file io.Reader, to string, fileInfo os.FileInfo) error {
 	filePb := pb.Default.Start64(fileInfo.Size())
 	return ioToFile(file, to, fileInfo.Mode(), filePb)
 }
+
+func Mkdir(path string) error {
+	return os.MkdirAll(path, defaultMod)
+}
+
+func RemoveDir(path string) error {
+	return os.RemoveAll(path)
+}
