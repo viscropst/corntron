@@ -74,20 +74,20 @@ func (c *runCmd) Exec(core *cryphtron.Core) error {
 
 	err = core.ProcessRtBootstrap(false)
 	if err != nil {
-		newErr := errors.New("error while bootstrapping")
-		return errors.Join(newErr, err)
+		newErr := errors.New("error while bootstrapping:" + err.Error())
+		return newErr
 	}
 
 	err = core.ProcessRtMirror(false)
 	if err != nil {
-		newErr := errors.New("error while processing mirror")
-		return errors.Join(newErr, err)
+		newErr := errors.New("error while processing mirror:" + err.Error())
+		return newErr
 	}
 
 	err = core.ProcessRtMirror(true)
 	if err != nil {
-		newErr := errors.New("error while processing config")
-		cptron.CliLog().Println(errors.Join(newErr, err))
+		newErr := errors.New("error while processing config:" + err.Error())
+		cptron.CliLog().Println(newErr)
 	}
 
 	return core.ExecCmd(c.Execute, c.withWaiting, c.ExecArgs...)

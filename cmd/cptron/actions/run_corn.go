@@ -52,20 +52,20 @@ func (c *runCorn) BeforeLoad(flag *cptron.CmdFlag) (string, []string) {
 func (c *runCorn) Exec(core *cryphtron.Core) error {
 	err := core.ProcessRtBootstrap(true)
 	if err != nil {
-		newErr := errors.New("error while bootstrapping")
+		newErr := errors.New("error while bootstrapping:" + err.Error())
 		cptron.CliLog().Println(errors.Join(newErr, err))
 	}
 
 	err = core.ProcessRtMirror(true)
 	if err != nil {
-		newErr := errors.New("error while processing mirror")
+		newErr := errors.New("error while processing mirror:" + err.Error())
 		cptron.CliLog().Println(errors.Join(newErr, err))
 	}
 
 	err = core.ProcessRtConfig(true)
 	if err != nil {
-		newErr := errors.New("error while processing config")
-		cptron.CliLog().Println(errors.Join(newErr, err))
+		newErr := errors.New("error while processing config:" + err.Error())
+		cptron.CliLog().Println(newErr)
 	}
 	return core.ExecCorn(c.appName, c.globalWaiting, c.args...)
 }

@@ -76,20 +76,20 @@ func (c *runCornConfig) BeforeCore(coreConfig *core.MainConfig) error {
 func (c *runCornConfig) Exec(inCore *cryphtron.Core) error {
 	err := inCore.ProcessRtBootstrap(true)
 	if err != nil {
-		newErr := errors.New("error while bootstrapping")
-		cptron.CliLog().Println(errors.Join(newErr, err))
+		newErr := errors.New("error while bootstrapping:" + err.Error())
+		cptron.CliLog().Println(newErr)
 	}
 
 	err = inCore.ProcessRtMirror(true)
 	if err != nil {
-		newErr := errors.New("error while processing mirror")
-		cptron.CliLog().Println(errors.Join(newErr, err))
+		newErr := errors.New("error while processing mirror:" + err.Error())
+		cptron.CliLog().Println(newErr)
 	}
 
 	err = inCore.ProcessRtConfig(true)
 	if err != nil {
-		newErr := errors.New("error while processing config")
-		cptron.CliLog().Println(errors.Join(newErr, err))
+		newErr := errors.New("error while processing config:" + err.Error())
+		cptron.CliLog().Println(newErr)
 	}
 
 	tmpEnv := core.BaseEnv(inCore.Config)
@@ -97,7 +97,7 @@ func (c *runCornConfig) Exec(inCore *cryphtron.Core) error {
 
 	config, err := core.LoadCornConfig(c.fileName, tmpEnv)
 	if err != nil {
-		newErr := errors.New("error while loading corn config")
+		newErr := errors.New("error while loading corn config:" + err.Error())
 		return newErr
 	}
 
