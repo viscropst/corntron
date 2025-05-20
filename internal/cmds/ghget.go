@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -20,12 +21,14 @@ func init() {
 
 type ghGetFlagSet struct {
 	*flag.FlagSet
-	Owner        string
-	Project      string
-	Domain       string
-	Tag          string
-	ArticaftName string
-	Output       string
+	Owner          string
+	Project        string
+	Domain         string
+	Tag            string
+	ArticaftName   string
+	Output         string
+	ApiDomain      string
+	IsConcatDomain bool
 }
 
 func ghGetFlags() *ghGetFlagSet {
@@ -36,6 +39,8 @@ func ghGetFlags() *ghGetFlagSet {
 	result.StringVar(&result.Tag, "tag", "latest", "the tag of the github articaft")
 	result.StringVar(&result.ArticaftName, "name", "", "the name of the github articaft")
 	result.StringVar(&result.Output, "out", "", "the path of output")
+	result.StringVar(&result.ApiDomain, "api-domain", "api.github.com", "the api domain of github")
+	result.BoolVar(&result.IsConcatDomain, "is-contact", false, "is domain need to concat original")
 	return result
 }
 
@@ -57,6 +62,9 @@ func (f *ghGetFlagSet) normalizeFlags(args []string) ([]string, error) {
 		wd, _ := os.Getwd()
 		f.Output = wd
 	}
+	if len(strings.TrimSpace(f.ApiDomain)) == 0 {
+		f.ApiDomain = "api.github.com"
+	}
 	return f.Args(), nil
 }
 
@@ -69,7 +77,7 @@ func WgetGhCmd(args []string) error {
 	if len(args) != 0 {
 		return errors.New("too many arguments")
 	}
-	apiUrl := "api." + flags.Domain + "/repos/" + flags.Owner + "/" + flags.Project + "/releases"
+	apiUrl := flags.ApiDomain + "/repos/" + flags.Owner + "/" + flags.Project + "/releases"
 	if flags.Tag == "latest" {
 		apiUrl = apiUrl + "/latest"
 	} else {
@@ -94,16 +102,26 @@ func WgetGhCmd(args []string) error {
 	if len(release.TagName) == 0 {
 		return errors.New("no release found")
 	}
-	utils.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", apiUrl, "with tag", release.TagName)
-	url := ""
+	downloadUrlStr := ""
 	for _, asset := range release.Assets {
 		if strings.Contains(asset.Name, flags.ArticaftName) {
-			url = asset.Download
+			downloadUrlStr = asset.Download
 			break
 		}
 	}
-	if url == "" {
+	utils.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrlStr, "with tag", release.TagName)
+	if downloadUrlStr == "" {
 		return errors.New("no asset found")
 	}
-	return utils.HttpRequestFile(url, flags.Output)
+	downloadUrl, err := url.Parse(downloadUrlStr)
+	if err != nil {
+		return err
+	}
+	if len(flags.Domain) > 0 {
+		downloadUrl.Host = flags.Domain
+	}
+	if flags.IsConcatDomain {
+		downloadUrl.Path = strings.TrimSpace(downloadUrlStr)
+	}
+	return utils.HttpRequestFile(downloadUrl.String(), flags.Output)
 }
