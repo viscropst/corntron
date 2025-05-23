@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"cryphtron/internal/cmds"
+	"corntron/internal/cmds"
 )
 
 var Commands = cmds.Commnads

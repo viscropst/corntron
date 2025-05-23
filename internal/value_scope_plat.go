@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"cryphtron/internal/utils"
+	"corntron/internal/utils"
 	"strings"
 )
 

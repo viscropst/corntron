@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"cryphtron/internal/utils/unarchive"
+	"corntron/internal/utils/unarchive"
 	"os"
 	"path/filepath"
 

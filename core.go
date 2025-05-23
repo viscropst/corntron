@@ -1,8 +1,8 @@
-package cryphtron
+package corntron
 
 import (
-	"cryphtron/core"
-	"cryphtron/internal"
+	"corntron/core"
+	"corntron/internal"
 	"io/fs"
 	"os"
 	"path/filepath"

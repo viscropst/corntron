@@ -1,7 +1,7 @@
 package core
 
 import (
-	"cryphtron/internal/utils"
+	"corntron/internal/utils"
 	"errors"
 	"path/filepath"
 )

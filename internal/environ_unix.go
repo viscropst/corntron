@@ -3,7 +3,7 @@
 
 package internal
 
-import "cryphtron/internal/utils"
+import "corntron/internal/utils"
 
 func (c *Core) prepareEnvsByEnviron() {
 	c.assignWithEnviron("SSH_AUTH_SOCK")

@@ -1,10 +1,10 @@
-package cryphtron
+package corntron
 
 import (
-	"cryphtron/core"
-	"cryphtron/internal"
-	"cryphtron/internal/utils"
-	"cryphtron/internal/utils/log"
+	"corntron/core"
+	"corntron/internal"
+	"corntron/internal/utils"
+	"corntron/internal/utils/log"
 	"fmt"
 	"os"
 	"path/filepath"

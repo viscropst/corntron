@@ -1,8 +1,8 @@
-package cptron
+package corntron
 
 import (
-	"cryphtron/core"
-	"cryphtron/internal/utils/log"
+	"corntron/core"
+	"corntron/internal/utils/log"
 	"errors"
 	"flag"
 	"os"
@@ -53,8 +53,8 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 		CliExit(nil, !IsInTerminal() || !result.NoWaiting)
 	}
 	result.host.BoolVar(&result.NoWaiting, "no-waiting", false, "executing cryptron without waiting")
-	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<cryphtron config folder>")
-	result.host.StringVar(&result.RunningBase, "running-base", "", "/path/to/your/<cryphtron running folder>")
+	result.host.StringVar(&result.ConfigBase, "cfg-base", "", "/path/to/your/<corntron config folder>")
+	result.host.StringVar(&result.RunningBase, "running-base", "", "/path/to/your/<corntron running folder>")
 	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")
 	result.host.StringVar(&result.EditorBase, "corn-base", "", "/path/to/your/<corns profiles folder>")
 	result.host.StringVar(&result.EnvDirname, "env-dirname", "", "<folder name of env files to store>")

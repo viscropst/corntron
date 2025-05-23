@@ -1,8 +1,8 @@
-package cptron
+package corntron
 
 import (
-	"cryphtron/core"
-	"cryphtron/internal/utils"
+	"corntron/core"
+	"corntron/internal/utils"
 	"log"
 )
 

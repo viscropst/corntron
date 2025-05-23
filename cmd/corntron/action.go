@@ -1,8 +1,8 @@
-package cptron
+package corntron
 
 import (
-	"cryphtron"
-	"cryphtron/core"
+	"corntron"
+	"corntron/core"
 	"os"
 )
 
@@ -11,7 +11,7 @@ type CmdAction interface {
 	ParseArg(info FlagInfo) error
 	BeforeLoad(flags *CmdFlag) (string, []string)
 	BeforeCore(coreConfig *core.MainConfig) error
-	Exec(core *cryphtron.Core) error
+	Exec(core *corntron.Core) error
 }
 
 type BaseAction struct{}
@@ -36,7 +36,7 @@ func (b BaseAction) BeforeLoad(flags *CmdFlag) (string, []string) {
 	return flags.RunningBase, confBase
 }
 
-func (b BaseAction) Exec(core *cryphtron.Core) error {
+func (b BaseAction) Exec(core *corntron.Core) error {
 	return nil
 }
 

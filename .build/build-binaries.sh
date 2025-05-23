@@ -3,7 +3,7 @@ go env -w GOPROXY=https://goproxy.cn,direct
 go mod tidy
 out_dir=$PWD/out
 mkdir -p ${out_dir}
-binaries="cptron"
+binaries="corntron"
 os="windows 
 linux 
 freebsd 

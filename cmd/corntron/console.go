@@ -1,7 +1,7 @@
-package cptron
+package corntron
 
 import (
-	"cryphtron/internal/utils"
+	"corntron/internal/utils"
 )
 
 func IsInTerminal() bool {

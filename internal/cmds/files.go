@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"cryphtron/internal/utils"
+	"corntron/internal/utils"
 	"errors"
 	"os"
 	"strings"

@@ -1,4 +1,4 @@
-module cryphtron
+module corntron
 
 go 1.18
 

@@ -1,9 +1,9 @@
 package actions
 
 import (
-	"cryphtron"
-	"cryphtron/cmd/cptron"
-	"cryphtron/core"
+	"corntron"
+	cmdcontron "corntron/cmd/corntron"
+	"corntron/core"
 	"errors"
 	"flag"
 	"os"
@@ -11,7 +11,7 @@ import (
 )
 
 type runCornConfig struct {
-	cptron.BaseAction
+	cmdcontron.BaseAction
 	fileName        string
 	args            []string
 	globalWaiting   bool
@@ -31,7 +31,7 @@ func (c *runCornConfig) ActionName() string {
 	return "run-" + core.CornsIdentifier + "-config"
 }
 
-func (c *runCornConfig) ParseArg(info cptron.FlagInfo) error {
+func (c *runCornConfig) ParseArg(info cmdcontron.FlagInfo) error {
 	err := c.flagSet.Parse(info.Args[info.Index+1:])
 	if err != nil {
 		return err
@@ -55,7 +55,7 @@ func (c *runCornConfig) ParseArg(info cptron.FlagInfo) error {
 	return nil
 }
 
-func (c *runCornConfig) BeforeLoad(flags *cptron.CmdFlag) (string, []string) {
+func (c *runCornConfig) BeforeLoad(flags *cmdcontron.CmdFlag) (string, []string) {
 	c.globalWaiting = !flags.NoWaiting
 	if c.configDirAsBase {
 		base := c.fileName
@@ -73,23 +73,23 @@ func (c *runCornConfig) BeforeCore(coreConfig *core.MainConfig) error {
 	return nil
 }
 
-func (c *runCornConfig) Exec(inCore *cryphtron.Core) error {
+func (c *runCornConfig) Exec(inCore *corntron.Core) error {
 	err := inCore.ProcessRtBootstrap(true)
 	if err != nil {
 		newErr := errors.New("error while bootstrapping:" + err.Error())
-		cptron.CliLog().Println(newErr)
+		cmdcontron.CliLog().Println(newErr)
 	}
 
 	err = inCore.ProcessRtMirror(true)
 	if err != nil {
 		newErr := errors.New("error while processing mirror:" + err.Error())
-		cptron.CliLog().Println(newErr)
+		cmdcontron.CliLog().Println(newErr)
 	}
 
 	err = inCore.ProcessRtConfig(true)
 	if err != nil {
 		newErr := errors.New("error while processing config:" + err.Error())
-		cptron.CliLog().Println(newErr)
+		cmdcontron.CliLog().Println(newErr)
 	}
 
 	tmpEnv := core.BaseEnv(inCore.Config)

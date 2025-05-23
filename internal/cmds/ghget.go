@@ -1,8 +1,8 @@
 package cmds
 
 import (
-	"cryphtron/internal/utils"
-	"cryphtron/internal/utils/log"
+	"corntron/internal/utils"
+	"corntron/internal/utils/log"
 	"encoding/json"
 	"errors"
 	"flag"

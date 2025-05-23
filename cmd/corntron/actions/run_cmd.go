@@ -1,10 +1,10 @@
 package actions
 
 import (
-	"cryphtron"
-	"cryphtron/cmd/cptron"
-	ct_core "cryphtron/core"
-	"cryphtron/internal/utils/log"
+	"corntron"
+	cmdcontron "corntron/cmd/corntron"
+	ct_core "corntron/core"
+	"corntron/internal/utils/log"
 	"errors"
 	"os"
 	"runtime"
@@ -12,7 +12,7 @@ import (
 )
 
 type runCmd struct {
-	cptron.BaseAction
+	cmdcontron.BaseAction
 	Execute     string
 	ExecArgs    []string
 	withWaiting bool
@@ -26,7 +26,7 @@ func (c *runCmd) ActionName() string {
 	return "run-cmd"
 }
 
-func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
+func (c *runCmd) ParseArg(info cmdcontron.FlagInfo) error {
 	argCmdIdx := info.Index + 1
 	if len(os.Args) > argCmdIdx && len(info.Args[argCmdIdx]) > 0 {
 		c.Execute = info.Args[argCmdIdx]
@@ -41,7 +41,7 @@ func (c *runCmd) ParseArg(info cptron.FlagInfo) error {
 			}
 		default:
 		}
-		cptron.CliLog(log.WarnLevel).Println("no command to exec,will use default shell or cmd")
+		cmdcontron.CliLog(log.WarnLevel).Println("no command to exec,will use default shell or cmd")
 	}
 
 	if len(c.Execute) == 0 {
@@ -64,12 +64,12 @@ func (c *runCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
 	return nil
 }
 
-func (c *runCmd) BeforeLoad(flag *cptron.CmdFlag) (string, []string) {
+func (c *runCmd) BeforeLoad(flag *cmdcontron.CmdFlag) (string, []string) {
 	c.withWaiting = !flag.NoWaiting
 	return c.BaseAction.BeforeLoad(flag)
 }
 
-func (c *runCmd) Exec(core *cryphtron.Core) error {
+func (c *runCmd) Exec(core *corntron.Core) error {
 	var err error
 
 	err = core.ProcessRtBootstrap(false)
@@ -87,7 +87,7 @@ func (c *runCmd) Exec(core *cryphtron.Core) error {
 	err = core.ProcessRtMirror(true)
 	if err != nil {
 		newErr := errors.New("error while processing config:" + err.Error())
-		cptron.CliLog().Println(newErr)
+		cmdcontron.CliLog().Println(newErr)
 	}
 
 	return core.ExecCmd(c.Execute, c.withWaiting, c.ExecArgs...)

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"cryphtron/internal/utils/log"
+	"corntron/internal/utils/log"
 	stdlog "log"
 )
 

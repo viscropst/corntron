@@ -1,9 +1,9 @@
 package core
 
 import (
-	"cryphtron/internal"
-	"cryphtron/internal/utils"
-	"cryphtron/internal/utils/log"
+	"corntron/internal"
+	"corntron/internal/utils"
+	"corntron/internal/utils/log"
 	"io"
 	"os"
 	"os/exec"
