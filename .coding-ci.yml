@@ -35,6 +35,8 @@ $:
   stages:
     - name: mirror-to-github
       script: /bin/sh .build/mirror-to-github.sh
+    - name: mirror-to-gitcode
+      script: /bin/sh .build/mirror-to-gitcode.sh
 
 'rel-*':
   tag_push:
