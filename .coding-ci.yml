@@ -19,14 +19,22 @@ $:
       ifModify: 
         - "**/*.go"
         - "go.mod"
-        - ".build/*.sh"
+        - ".build/*-binaries.sh"
       script: sh .build/build-binaries.sh
     - name: push-binaries
       ifModify:
         - "**/*.go"
         - "go.mod"
-        - ".build/*.sh"
+        - ".build/*-binaries.sh"
       script: sh .build/push-binaries.sh
+
+.mirror-to-github: &mirror-to-github
+  docker:
+    image: alpine/git:latest
+  imports: https://e.coding.net/visoft/imetnide/keys/blob/master/ci-keys
+  stages:
+    - name: mirror-to-github
+      script: /bin/sh .build/mirror-to-github.sh
 
 'rel-*':
   tag_push:
