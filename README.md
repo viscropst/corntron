@@ -156,13 +156,13 @@ The runtime environment config file is used to define a runtime environment for 
 
 # `mirror_envs.<mirror-type>` is the set of environment variables that will be used to set mirror settings.
 # `<mirror-type>` is the type of mirror settings, current is simplfield name of country code (eg. `cn`).
-# Later, you can add more mirror types in core config of corntron (a.k.a. `core.toml`).
+# You can add more mirror types in core config of corntron (a.k.a. `core.toml`).
 [mirror_envs.cn]
 FOO_VAL="bar"
 
 # `mirror_exec.<mirror-type>` is the set of execution commands that will be used to set mirror settings.
 # `<mirror-type>` is the type of mirror settings, current is simplfield name of country code (eg. `cn`).
-# Later, you can add more mirror types in core config of corntron (a.k.a. `core.toml`).
+# You can add more mirror types in core config of corntron (a.k.a. `core.toml`).
 # The structure of `mirror_exec.<mirror-type>` is the same as `exec` structure in corn evrironment config.
 [[mirror_exec.cn]]
 

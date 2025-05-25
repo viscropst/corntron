@@ -18,6 +18,8 @@ type MainConfig struct {
 	RuntimeDirName     string            `toml:"runtime_dirname,omitempty"`
 	CornDirName        string            `toml:"corn_dirname,omitempty"`
 	MirrorType         string            `toml:"mirror_type,omitempty"`
+	MirrorTypes        []string          `toml:"mirror_types,omitempty"`
+	mirrorTypes        []MirrorType      `toml:"-"`
 	WithCorn           bool              `toml:"with_corn"`
 	PlatformDirs       map[string]string `toml:"platform_dir,omitempty"`
 	ProfileDir         string            `toml:"profile_dir,omitempty"`
@@ -58,7 +60,7 @@ func (c MainConfig) FsWalkDir(walkFunc fs.WalkDirFunc, DirNames ...string) error
 }
 
 func (c MainConfig) UnwrapMirrorType() MirrorType {
-	return MirrorType(c.MirrorType).Convert()
+	return MirrorType(c.MirrorType).ConvertWithTypes(c.mirrorTypes...)
 }
 
 const execDirWithoutLink = "${dp0}"
@@ -145,6 +147,8 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 	result.CurrentPlatformDir = prepareRunningDir(
 		result, basePath)
 
+	result.mirrorTypes = prepareMirrorTypes(result)
+
 	return result
 }
 
@@ -187,4 +191,8 @@ func prepareRunningDir(src MainConfig, basePath string) string {
 	}
 
 	return result
+}
+
+func prepareMirrorTypes(src MainConfig) []MirrorType {
+	return MirrorTypesFromSlice(src.MirrorTypes)
 }

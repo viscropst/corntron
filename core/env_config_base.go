@@ -9,26 +9,51 @@ type MirrorType string
 
 func (m MirrorType) String() string {
 	if len(m) == 0 {
-		return string(MirrorTypDefault)
+		return string(MirrorTypNone)
 	}
 	return string(m)
 }
 
 func (m MirrorType) Convert() MirrorType {
+	if len(m) == 0 {
+		return MirrorTypDefault
+	}
 	switch m {
 	case MirrorTypNone:
-		fallthrough
+		return m
 	case MirrorTypCN:
 		return m
 	default:
-		return MirrorTypDefault
+		return MirrorTypCustomized
 	}
 }
 
+func (m MirrorType) ConvertWithTypes(types ...MirrorType) MirrorType {
+	typ := m.Convert()
+	if typ != MirrorTypCustomized {
+		return typ
+	}
+	for _, v := range types {
+		if v == m {
+			return v
+		}
+	}
+	return MirrorTypDefault
+}
+
+func MirrorTypesFromSlice(types []string) []MirrorType {
+	res := make([]MirrorType, 0)
+	for _, v := range types {
+		res = append(res, MirrorType(v))
+	}
+	return res
+}
+
 const (
-	MirrorTypDefault            = MirrorTypNone
-	MirrorTypCN      MirrorType = "cn"
-	MirrorTypNone    MirrorType = "none"
+	MirrorTypDefault               = MirrorTypNone
+	MirrorTypCN         MirrorType = "cn"
+	MirrorTypNone       MirrorType = "none"
+	MirrorTypCustomized MirrorType = "customized"
 )
 
 type envConfig struct {
