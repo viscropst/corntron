@@ -41,20 +41,24 @@ dir_name = ""
 
 # `vars` is a set of corntron variable.
 # It's used to store some key-value pairs that is not exposed to environment variables.
+# Can reference a variable or environment variable by `#{var_name}`.
+# Can reference a variable and environment variable with built-in functions by `#{var_name:func_name([param])}`.
 [vars]
 # This is a normal key name
 foo="bar"
 
-# This is a key name used with built-in functions to setting the values.
+# This is a key defined with built-in functions to setting the values.
 # If the built-in function is execution failed, the value will be the original value.
 "bar:rp(oo=qq)"="foo"
 
 # `envs` is a set of corntron environment variables.
 # It's used to store some key-value pairs that is exposed to environment variables.
+# Can reference a variable and environment variable by `#{var_name}`.
+# Can reference a variable and environment variable with built-in functions by `#{var_name:func_name([param])}`.
 [envs]
 
 # This is a environment variable.
-# The value of this environment variable will reference to a corntron variable.
+# The value of this environment variable will reference to a corntron variable or corntron envrionment variable.
 # After referencing, the refrenced value will exectute with the built-in functions.
 FOO_VAL="#{foo:rp(oo=qq)}"
 
@@ -138,10 +142,12 @@ replaces=["?"," World"]
 
 # `exec.vars` is the set of corntron variables that used for this command only.
 # The value of `exec.vars` is a set of key-value pairs.
+# The usage of `exec.vars` is the same as `vars` in corntron environment config.
 [exec.vars]
 
 # `exec.envs` is the set of environment variables that will be passed to the executable file.
 # The value of `exec.envs` is a set of key-value pairs.
+# The usage of `exec.envs` is the same as `envs` in corntron environment config.
 [exec.envs]
 
 # `exec_by_plat` is the main execution command of a corntron environment for a specific operating system and architecture.
