@@ -168,6 +168,23 @@ FOO_VAL="bar"
 
 ```
 
+## What are built-in commands?
+- `i-cp` is the command that used to copy a file or a directory.
+- `i-md` is the command that used to create a directory.
+- `i-mv` is the command that used to move a file or a directory.
+- `i-rd` is the command that used to a directory and files in directory.
+- `i-wgt` is the command that used to download a file from internet.
+- `i-ghgt` is the command that used to download a file from github release.
+- `i-utar` is the command that used to unarchive a `.tar`,`.tgz`,`.tar.xz`,`.tar.gz` or `.tar.bz2` file.
+- `i-uzip` is the command that used to unarchive a `.zip` file.
+- `i-wstr` is the command that used to write a string to a file.
+
+## What are built-in functions?
+- `rp` is the function that used to replace a string.
+- `ospth` is the function that used to convert a path to a operating system path.
+- `webreq` is the function that used to send a http request and replace to the response body string.
+- `gh-rel-ver` is the function that used to get the latest release version of a github repository.
+
 ## How to use corntron?
 You can integrate corntron into your program by using the `corntron` package.
 Or you can use the prebuilt `corntron` command to run a corntron program.
