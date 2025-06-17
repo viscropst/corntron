@@ -8,9 +8,6 @@ import (
 type LogLevel = log.Level
 
 func LogCLI(level ...log.Level) *stdlog.Logger {
-	_logger := stdlog.Default()
-	_logger.SetOutput(
-		log.ZeroLogger(level...))
-	_logger.SetFlags(0)
+	_logger := stdlog.New(log.ZeroLogger(level...), "", 0)
 	return _logger
 }
