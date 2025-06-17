@@ -72,7 +72,7 @@ func createCmd(from io.Reader, output string) error {
 
 func appendCmd(from io.Reader, output string) error {
 	utils.LogCLI(log.InfoLevel).Println("Appending to target:", output)
-	_, err := utils.StatFile(output)
+	_, err := utils.StatPath(output)
 	if err != nil {
 		return err
 	}

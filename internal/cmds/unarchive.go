@@ -54,7 +54,7 @@ func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
 	if len(src) == 0 {
 		return nil, errors.New("no source file specified")
 	}
-	srcStat, _ := os.Stat(src)
+	srcStat, _ := utils.StatPath(src)
 	if srcStat == nil {
 		return nil, errors.New("source file does not exist")
 	}

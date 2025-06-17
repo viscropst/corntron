@@ -13,7 +13,7 @@ func LoadTomlFile(tomlFilename string, value interface{}) *fs.PathError {
 		Op:   "LoadTomlFile",
 		Path: tomlFilename,
 	}
-	stat, _ := os.Stat(tomlFilename)
+	stat, _ := StatPath(tomlFilename)
 	if stat == nil || !stat.Mode().IsRegular() {
 		errFmt.Path = tomlFilename
 		errFmt.Err = errors.New("could not stat that file")

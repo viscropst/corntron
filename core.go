@@ -3,8 +3,8 @@ package corntron
 import (
 	"corntron/core"
 	"corntron/internal"
+	"corntron/internal/utils"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -110,6 +110,6 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 }
 
 func ifFolderNotExists(path string) bool {
-	stat, err := os.Stat(path)
+	stat, err := utils.StatPath(path)
 	return err != nil || !stat.IsDir()
 }

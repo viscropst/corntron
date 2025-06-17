@@ -3,7 +3,6 @@ package cmds
 import (
 	"corntron/internal/utils"
 	"errors"
-	"os"
 	"strings"
 )
 
@@ -20,14 +19,13 @@ func CpCmd(args []string) error {
 		return errors.New(
 			"i-cp correct usage was: i-cp src dst [options]")
 	}
-	src := utils.NormalizePath(args[0])
-	statSrc, _ := os.Stat(src)
+	statSrc, _ := utils.StatPath(args[0])
 	if statSrc == nil {
 		return errors.New("i-cp: src is not exists")
 	}
 
 	dst := utils.NormalizePath(args[1])
-	statDst, _ := os.Stat(dst)
+	statDst, _ := utils.StatPath(dst)
 	if statDst != nil &&
 		statDst.Mode().Type() != statSrc.Mode().Type() {
 		return errors.New("i-cp: dst type mismatch with src")
@@ -46,13 +44,13 @@ func MvCmd(args []string) error {
 			"i-mv correct usage was: i-mv src dst [options]")
 	}
 	src := utils.NormalizePath(args[0])
-	statSrc, _ := os.Stat(src)
+	statSrc, _ := utils.StatPath(src)
 	if statSrc == nil {
 		return errors.New("i-mv: src is not exists")
 	}
 
 	dst := utils.NormalizePath(args[1])
-	statDst, _ := os.Stat(dst)
+	statDst, _ := utils.StatPath(dst)
 	if statDst != nil &&
 		statDst.Mode().Type() != statSrc.Mode().Type() {
 		return errors.New("i-mv: dst type mismatch with src")
@@ -61,10 +59,6 @@ func MvCmd(args []string) error {
 	if err := utils.CopyToFile(statSrc, dst); err != nil {
 		return err
 	}
-	if !statSrc.IsDir() {
-		_ = os.Remove(src)
-	} else {
-		_ = os.RemoveAll(src)
-	}
+	_ = utils.Remove(src)
 	return nil
 }

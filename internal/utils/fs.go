@@ -30,7 +30,7 @@ func ioToFile(from io.Reader, to string, mod os.FileMode, bar *pb.ProgressBar, f
 	if len(flags) > 0 {
 		flag = flags[0]
 	}
-	if st, _ := os.Stat(filepath.Dir(to)); st == nil && flagIsEqual(flag, os.O_CREATE) {
+	if st, _ := StatPath(filepath.Dir(to)); st == nil && flagIsEqual(flag, os.O_CREATE) {
 		_ = os.MkdirAll(filepath.Dir(to), os.ModeDir|defaultMod)
 	}
 	toFile, err := os.OpenFile(
@@ -108,10 +108,39 @@ func Mkdir(path string) error {
 	return os.MkdirAll(NormalizePath(path), defaultMod)
 }
 
-func RemoveDir(path string) error {
-	return os.RemoveAll(NormalizePath(path))
+func Remove(path string) error {
+	statSrc, _ := StatPath(path)
+	if !statSrc.IsDir() {
+		return os.Remove(statSrc.Name())
+	} else {
+		return os.RemoveAll(statSrc.Name())
+	}
 }
 
-func StatFile(path string) (os.FileInfo, error) {
-	return os.Stat(NormalizePath(path))
+func StatPath(path string) (os.FileInfo, error) {
+	result, err := os.Stat(NormalizePath(path))
+	if err != nil {
+		return nil, err
+	}
+	return toStatInfo(result, NormalizePath(path)), nil
+}
+
+type statInfo struct {
+	os.FileInfo
+	name string
+}
+
+func (i statInfo) Name() string {
+	if len(i.name) == 0 {
+		return i.FileInfo.Name()
+	}
+	return i.name
+}
+
+func toStatInfo(stat os.FileInfo, path string) statInfo {
+	result := statInfo{
+		FileInfo: stat,
+		name:     path,
+	}
+	return result
 }

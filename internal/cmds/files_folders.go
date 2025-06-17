@@ -24,5 +24,5 @@ func RemoveDirCmd(args []string) error {
 	if len(args) < 1 {
 		return errors.New("i-rd correct usage was: i-rd dir [options]")
 	}
-	return utils.RemoveDir(args[0])
+	return utils.Remove(args[0])
 }
