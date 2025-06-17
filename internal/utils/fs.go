@@ -11,19 +11,30 @@ import (
 
 const defaultMod = 0666
 
-func IOToFile(from io.Reader, to string, bar *pb.ProgressBar) error {
-	return ioToFile(from, NormalizePath(to), defaultMod, bar)
+func IOToFile(from io.Reader, to string, bar *pb.ProgressBar, flags ...int) error {
+	return ioToFile(from, NormalizePath(to), defaultMod, bar, flags...)
 }
 
-func ioToFile(from io.Reader, to string, mod os.FileMode, bar *pb.ProgressBar) error {
+func flagIsEqual(a, b int) bool {
+	if a == b {
+		return true
+	}
+	return a&b != 0
+}
+
+func ioToFile(from io.Reader, to string, mod os.FileMode, bar *pb.ProgressBar, flags ...int) error {
 	if mod == 0 {
 		mod = defaultMod
 	}
-	if st, _ := os.Stat(filepath.Dir(to)); st == nil {
+	flag := os.O_CREATE | os.O_RDWR | os.O_TRUNC
+	if len(flags) > 0 {
+		flag = flags[0]
+	}
+	if st, _ := os.Stat(filepath.Dir(to)); st == nil && flagIsEqual(flag, os.O_CREATE) {
 		_ = os.MkdirAll(filepath.Dir(to), os.ModeDir|defaultMod)
 	}
 	toFile, err := os.OpenFile(
-		to, os.O_CREATE|os.O_RDWR|os.O_TRUNC, mod)
+		to, flag, mod)
 	if err != nil {
 		return err
 	}
@@ -94,9 +105,13 @@ func copyFromFile(file io.Reader, to string, fileInfo os.FileInfo) error {
 }
 
 func Mkdir(path string) error {
-	return os.MkdirAll(path, defaultMod)
+	return os.MkdirAll(NormalizePath(path), defaultMod)
 }
 
 func RemoveDir(path string) error {
-	return os.RemoveAll(path)
+	return os.RemoveAll(NormalizePath(path))
+}
+
+func StatFile(path string) (os.FileInfo, error) {
+	return os.Stat(NormalizePath(path))
 }
