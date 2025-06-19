@@ -2,7 +2,7 @@ package corntron
 
 import (
 	"corntron/core"
-	"corntron/internal/utils/log"
+	"corntron/internal/log"
 	"errors"
 	"flag"
 	"os"

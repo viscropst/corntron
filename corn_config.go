@@ -2,7 +2,7 @@ package corntron
 
 import (
 	"corntron/core"
-	"corntron/internal/utils"
+	"corntron/internal"
 	"errors"
 	"os"
 	"path/filepath"
@@ -18,7 +18,7 @@ func (c *Core) prepareCornConfig(corn core.CornsEnvConfig) (*core.CornsEnvConfig
 	tmpCorn := corn.Copy()
 	tmpCorn.RePrepareScope()
 	tmpCorn.ModifyEnv("PATH",
-		utils.AppendToPathList(corn.Env["PATH"], scope.Env["PATH"]))
+		internal.AppendToPathList(corn.Env["PATH"], scope.Env["PATH"]))
 	tmpCorn.AppendEnvs(scope.Env)
 	if !corn.MetaOnly {
 		bootstrapDir := filepath.Join(currentCornDir, corn.DirName)

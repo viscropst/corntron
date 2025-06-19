@@ -1,7 +1,7 @@
 //go:build linux && !windows && !appengine
 // +build linux,!windows,!appengine
 
-package utils
+package internal
 
 import (
 	"syscall"

@@ -1,8 +1,8 @@
 package cmds
 
 import (
-	"corntron/internal/utils"
-	"corntron/internal/utils/log"
+	"corntron/internal"
+	"corntron/internal/log"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -83,8 +83,8 @@ func WgetGhCmd(args []string) error {
 	} else {
 		apiUrl = apiUrl + "/tags/" + flags.Tag
 	}
-	utils.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Getting latest version of", flags.ArticaftName, "from", apiUrl)
-	result, err := utils.HttpRequestBytes("https://"+apiUrl, "GET")
+	internal.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Getting latest version of", flags.ArticaftName, "from", apiUrl)
+	result, err := internal.HttpRequestBytes("https://"+apiUrl, "GET")
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func WgetGhCmd(args []string) error {
 			break
 		}
 	}
-	utils.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrlStr, "with tag", release.TagName)
+	internal.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrlStr, "with tag", release.TagName)
 	if downloadUrlStr == "" {
 		return errors.New("no asset found")
 	}
@@ -123,5 +123,5 @@ func WgetGhCmd(args []string) error {
 	if flags.IsConcatDomain {
 		downloadUrl.Path = strings.TrimSpace(downloadUrlStr)
 	}
-	return utils.HttpRequestFile(downloadUrl.String(), flags.Output)
+	return internal.HttpRequestFile(downloadUrl.String(), flags.Output)
 }

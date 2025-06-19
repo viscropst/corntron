@@ -1,4 +1,4 @@
-package internal
+package core
 
 type Core struct {
 	*ValueScope
@@ -11,5 +11,4 @@ func (c *Core) Prepare() {
 		return
 	}
 	c.fillEnviron()
-	c.prepareEnvsByEnviron()
 }

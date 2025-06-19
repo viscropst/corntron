@@ -1,7 +1,7 @@
-package utils
+package internal
 
 import (
-	"corntron/internal/utils/log"
+	"corntron/internal/log"
 	stdlog "log"
 )
 

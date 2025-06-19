@@ -1,7 +1,6 @@
 package core
 
 import (
-	"corntron/internal"
 	"path/filepath"
 )
 
@@ -58,7 +57,7 @@ const (
 
 type envConfig struct {
 	coreConfig *MainConfig
-	internal.ValueScope
+	ValueScope
 	envDirname       string
 	envName          string
 	ID               string    `toml:"-"`

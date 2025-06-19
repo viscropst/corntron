@@ -1,44 +1,114 @@
 package internal
 
 import (
-	"corntron/internal/utils"
+	"os"
+	"runtime"
 	"strings"
 )
 
-var environ map[string]string
+type Environ map[string]string
 
-func hasEnvironSelector(str string) bool {
-	return strings.HasSuffix(str, selectorPrefix+"environ")
+var environ Environ
+
+func MakeEnvironMap() map[string]string {
+	if environ == nil {
+		environ = makeEnvironMap()
+	}
+	return environ
+}
+func makeEnvironMap() map[string]string {
+	tmp := make(map[string]string)
+	for _, s := range os.Environ() {
+		pairs := strings.SplitN(s, "=", 2)
+		if pairs[1] == "" {
+			continue
+		}
+		key := ""
+		switch runtime.GOOS {
+		case "windows":
+			key = strings.ToUpper(pairs[0])
+		default:
+			key = pairs[0]
+		}
+		tmp[key] = pairs[1]
+	}
+	return tmp
+}
+func AppendToPath(value string) string {
+	if AssertWithEnviron("PATH", value) {
+		return value
+	}
+	pathValue := environ["PATH"]
+	return AppendToPathList(pathValue, value)
 }
 
-func environMapping(key string) string {
-	var result string
-	canMapping := hasEnvironSelector(key)
-	if !canMapping {
-		return result
+func AssertWithEnviron(args ...string) bool {
+	if len(args) == 0 {
+		return false
 	}
-	k := strings.TrimSuffix(key, selectorPrefix+"environ")
-	if v0, ok := environ[k]; ok {
-		result = v0
+	key := args[0]
+	v, ok := environ[key]
+	if len(args) == 1 {
+		return ok
+	} else {
+		value := args[1]
+		return ok && v == value
 	}
-	return result
 }
 
-func (c *Core) fillEnviron() {
+func AppendToPathList(src, value string) string {
+	if len(value) == 0 {
+		return src
+	}
+	if src == value {
+		return src
+	}
+	if strings.Contains(value, PathListSeparator) {
+		tmp := ""
+		for _, v := range strings.Split(value, PathListSeparator) {
+			tmp = tmp + OSPathListSeparator + NormalizePath(v)
+		}
+		if len(tmp) > 1 {
+			value = tmp[1:]
+		} else {
+			value = tmp
+		}
+	} else {
+		value = NormalizePath(value)
+	}
+	if len(src) == 0 {
+		return value
+	}
+	if strings.Contains(src, value) {
+		return src
+	}
+	if strings.Contains(value, src) {
+		return value
+	}
+	pthList := strings.Split(src, string(OSPathListSeparator))
+	for _, a := range pthList {
+		if a == value {
+			return src
+		}
+	}
+	return src + OSPathListSeparator + value
+}
+
+func FillEnviron(profileDir ...string) Environ {
 	if environ == nil {
 		environ = make(map[string]string)
 	}
-	environ = utils.MakeEnvironMap()
-	c.Environ = environ
+	environ = MakeEnvironMap()
+	var result Environ = make(map[string]string)
+	result.PrepareEnvsByEnviron(profileDir...)
+	return result
 }
 
-const PathPlaceHolder = "+{PATH}"
-
-func (c *Core) assignWithEnviron(key string) {
-	if v, ok := c.Environ[key]; key != "" && ok {
+func (c Environ) assignWithEnviron(key string) {
+	if v, ok := environ[key]; key != "" && ok {
 		if key == "PATH" {
 			return
 		}
-		c.Env[key] = v
+		c[key] = v
 	}
 }

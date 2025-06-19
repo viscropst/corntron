@@ -1,7 +1,7 @@
-package internal
+package core
 
 import (
-	"corntron/internal/utils"
+	"corntron/internal"
 	"strings"
 )
 
@@ -173,7 +173,7 @@ func (v *ValueScope) expandEnvs(src VarMap) VarMap {
 		}
 		return tmpKey, tmpVal
 	}
-	return utils.AppendMap(src, v.Env, modifier)
+	return internal.AppendMap(src, v.Env, modifier)
 }
 
 func (v *ValueScope) expandVars(src VarMap) VarMap {
@@ -186,17 +186,17 @@ func (v *ValueScope) expandVars(src VarMap) VarMap {
 		}
 		return tmpKey, tmpVal
 	}
-	return utils.AppendMap(src, v.Vars, modifier)
+	return internal.AppendMap(src, v.Vars, modifier)
 }
 
 func (v *ValueScope) prepareEnvs() {
 	v.Env = v.expandEnvs(v.Env)
 
-	v.Env = v.expandEnvs(v.EnvByPlat[utils.OS()])
+	v.Env = v.expandEnvs(v.EnvByPlat[internal.OS()])
 
-	v.Env = v.expandEnvs(v.EnvByPlat[utils.Arch()])
+	v.Env = v.expandEnvs(v.EnvByPlat[internal.Arch()])
 
-	v.Env = v.expandEnvs(v.EnvByPlat[utils.Platform()])
+	v.Env = v.expandEnvs(v.EnvByPlat[internal.Platform()])
 
 }
 
@@ -205,7 +205,7 @@ func (v *ValueScope) AppendEnvs(environ map[string]string) *ValueScope {
 	if len(environ) == 0 {
 		return v
 	}
-	v.Env = utils.ModifyMapByMap(environ, v.Env, func(k, a, b string) string {
+	v.Env = internal.ModifyMapByMap(environ, v.Env, func(k, a, b string) string {
 		if a == b {
 			return a
 		}
@@ -222,7 +222,7 @@ func (v *ValueScope) ModifyEnv(key, value string) *ValueScope {
 	if len(key) == 0 {
 		return v
 	}
-	v.Env = utils.ModifyMapByPair(v.Env, key, value, func(k, a, b string) string {
+	v.Env = internal.ModifyMapByPair(v.Env, key, value, func(k, a, b string) string {
 		if a == b {
 			return a
 		}
@@ -233,7 +233,7 @@ func (v *ValueScope) ModifyEnv(key, value string) *ValueScope {
 
 func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
 	v.PrepareScope()
-	v.Vars = utils.ModifyMapByMap(varToAdd, v.Vars)
+	v.Vars = internal.ModifyMapByMap(varToAdd, v.Vars)
 	return v
 }
 
@@ -248,7 +248,7 @@ func (c *ValueScope) AppendVarsByNew(src map[string]string) {
 			return c.Expand(a)
 		}
 	}
-	c.Vars = utils.ModifyMapByMap(src, c.Vars, filter)
+	c.Vars = internal.ModifyMapByMap(src, c.Vars, filter)
 }
 
 func (v *ValueScope) AppendVar(key, val string) *ValueScope {

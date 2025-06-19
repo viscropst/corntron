@@ -1,15 +1,15 @@
-package internal
+package core
 
 import (
-	"corntron/internal/utils"
-	"corntron/internal/utils/log"
+	"corntron/internal"
+	"corntron/internal/log"
 	"encoding/json"
 	"net/url"
 	"strings"
 )
 
 var argStr = map[string]string{
-	"/#os/": utils.OSPathSeparator,
+	"/#os/": internal.OSPathSeparator,
 }
 
 func argReplace(s string) string {
@@ -46,15 +46,15 @@ var fnMaps = map[string]func(args ...string) string{
 	},
 	"ospth": func(args ...string) string {
 		src := args[0]
-		src = strings.ReplaceAll(src, utils.PathSeparator, argReplace("/#os/"))
-		src = strings.ReplaceAll(src, utils.PathListSeparator, utils.OSPathListSeparator)
-		return strings.Trim(src, utils.OSPathListSeparator)
+		src = strings.ReplaceAll(src, internal.PathSeparator, argReplace("/#os/"))
+		src = strings.ReplaceAll(src, internal.PathListSeparator, internal.OSPathListSeparator)
+		return strings.Trim(src, internal.OSPathListSeparator)
 	},
 	"webreq": func(args ...string) string {
 		origin := args[0]
 		funcArgs := strings.Split(args[1], ",")
 		if len(funcArgs) == 0 && funcArgs[0] == "" {
-			utils.LogCLI(log.PanicLevel).Println("empty url while doing web request")
+			internal.LogCLI(log.PanicLevel).Println("empty url while doing web request")
 		}
 		if len(funcArgs) < 2 {
 			funcArgs = append(funcArgs, "http")
@@ -66,9 +66,9 @@ var fnMaps = map[string]func(args ...string) string{
 		if err != nil {
 			return origin
 		}
-		result, err := utils.HttpRequestString(url.String(), funcArgs[2:]...)
+		result, err := internal.HttpRequestString(url.String(), funcArgs[2:]...)
 		if err != nil {
-			utils.LogCLI(log.ErrorLevel).Println("error while doing web request:", err)
+			internal.LogCLI(log.ErrorLevel).Println("error while doing web request:", err)
 			return origin
 		}
 		return strings.TrimSpace(result)
@@ -77,11 +77,11 @@ var fnMaps = map[string]func(args ...string) string{
 		origin := args[0]
 		funcArgs := strings.Split(args[1], ",")
 		if len(funcArgs) == 0 && funcArgs[0] == "" {
-			utils.LogCLI(log.PanicLevel).Println("empty owner and project while doing gh-latest-rel")
+			internal.LogCLI(log.PanicLevel).Println("empty owner and project while doing gh-latest-rel")
 		}
 		project := strings.Split(funcArgs[0], "/")
 		if len(project) < 2 {
-			utils.LogCLI(log.PanicLevel).Println("unknown fromat of owner and project while doing gh-latest-rel")
+			internal.LogCLI(log.PanicLevel).Println("unknown fromat of owner and project while doing gh-latest-rel")
 		}
 		apiPath := "/" + project[0] + "/" + project[1] + "/releases"
 		tagName := "latest"
@@ -102,9 +102,9 @@ var fnMaps = map[string]func(args ...string) string{
 		if err != nil {
 			return origin
 		}
-		result, err := utils.HttpRequestBytes(url.String(), "GET")
+		result, err := internal.HttpRequestBytes(url.String(), "GET")
 		if err != nil {
-			utils.LogCLI(log.ErrorLevel).Println("error while doing gh-latest-rel:", err)
+			internal.LogCLI(log.ErrorLevel).Println("error while doing gh-latest-rel:", err)
 			return origin
 		}
 		var ghRelease struct {

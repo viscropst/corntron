@@ -1,7 +1,7 @@
 package core
 
 import (
-	"corntron/internal/utils"
+	"corntron/internal"
 	"errors"
 	"path/filepath"
 )
@@ -25,7 +25,7 @@ func LoadCornConfig(tomlPath string, base envConfig) (CornsEnvConfig, error) {
 	result.envName = name
 	result.initCornVars()
 
-	err := utils.LoadTomlFile(loadPath, &result)
+	err := internal.LoadTomlFile(loadPath, &result)
 	if err != nil {
 		return result, err
 	}
@@ -42,11 +42,11 @@ func LoadCornConfig(tomlPath string, base envConfig) (CornsEnvConfig, error) {
 		result.ConfigExec[idx].Top = &result.ValueScope
 	}
 
-	if exec, ok := result.ExecByPlats[utils.OS()]; ok {
+	if exec, ok := result.ExecByPlats[internal.OS()]; ok {
 		result.Exec = setExec(result, exec)
 	}
 
-	if exec, ok := result.ExecByPlats[utils.Platform()]; ok {
+	if exec, ok := result.ExecByPlats[internal.Platform()]; ok {
 		result.Exec = setExec(result, exec)
 	}
 

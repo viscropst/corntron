@@ -2,10 +2,10 @@ package corntron
 
 import (
 	"corntron/core"
-	"corntron/internal/utils"
+	"corntron/internal"
 	"log"
 )
 
-func CliLog(levels ...utils.LogLevel) *log.Logger {
+func CliLog(levels ...internal.LogLevel) *log.Logger {
 	return core.LogCLI(levels...)
 }

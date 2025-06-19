@@ -3,7 +3,6 @@ package corntron
 import (
 	"corntron/core"
 	"corntron/internal"
-	"corntron/internal/utils"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -27,7 +26,7 @@ func LoadCoreConfig(altBases ...string) core.MainConfig {
 }
 
 type Core struct {
-	internal.Core
+	core.Core
 	Config      core.MainConfig
 	CornsEnv    map[string]core.CornsEnvConfig
 	RuntimesEnv []core.RtEnvConfig
@@ -39,7 +38,7 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 		CornsEnv: make(map[string]core.CornsEnvConfig),
 	}
 
-	result.ValueScope = &internal.ValueScope{
+	result.ValueScope = &core.ValueScope{
 		Env:  make(map[string]string),
 		Vars: make(map[string]string),
 	}
@@ -110,6 +109,6 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 }
 
 func ifFolderNotExists(path string) bool {
-	stat, err := utils.StatPath(path)
+	stat, err := internal.StatPath(path)
 	return err != nil || !stat.IsDir()
 }

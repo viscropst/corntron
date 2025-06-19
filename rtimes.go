@@ -3,14 +3,13 @@ package corntron
 import (
 	"corntron/core"
 	"corntron/internal"
-	"corntron/internal/utils"
-	"corntron/internal/utils/log"
+	"corntron/internal/log"
 	"fmt"
 	"os"
 	"path/filepath"
 )
 
-func (c Core) ComposeRtEnv() *internal.ValueScope {
+func (c Core) ComposeRtEnv() *core.ValueScope {
 	c.Prepare()
 	pthValue := ""
 	for _, config := range c.RuntimesEnv {
@@ -19,7 +18,7 @@ func (c Core) ComposeRtEnv() *internal.ValueScope {
 		for k, v := range mirrorEnv {
 			mirrorEnv[k] = config.Expand(v)
 		}
-		pthValue = utils.AppendToPathList(pthValue, config.Env["PATH"])
+		pthValue = internal.AppendToPathList(pthValue, config.Env["PATH"])
 		c.AppendEnvs(config.Env).AppendEnvs(mirrorEnv)
 	}
 	c.Env["PATH"] = pthValue

@@ -3,7 +3,7 @@
 
 package internal
 
-func (c *Core) prepareEnvsByEnviron() {
+func (c Environ) PrepareEnvsByEnviron(profileDir ...string) {
 	c.assignWithEnviron("USERNAME")
 	c.assignWithEnviron("APPDATA")
 	c.assignWithEnviron("TEMP")
@@ -11,8 +11,8 @@ func (c *Core) prepareEnvsByEnviron() {
 	c.assignWithEnviron("WINDIR")
 	c.assignWithEnviron("OS")
 	c.assignWithEnviron("LOCALAPPDATA")
-	if c.ProfileDir != "" {
-		c.Env["USERPROFILE"] = c.ProfileDir
+	if len(profileDir) > 0 {
+		c["USERPROFILE"] = profileDir[0]
 	} else {
 		c.assignWithEnviron("USERPROFILE")
 	}
@@ -21,6 +21,6 @@ func (c *Core) prepareEnvsByEnviron() {
 	c.assignWithEnviron("SYSTEMDRIVE")
 	c.assignWithEnviron("PROGRAMDATA")
 	c.assignWithEnviron("PROCESSOR_ARCHITECTURE")
-	c.Env["ProgramFiles(x86)"] = c.Environ["PROGRAMFILES"] + " (x86)"
-	c.Env["PSExecutionPolicyPreference"] = "RemoteSigned"
+	c["ProgramFiles(x86)"] = c["PROGRAMFILES"] + " (x86)"
+	c["PSExecutionPolicyPreference"] = "RemoteSigned"
 }

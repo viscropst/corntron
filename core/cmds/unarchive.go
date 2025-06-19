@@ -1,8 +1,8 @@
 package cmds
 
 import (
-	"corntron/internal/utils"
-	"corntron/internal/utils/log"
+	"corntron/internal"
+	"corntron/internal/log"
 	"errors"
 	"flag"
 	"os"
@@ -50,11 +50,11 @@ func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	src := utils.NormalizePath(f.SourceFile)
+	src := internal.NormalizePath(f.SourceFile)
 	if len(src) == 0 {
 		return nil, errors.New("no source file specified")
 	}
-	srcStat, _ := utils.StatPath(src)
+	srcStat, _ := internal.StatPath(src)
 	if srcStat == nil {
 		return nil, errors.New("source file does not exist")
 	}
@@ -62,7 +62,7 @@ func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
 		return nil, errors.New("source file is a directory")
 	}
 	f.SourceFile = src
-	out := utils.NormalizePath(f.OutputPath)
+	out := internal.NormalizePath(f.OutputPath)
 	if len(out) == 0 {
 		out = filepath.Dir(src)
 	}
@@ -89,7 +89,7 @@ func UnArchiveCmd(cmdName string, args []string) error {
 	if err != nil {
 		return err
 	}
-	utils.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", flags.SourceFile, "to", flags.OutputPath)
+	internal.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", flags.SourceFile, "to", flags.OutputPath)
 	srcFile, err := os.Open(flags.SourceFile)
 	if err != nil {
 		return err
@@ -98,9 +98,9 @@ func UnArchiveCmd(cmdName string, args []string) error {
 	if err != nil {
 		return err
 	}
-	utils.CloseFileAndFinishBar(srcFile, nil)
+	internal.CloseFileAndFinishBar(srcFile, nil)
 	if flags.RemoveSrc {
-		return os.RemoveAll(utils.NormalizePath(srcFile.Name()))
+		return os.RemoveAll(internal.NormalizePath(srcFile.Name()))
 	}
 	return nil
 }
@@ -108,10 +108,10 @@ func UnArchiveCmd(cmdName string, args []string) error {
 func unarchive(srcFile *os.File, flags *unArchiveFlags, includes ...string) error {
 	switch flags.Name() {
 	case UntarCmdName:
-		return utils.UnTarFromFileWithBaseDir(
+		return internal.UnTarFromFileWithBaseDir(
 			srcFile, flags.OutputPath, flags.BaseDir, includes...)
 	case UnzipCmdName:
-		return utils.UnZipFromFileWithBaseDir(
+		return internal.UnZipFromFileWithBaseDir(
 			srcFile, flags.OutputPath, flags.BaseDir, includes...)
 	default:
 		return errors.New("unknown command")

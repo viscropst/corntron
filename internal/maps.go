@@ -1,4 +1,4 @@
-package utils
+package internal
 
 func AppendMap[value any](from, to map[string]value,
 	proc ...func(k string, a, b value) (string, value)) map[string]value {

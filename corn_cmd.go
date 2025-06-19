@@ -2,7 +2,6 @@ package corntron
 
 import (
 	"corntron/core"
-	"corntron/internal"
 	"errors"
 	"os"
 	"os/exec"
@@ -20,9 +19,9 @@ func (c *Core) ExecCmd(command string, isWaiting bool, args ...string) error {
 	return c.execCmd(&cmd, scope)
 }
 
-func (c *Core) checkByPATH(command *core.Command, scope *internal.ValueScope) (string, error) {
+func (c *Core) checkByPATH(command *core.Command, scope *core.ValueScope) (string, error) {
 	pthVal := scope.Env["PATH"]
-	pthVal = strings.Replace(pthVal, internal.PathPlaceHolder, c.Environ["PATH"], 1)
+	pthVal = strings.Replace(pthVal, core.PathPlaceHolder, c.Environ["PATH"], 1)
 	scope.Env["PATH"] = pthVal
 
 	_ = os.Setenv("PATH", scope.Env["PATH"])
@@ -37,7 +36,7 @@ func (c *Core) checkByPATH(command *core.Command, scope *internal.ValueScope) (s
 	}
 }
 
-func (c *Core) execCmd(command *core.Command, scope *internal.ValueScope) error {
+func (c *Core) execCmd(command *core.Command, scope *core.ValueScope) error {
 	if exec, err := c.checkByPATH(command, scope); err == nil {
 		command.Exec = exec
 	}

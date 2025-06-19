@@ -2,11 +2,10 @@ package corntron
 
 import (
 	"corntron/core"
-	"corntron/internal"
 	"errors"
 )
 
-func (c Core) ComposeCornEnv(corn *core.CornsEnvConfig) *internal.ValueScope {
+func (c Core) ComposeCornEnv(corn *core.CornsEnvConfig) *core.ValueScope {
 	c.Prepare()
 	if corn == nil {
 		return c.ValueScope

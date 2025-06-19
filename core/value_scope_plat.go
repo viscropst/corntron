@@ -1,7 +1,7 @@
-package internal
+package core
 
 import (
-	"corntron/internal/utils"
+	"corntron/internal"
 	"strings"
 )
 
@@ -13,15 +13,15 @@ func platMapping[v any](key string, altKey string, src map[string]v) v {
 		result = v0
 	}
 
-	var tmpKey = key + utils.OsID(selectorPrefix)
+	var tmpKey = key + internal.OsID(selectorPrefix)
 	if v0, ok := src[tmpKey]; ok && altKey != tmpKey {
 		result = v0
 	}
-	tmpKey = key + utils.ArchID(selectorPrefix)
+	tmpKey = key + internal.ArchID(selectorPrefix)
 	if v0, ok := src[tmpKey]; ok && altKey != tmpKey {
 		result = v0
 	}
-	tmpKey = key + utils.PlatID(selectorPrefix)
+	tmpKey = key + internal.PlatID(selectorPrefix)
 	if v0, ok := src[tmpKey]; ok && altKey != tmpKey {
 		result = v0
 	}
@@ -41,15 +41,15 @@ func platMappingWithKey[v any](key string, altKey string, src map[string]v) (str
 			result = k
 			continue
 		}
-		if len(splitSelector) >= 2 && splitSelector[1] == utils.OS() {
+		if len(splitSelector) >= 2 && splitSelector[1] == internal.OS() {
 			result = k
 			break
 		}
-		if len(splitSelector) >= 2 && splitSelector[1] == utils.Arch() {
+		if len(splitSelector) >= 2 && splitSelector[1] == internal.Arch() {
 			result = k
 			break
 		}
-		if len(splitSelector) >= 2 && splitSelector[1] == utils.Platform() {
+		if len(splitSelector) >= 2 && splitSelector[1] == internal.Platform() {
 			result = k
 			break
 		}

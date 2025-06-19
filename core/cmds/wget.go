@@ -1,8 +1,8 @@
 package cmds
 
 import (
-	"corntron/internal/utils"
-	"corntron/internal/utils/log"
+	"corntron/internal"
+	"corntron/internal/log"
 	"errors"
 	"flag"
 	"os"
@@ -25,7 +25,7 @@ func WgetCmd(args []string) error {
 	wd, _ := os.Getwd()
 	dst := wd
 	if len(args) > 1 {
-		dst = utils.NormalizePath(args[1])
+		dst = internal.NormalizePath(args[1])
 	}
 	srcURL := args[0]
 	if len(args) > 1 {
@@ -36,6 +36,6 @@ func WgetCmd(args []string) error {
 		return errors.New(
 			" correct usage was: " + WgetCmdID + " src [options]")
 	}
-	utils.LogCLI(log.InfoLevel).Println(WgetCmdName+":", "Downloading", dst, "from", srcURL)
-	return utils.HttpRequestFile(srcURL, dst)
+	internal.LogCLI(log.InfoLevel).Println(WgetCmdName+":", "Downloading", dst, "from", srcURL)
+	return internal.HttpRequestFile(srcURL, dst)
 }

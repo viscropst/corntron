@@ -1,7 +1,7 @@
 package core
 
 import (
-	"corntron/internal/utils"
+	"corntron/internal"
 	"errors"
 	"path/filepath"
 )
@@ -71,11 +71,11 @@ func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 		result.ConfigExec[idx].Top = &result.ValueScope
 	}
 
-	if exec, ok := result.ExecByPlats[utils.OS()]; ok {
+	if exec, ok := result.ExecByPlats[internal.OS()]; ok {
 		result.Exec = setExec(result, exec)
 	}
 
-	if exec, ok := result.ExecByPlats[utils.Platform()]; ok {
+	if exec, ok := result.ExecByPlats[internal.Platform()]; ok {
 		result.Exec = setExec(result, exec)
 	}
 

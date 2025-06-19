@@ -1,8 +1,8 @@
 package core
 
 import (
-	"corntron/internal/utils"
-	"corntron/internal/utils/log"
+	"corntron/internal"
+	"corntron/internal/log"
 	"errors"
 	"io/fs"
 	"os"
@@ -106,7 +106,7 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	}
 
 	tomlFilename := path.Join(basePath, config+".toml")
-	pathErr := utils.LoadTomlFile(tomlFilename, value)
+	pathErr := internal.LoadTomlFile(tomlFilename, value)
 	if pathErr != nil {
 		errFmt.Err = pathErr.Err
 		return &errFmt
@@ -177,14 +177,14 @@ func prepareRunningDir(src MainConfig, basePath string) string {
 	if path, ok := src.PlatformDirs[platID]; ok {
 		result = path + result
 	}
-	if path, ok := src.PlatformDirs[utils.OS()]; ok {
+	if path, ok := src.PlatformDirs[internal.OS()]; ok {
 		result = path
 	}
-	if path, ok := src.PlatformDirs[utils.Platform()]; ok {
+	if path, ok := src.PlatformDirs[internal.Platform()]; ok {
 		result = path
 	}
 	result = strings.ReplaceAll(result,
-		platID, utils.Platform())
+		platID, internal.Platform())
 
 	if !filepath.IsAbs(result) {
 		result = filepath.Join(basePath, result)

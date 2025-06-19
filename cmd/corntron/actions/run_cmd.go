@@ -4,7 +4,7 @@ import (
 	"corntron"
 	cmdcontron "corntron/cmd/corntron"
 	ct_core "corntron/core"
-	"corntron/internal/utils/log"
+	"corntron/internal/log"
 	"errors"
 	"os"
 	"runtime"

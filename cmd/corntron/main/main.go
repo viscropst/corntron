@@ -4,7 +4,7 @@ import (
 	"corntron"
 	cmdcontron "corntron/cmd/corntron"
 	"corntron/cmd/corntron/actions"
-	"corntron/internal/utils/log"
+	"corntron/internal/log"
 	"net/url"
 	"os"
 	"strings"

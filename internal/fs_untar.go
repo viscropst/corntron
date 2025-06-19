@@ -1,7 +1,7 @@
-package utils
+package internal
 
 import (
-	"corntron/internal/utils/unarchive"
+	"corntron/internal/unarchive"
 	"io"
 	"os"
 	"path/filepath"

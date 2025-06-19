@@ -1,8 +1,8 @@
 package cmds
 
 import (
-	"corntron/internal/utils"
-	"corntron/internal/utils/log"
+	"corntron/internal"
+	"corntron/internal/log"
 	"errors"
 	"flag"
 	"io"
@@ -41,7 +41,7 @@ func (f *writeStringFlagSet) normalizeFlags(args []string) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	output := utils.NormalizePath(f.OutputPath)
+	output := internal.NormalizePath(f.OutputPath)
 	if len(output) == 0 {
 		return nil, errors.New("no output file specified")
 	}
@@ -66,15 +66,15 @@ func WriteStringCmd(args []string) error {
 }
 
 func createCmd(from io.Reader, output string) error {
-	utils.LogCLI(log.InfoLevel).Println("Writing to target:", output)
-	return utils.IOToFile(from, output, nil)
+	internal.LogCLI(log.InfoLevel).Println("Writing to target:", output)
+	return internal.IOToFile(from, output, nil)
 }
 
 func appendCmd(from io.Reader, output string) error {
-	utils.LogCLI(log.InfoLevel).Println("Appending to target:", output)
-	_, err := utils.StatPath(output)
+	internal.LogCLI(log.InfoLevel).Println("Appending to target:", output)
+	_, err := internal.StatPath(output)
 	if err != nil {
 		return err
 	}
-	return utils.IOToFile(from, output, nil, os.O_APPEND|os.O_RDWR)
+	return internal.IOToFile(from, output, nil, os.O_APPEND|os.O_RDWR)
 }

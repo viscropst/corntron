@@ -1,9 +1,9 @@
 package corntron
 
 import (
-	"corntron/internal/utils"
+	"corntron/internal"
 )
 
 func IsInTerminal() bool {
-	return utils.IsInTerminal()
+	return internal.IsInTerminal()
 }
