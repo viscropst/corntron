@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-var environ map[string]string
+var environ = internal.GetEnvironMap()
 
 func hasEnvironSelector(str string) bool {
 	return strings.HasSuffix(str, selectorPrefix+"environ")
@@ -22,10 +22,6 @@ func environMapping(key string) string {
 		result = v0
 	}
 	return result
-}
-
-func (c *Core) fillEnviron() {
-	c.Environ = internal.FillEnviron(c.ProfileDir)
 }
 
 const PathPlaceHolder = "+{PATH}"

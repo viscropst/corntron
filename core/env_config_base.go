@@ -134,7 +134,7 @@ func (c *envConfig) executeCommand(command Command) error {
 	cmd := command.
 		Prepare(c.Vars).
 		SetEnv(c.Env)
-	cmd.withWaiting = true
+	cmd.withAttr = false
 
 	return cmd.Execute()
 }

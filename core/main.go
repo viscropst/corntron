@@ -37,7 +37,8 @@ func (c *Core) execCmd(command *Command, scope *ValueScope) error {
 	if exec, err := c.checkByPATH(command, scope); err == nil {
 		command.Exec = exec
 	}
-	err := command.SetEnv(scope.Env).ExecWithAttr(scope.Vars)
+	command.withAttr = true
+	err := command.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
 		newErr := errors.New("error while executing")
 		return errors.Join(newErr, err)
@@ -46,8 +47,12 @@ func (c *Core) execCmd(command *Command, scope *ValueScope) error {
 }
 
 func (c *Core) Prepare() {
-	if c.Environ != nil {
+	if len(c.Env) > 0 {
 		return
 	}
-	c.fillEnviron()
+	c.Env = internal.FillEnviron(c.ProfileDir)
+	if len(c.Environ) > 0 {
+		return
+	}
+	c.Environ = internal.GetEnvironMap()
 }

@@ -5,8 +5,6 @@ import (
 	"corntron/internal/log"
 	"errors"
 	"io/fs"
-	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -44,17 +42,17 @@ func (c MainConfig) CornWithRunningDir() string {
 func (c MainConfig) FsWalk(walkFunc filepath.WalkFunc, DirNames ...string) error {
 	rootDir := c.CurrentDir
 	if len(DirNames) > 0 {
-		tmp := path.Join(DirNames...)
-		rootDir = path.Join(rootDir, tmp)
+		tmp := filepath.Join(DirNames...)
+		rootDir = filepath.Join(rootDir, tmp)
 	}
 	return filepath.Walk(rootDir, walkFunc)
 }
 
 func (c MainConfig) FsWalkDir(walkFunc fs.WalkDirFunc, DirNames ...string) error {
-	rootDir := path.Base(c.CurrentDir)
+	rootDir := filepath.Base(c.CurrentDir)
 	if len(DirNames) > 0 {
-		tmp := path.Join(DirNames...)
-		rootDir = path.Join(rootDir, tmp)
+		tmp := filepath.Join(DirNames...)
+		rootDir = filepath.Join(rootDir, tmp)
 	}
 	return filepath.WalkDir(rootDir, walkFunc)
 }
@@ -97,15 +95,15 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	if len(altBases) > 0 {
 		basePath = altBases[0]
 	} else {
-		basePath, _ = os.Executable()
-		basePath, _ = filepath.EvalSymlinks(basePath)
-		basePath = filepath.Dir(basePath)
+		basePath = internal.GetSelfPath()
 	}
 	if len(basePath) == 0 {
 		return errors.New("could not load workdir")
 	}
-
-	tomlFilename := path.Join(basePath, config+".toml")
+	tomlFilename := filepath.Join(basePath, config+".toml")
+	if strings.HasSuffix(config, CornConfigExt) {
+		tomlFilename = filepath.Join(basePath, config)
+	}
 	pathErr := internal.LoadTomlFile(tomlFilename, value)
 	if pathErr != nil {
 		errFmt.Err = pathErr.Err
@@ -115,8 +113,7 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 }
 
 func LoadCoreConfig(altBases ...string) MainConfig {
-	basePath, _ := os.Executable()
-	basePath, _ = filepath.EvalSymlinks(basePath)
+	basePath := internal.GetSelfPath()
 	if len(basePath) == 0 && len(altBases) == 0 {
 		LogCLI(log.FatalLevel).Println("Could not load workdir,use altBase instead")
 	}
@@ -136,10 +133,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 		result.CurrentDir = basePath
 	}
 
-	result.CurrentWorkDir, err = os.Getwd()
-	if err != nil {
-		result.CurrentWorkDir = basePath
-	}
+	result.CurrentWorkDir = internal.GetWorkDir(basePath)
 
 	result.ProfileDir = prepareProfileDir(
 		result, basePath)
@@ -155,7 +149,7 @@ func LoadCoreConfig(altBases ...string) MainConfig {
 func prepareProfileDir(src MainConfig, basePath string) string {
 	result := src.ProfileDir
 	if result == profileAsUserProfile {
-		result, _ = os.UserHomeDir()
+		result = internal.GetProfileDir()
 	}
 	if result == "" {
 		result = profileAsCurrentDir

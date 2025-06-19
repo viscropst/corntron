@@ -14,7 +14,8 @@ const OSPathSeparator = string(os.PathSeparator)
 const OSPathListSeparator = string(os.PathListSeparator)
 
 func NormalizePath(src string) string {
-	return filepath.Join(src)
+	result := filepath.Join(src)
+	return strings.TrimSuffix(result, OSPathSeparator)
 }
 
 func GetExecPath(execStr string, pathList string) (string, error) {
@@ -28,4 +29,27 @@ func GetExecPath(execStr string, pathList string) (string, error) {
 	} else {
 		return path, nil
 	}
+}
+
+func GetSelfPath() string {
+	basePath, _ := os.Executable()
+	basePath, _ = filepath.EvalSymlinks(basePath)
+	return basePath
+}
+
+func GetSelfDir() string {
+	return filepath.Dir(GetSelfPath())
+}
+
+func GetWorkDir(alt ...string) string {
+	result, err := os.Getwd()
+	if err != nil && len(alt) > 0 {
+		return alt[0]
+	}
+	return result
+}
+
+func GetProfileDir() string {
+	result, _ := os.UserHomeDir()
+	return result
 }

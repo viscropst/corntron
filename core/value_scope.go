@@ -173,7 +173,7 @@ func (v *ValueScope) expandEnvs(src VarMap) VarMap {
 		}
 		return tmpKey, tmpVal
 	}
-	return internal.AppendMap(src, v.Env, modifier)
+	return appendMap(src, v.Env, modifier)
 }
 
 func (v *ValueScope) expandVars(src VarMap) VarMap {
@@ -186,7 +186,7 @@ func (v *ValueScope) expandVars(src VarMap) VarMap {
 		}
 		return tmpKey, tmpVal
 	}
-	return internal.AppendMap(src, v.Vars, modifier)
+	return appendMap(src, v.Vars, modifier)
 }
 
 func (v *ValueScope) prepareEnvs() {
@@ -205,7 +205,7 @@ func (v *ValueScope) AppendEnvs(environ map[string]string) *ValueScope {
 	if len(environ) == 0 {
 		return v
 	}
-	v.Env = internal.ModifyMapByMap(environ, v.Env, func(k, a, b string) string {
+	v.Env = modifyMapByMap(environ, v.Env, func(k, a, b string) string {
 		if a == b {
 			return a
 		}
@@ -222,7 +222,7 @@ func (v *ValueScope) ModifyEnv(key, value string) *ValueScope {
 	if len(key) == 0 {
 		return v
 	}
-	v.Env = internal.ModifyMapByPair(v.Env, key, value, func(k, a, b string) string {
+	v.Env = modifyMapByPair(v.Env, key, value, func(k, a, b string) string {
 		if a == b {
 			return a
 		}
@@ -233,7 +233,7 @@ func (v *ValueScope) ModifyEnv(key, value string) *ValueScope {
 
 func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
 	v.PrepareScope()
-	v.Vars = internal.ModifyMapByMap(varToAdd, v.Vars)
+	v.Vars = modifyMapByMap(varToAdd, v.Vars)
 	return v
 }
 
@@ -248,20 +248,12 @@ func (c *ValueScope) AppendVarsByNew(src map[string]string) {
 			return c.Expand(a)
 		}
 	}
-	c.Vars = internal.ModifyMapByMap(src, c.Vars, filter)
+	c.Vars = modifyMapByMap(src, c.Vars, filter)
 }
 
 func (v *ValueScope) AppendVar(key, val string) *ValueScope {
 	varToAdd := map[string]string{key: val}
 	return v.AppendVars(varToAdd)
-}
-
-func (v *ValueScope) EnvStrList() []string {
-	result := make([]string, 0)
-	for k, v0 := range v.Env {
-		result = append(result, k+"="+v0)
-	}
-	return result
 }
 
 func (v *ValueScope) Expand(str string) string {

@@ -4,6 +4,7 @@ import (
 	"corntron/internal"
 	"errors"
 	"path/filepath"
+	"strings"
 )
 
 const CornsIdentifier = "corn"
@@ -42,7 +43,7 @@ func (c *CornsEnvConfig) initCornVars() {
 	}
 }
 
-func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
+func LoadCornEnv(name string, base envConfig, altPath ...string) (CornsEnvConfig, error) {
 	result := CornsEnvConfig{}
 	if base.coreConfig == nil {
 		return result, errors.New("could not loading the env wihout core config")
@@ -50,17 +51,23 @@ func LoadCornEnv(name string, base envConfig) (CornsEnvConfig, error) {
 	result.envConfig = base
 	result.ID = CornsIdentifier + "_" + name
 	result.envName = name
+	if strings.HasSuffix(name, CornConfigExt) {
+		result.envName = name[:len(name)-len(CornConfigExt)]
+	}
 	result.initCornVars()
 
 	loadPath := filepath.Join(
 		result.coreConfig.CornDir(), result.envDirname)
+	if len(altPath) > 0 {
+		loadPath = altPath[0]
+	}
 	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
 		return result, err
 	}
 
 	if result.DirName == "" {
-		result.DirName = name
+		result.DirName = result.envName
 	}
 
 	for idx := range result.BootstrapExec {

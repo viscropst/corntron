@@ -21,6 +21,6 @@ func (c Environ) PrepareEnvsByEnviron(profileDir ...string) {
 	c.assignWithEnviron("SYSTEMDRIVE")
 	c.assignWithEnviron("PROGRAMDATA")
 	c.assignWithEnviron("PROCESSOR_ARCHITECTURE")
-	c["ProgramFiles(x86)"] = c["PROGRAMFILES"] + " (x86)"
+	c["ProgramFiles(x86)"] = environ["PROGRAMFILES"] + " (x86)"
 	c["PSExecutionPolicyPreference"] = "RemoteSigned"
 }

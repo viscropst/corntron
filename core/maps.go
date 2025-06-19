@@ -1,6 +1,6 @@
-package internal
+package core
 
-func AppendMap[value any](from, to map[string]value,
+func appendMap[value any](from, to map[string]value,
 	proc ...func(k string, a, b value) (string, value)) map[string]value {
 	if len(from) == 0 {
 		return to
@@ -26,7 +26,7 @@ func AppendMap[value any](from, to map[string]value,
 	return result
 }
 
-func ModifyMapByMap[v any](from, to map[string]v,
+func modifyMapByMap[v any](from, to map[string]v,
 	beforeAdd ...func(k string, a, b v) v) map[string]v {
 	if len(from) == 0 {
 		return to
@@ -48,7 +48,7 @@ func ModifyMapByMap[v any](from, to map[string]v,
 	return to
 }
 
-func ModifyMapByPair[v any](to map[string]v, key string, value v, beforeAdd ...func(k string, a, b v) v) map[string]v {
+func modifyMapByPair[v any](to map[string]v, key string, value v, beforeAdd ...func(k string, a, b v) v) map[string]v {
 	if to == nil {
 		to = make(map[string]v)
 	}

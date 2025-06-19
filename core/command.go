@@ -2,10 +2,6 @@ package core
 
 import (
 	"corntron/internal"
-	"corntron/internal/log"
-	"io"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -34,9 +30,7 @@ func (sp *splitString) ToArray() []string {
 type Command struct {
 	workDir       string
 	withWaiting   bool
-	stdIn         io.Reader
-	stdOut        io.Writer
-	stdErr        io.Writer
+	withAttr      bool
 	GlobalWaiting bool        `toml:"-"`
 	Exec          string      `toml:"exec"`
 	PlatStr       string      `toml:"platform"`
@@ -75,9 +69,6 @@ func (c *Command) SetEnv(environ map[string]string) *Command {
 }
 
 func (c *Command) Prepare(vars ...map[string]string) *Command {
-	c.stdErr = os.Stderr
-	c.stdOut = os.Stdout
-	c.stdIn = os.Stdin
 	if !c.WithNoWaiting {
 		c.withWaiting = c.GlobalWaiting && internal.IsInTerminal()
 	} else {
@@ -101,69 +92,6 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 	return c
 }
 
-func (c *Command) prepareCmd() (*exec.Cmd, error) {
-	cmd := exec.Cmd{
-		Stdin:  c.stdIn,
-		Stdout: c.stdOut,
-		Stderr: c.stdErr,
-		Dir:    c.workDir,
-	}
-	cmd.Path = internal.NormalizePath(c.Exec)
-	c.Env["PATH"] = internal.AppendToPath(c.Env["PATH"])
-	if pth, _ := filepath.Split(c.Exec); pth == "" {
-		var err0 error
-		_ = os.Setenv("PATH", c.Env["PATH"])
-		cmd.Path, err0 = exec.LookPath(c.Exec)
-		_ = os.Unsetenv("PATH")
-		if err0 != nil {
-			return nil, err0
-		}
-	}
-
-	cmd.Args = append(cmd.Args, cmd.Path)
-	cmd.Args = append(cmd.Args, c.Args...)
-
-	cmd.Env = c.EnvStrList()
-	if c.WithEnviron {
-		cmd.Env = append(cmd.Env, os.Environ()...)
-	}
-	return &cmd, nil
-}
-
-func (c *Command) exec(cmd *exec.Cmd) error {
-	if c.withWaiting {
-		return cmd.Run()
-	}
-
-	err := cmd.Start()
-	if err != nil {
-		return err
-	}
-	return cmd.Process.Release()
-}
-
-func (c *Command) ExecWithAttr(vars ...map[string]string) error {
-	c.Prepare(vars...)
-
-	if v, ok := Commands[c.Exec]; ok {
-		return v(c.Args)
-	}
-
-	cmd, err := c.prepareCmd()
-	if err != nil {
-		return err
-	}
-
-	LogCLI(log.InfoLevel).Println("executing command", cmd.String())
-
-	attr := internal.GetNewProcGroupAttr(c.IsBackground, !c.withWaiting)
-	if attr != nil {
-		cmd.SysProcAttr = attr
-	}
-
-	return c.exec(cmd)
-}
-
 func (c *Command) Execute(vars ...map[string]string) error {
 	c.Prepare(vars...)
 
@@ -171,12 +99,22 @@ func (c *Command) Execute(vars ...map[string]string) error {
 		return v(c.Args)
 	}
 
-	cmd, err := c.prepareCmd()
-	if err != nil {
-		return err
+	command := internal.Exec{
+		Exec:        c.Exec,
+		Args:        c.Args,
+		WorkDir:     c.workDir,
+		Env:         c.Env,
+		WithEnviron: c.WithEnviron,
+		WithWaiting: true,
 	}
 
-	LogCLI(log.InfoLevel).Println("executing command", cmd.String())
+	if c.WithEnviron {
+		command.Env = appendMap(c.Env, internal.GetEnvironMap())
+	}
 
-	return c.exec(cmd)
+	if c.withAttr {
+		command.WithWaiting = c.withWaiting
+		command.IsBackground = c.IsBackground
+	}
+	return command.Execute()
 }
