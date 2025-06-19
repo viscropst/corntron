@@ -2,7 +2,6 @@ package corntron
 
 import (
 	"corntron/core"
-	"corntron/internal"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -25,12 +24,7 @@ func LoadCoreConfig(altBases ...string) core.MainConfig {
 	return core.LoadCoreConfig(altBases...)
 }
 
-type Core struct {
-	core.Core
-	Config      core.MainConfig
-	CornsEnv    map[string]core.CornsEnvConfig
-	RuntimesEnv []core.RtEnvConfig
-}
+type Core = core.Core
 
 func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	result := Core{
@@ -106,9 +100,4 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	}
 
 	return result, nil
-}
-
-func ifFolderNotExists(path string) bool {
-	stat, err := internal.StatPath(path)
-	return err != nil || !stat.IsDir()
 }

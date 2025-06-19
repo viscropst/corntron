@@ -125,6 +125,14 @@ func StatPath(path string) (os.FileInfo, error) {
 	return toStatInfo(result, NormalizePath(path)), nil
 }
 
+func IfFolderNotExists(path string) bool {
+	stat, _ := StatPath(path)
+	if stat == nil {
+		return true
+	}
+	return !stat.IsDir()
+}
+
 type statInfo struct {
 	os.FileInfo
 	name string

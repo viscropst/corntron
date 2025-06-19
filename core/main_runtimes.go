@@ -1,15 +1,13 @@
-package corntron
+package core
 
 import (
-	"corntron/core"
 	"corntron/internal"
 	"corntron/internal/log"
 	"fmt"
-	"os"
 	"path/filepath"
 )
 
-func (c Core) ComposeRtEnv() *core.ValueScope {
+func (c Core) ComposeRtEnv() *ValueScope {
 	c.Prepare()
 	pthValue := ""
 	for _, config := range c.RuntimesEnv {
@@ -37,7 +35,7 @@ func (c Core) ProcessRtMirror(ifResume bool) error {
 		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteMirrors(mirrorType)
 		if err != nil {
-			err = fmt.Errorf(core.RtIdentifier+" mirror[%s]:%s", mirrorType, err.Error())
+			err = fmt.Errorf(RtIdentifier+" mirror[%s]:%s", mirrorType, err.Error())
 			return err
 		}
 	}
@@ -66,27 +64,27 @@ func (c Core) ProcessRtConfig(ifResume bool) error {
 func (c Core) ProcessRtBootstrap(ifResume bool) error {
 	c.Prepare()
 	currentRtDir := c.Config.RtWithRunningDir()
-	if ifFolderNotExists(currentRtDir) {
-		_ = os.MkdirAll(currentRtDir, os.ModeDir|0o666)
+	if internal.IfFolderNotExists(currentRtDir) {
+		_ = internal.Mkdir(currentRtDir)
 	}
 
 	for _, runtime := range c.RuntimesEnv {
 		config := runtime.Copy()
 		bootstrapDir := filepath.Join(currentRtDir,
 			config.DirName)
-		if !ifFolderNotExists(bootstrapDir) {
+		if !internal.IfFolderNotExists(bootstrapDir) {
 			continue
 		}
-		_ = os.Mkdir(bootstrapDir, os.ModeDir|0o666)
+		_ = internal.Mkdir(bootstrapDir)
 		config.PrepareScope()
 		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.Environ["PATH"]
 		err := config.ExecuteBootstrap()
 		if err != nil {
-			_ = os.RemoveAll(bootstrapDir)
-			err = fmt.Errorf(core.RtIdentifier+" bootstrsp[%s]:%s",
+			_ = internal.Remove(bootstrapDir)
+			err = fmt.Errorf(RtIdentifier+" bootstrsp[%s]:%s",
 				config.DirName, err.Error())
-			core.LogCLI(log.ErrorLevel).Println(err)
+			LogCLI(log.ErrorLevel).Println(err)
 			if ifResume {
 				return err
 			}
