@@ -3,12 +3,12 @@ package core
 import (
 	"corntron/internal"
 	"errors"
-	"strings"
 )
 
 type Core struct {
 	*ValueScope
 	Environ     map[string]string
+	EnvironPath PathList
 	ProfileDir  string
 	Config      MainConfig
 	CornsEnv    map[string]CornsEnvConfig
@@ -27,10 +27,9 @@ func (c *Core) ExecCmd(command string, isWaiting bool, args ...string) error {
 }
 
 func (c *Core) checkByPATH(command *Command, scope *ValueScope) (string, error) {
-	pthVal := scope.Env["PATH"]
-	pthVal = strings.Replace(pthVal, PathPlaceHolder, c.Environ["PATH"], 1)
-	scope.Env["PATH"] = pthVal
-	return internal.GetExecPath(command.Exec, pthVal)
+	pthVal := c.EnvironPath
+	pthVal = pthVal.AppendList(scope.EnvPath)
+	return internal.GetExecPath(command.Exec, pthVal.String())
 }
 
 func (c *Core) execCmd(command *Command, scope *ValueScope) error {
@@ -38,6 +37,7 @@ func (c *Core) execCmd(command *Command, scope *ValueScope) error {
 		command.Exec = exec
 	}
 	command.withAttr = true
+	command.EnvPath = c.EnvironPath.AppendList(scope.EnvPath)
 	err := command.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
 		newErr := errors.New("error while executing")
@@ -47,6 +47,7 @@ func (c *Core) execCmd(command *Command, scope *ValueScope) error {
 }
 
 func (c *Core) Prepare() {
+	c.EnvironPath = EnvironPathList()
 	if len(c.Env) > 0 {
 		return
 	}

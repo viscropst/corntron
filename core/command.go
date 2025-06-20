@@ -60,9 +60,12 @@ func (c *Command) SetEnv(environ map[string]string) *Command {
 	for k, v := range tmpEnv {
 		_, ok := c.Env[k]
 		if ok && len(v) > 0 {
-			c.Env[k] = v
+			c.Env[k] = c.Expand(v)
 		} else if !ok && len(v) > 0 {
-			c.Env[k] = v
+			c.Env[k] = c.Expand(v)
+		}
+		if ok && k == "PATH" {
+			c.EnvPath = PathListBuilder(c.Expand(v))
 		}
 	}
 	return c
@@ -89,6 +92,9 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 		c.ArgStr.SourceStr = c.Expand(c.ArgStr.SourceStr)
 		c.Args = append(c.Args, c.ArgStr.ToArray()...)
 	}
+	if len(c.EnvPath) > 0 {
+		c.EnvPath = PathListBuilder(c.Expand(c.EnvPath.String()))
+	}
 	return c
 }
 
@@ -107,6 +113,11 @@ func (c *Command) Execute(vars ...map[string]string) error {
 		WithEnviron: c.WithEnviron,
 		WithWaiting: true,
 	}
+
+	if len(command.Env) == 0 {
+		command.Env = make(internal.Environ)
+	}
+	command.Env["PATH"] = c.EnvPath.String()
 
 	if c.WithEnviron {
 		command.Env = appendMap(c.Env, internal.GetEnvironMap())

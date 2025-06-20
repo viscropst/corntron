@@ -7,7 +7,6 @@ import (
 	"errors"
 	"flag"
 	"net/url"
-	"os"
 	"strings"
 )
 
@@ -59,8 +58,7 @@ func (f *ghGetFlagSet) normalizeFlags(args []string) ([]string, error) {
 		f.Tag = "latest"
 	}
 	if len(f.Output) == 0 {
-		wd, _ := os.Getwd()
-		f.Output = wd
+		f.Output = internal.GetWorkDir()
 	}
 	if len(strings.TrimSpace(f.ApiDomain)) == 0 {
 		f.ApiDomain = "api.github.com"

@@ -10,6 +10,11 @@ import (
 )
 
 const defaultMod = 0666
+const fsAppend = os.O_APPEND | os.O_RDWR
+
+func FSAppendFlag() int {
+	return fsAppend
+}
 
 func IOToFile(from io.Reader, to string, bar *pb.ProgressBar, flags ...int) error {
 	return ioToFile(from, NormalizePath(to), defaultMod, bar, flags...)
@@ -117,7 +122,7 @@ func Remove(path string) error {
 	}
 }
 
-func StatPath(path string) (os.FileInfo, error) {
+func StatPath(path string) (*statInfo, error) {
 	result, err := os.Stat(NormalizePath(path))
 	if err != nil {
 		return nil, err
@@ -145,10 +150,25 @@ func (i statInfo) Name() string {
 	return i.name
 }
 
-func toStatInfo(stat os.FileInfo, path string) statInfo {
+func toStatInfo(stat os.FileInfo, path string) *statInfo {
 	result := statInfo{
 		FileInfo: stat,
 		name:     path,
 	}
-	return result
+	return &result
+}
+
+func (i statInfo) Open(flag ...int) (*os.File, error) {
+	if len(flag) == 0 {
+		return os.Open(i.Name())
+	}
+	return os.OpenFile(i.Name(), flag[0], i.Mode().Perm())
+}
+
+func Open(src string) (*os.File, error) {
+	stat, err := StatPath(src)
+	if err != nil {
+		return nil, err
+	}
+	return stat.Open()
 }

@@ -2,7 +2,6 @@ package internal
 
 import (
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -10,11 +9,20 @@ type Environ map[string]string
 
 var environ Environ
 
+var environPath string
+
 func GetEnvironMap() map[string]string {
 	if environ == nil {
 		environ = makeEnvironMap()
 	}
 	return environ
+}
+
+func GetEnvironPath() string {
+	if len(environPath) == 0 {
+		_ = makeEnvironMap()
+	}
+	return environPath
 }
 
 func makeEnvironMap() map[string]string {
@@ -25,22 +33,19 @@ func makeEnvironMap() map[string]string {
 			continue
 		}
 		key := ""
-		switch runtime.GOOS {
+		switch osNoPrefix() {
 		case "windows":
 			key = strings.ToUpper(pairs[0])
 		default:
 			key = pairs[0]
 		}
+		if key == "PATH" {
+			environPath = pairs[1]
+			continue
+		}
 		tmp[key] = pairs[1]
 	}
 	return tmp
-}
-func AppendToPath(value string) string {
-	if AssertWithEnviron("PATH", value) {
-		return value
-	}
-	pathValue := GetEnvironMap()["PATH"]
-	return AppendToPathList(pathValue, value)
 }
 
 func AssertWithEnviron(args ...string) bool {
@@ -55,81 +60,6 @@ func AssertWithEnviron(args ...string) bool {
 		value := args[1]
 		return ok && v == value
 	}
-}
-
-func NormalizePathList(src string) string {
-	_, result := NormalizePathListWithMap(src)
-	return result
-}
-
-func NormalizePathListWithMap(src string) (map[string]int, string) {
-	result := ""
-	if len(src) == 0 {
-		return map[string]int{src: 1}, src
-	}
-	pthList := strings.Split(src, OSPathListSeparator)
-	if len(pthList) == 0 && strings.Contains(src, PathListSeparator) {
-		pthList = strings.Split(src, PathListSeparator)
-	}
-	if len(pthList) < 2 {
-		return map[string]int{src: 1}, src
-	}
-	pthCountMap := make(map[string]int)
-	for _, v := range pthList {
-		if len(v) == 0 {
-			continue
-		}
-		tmp := NormalizePath(v)
-		if osNoPrefix() == "windows" {
-			tmp = strings.ToUpper(tmp)
-		}
-		if _, ok := pthCountMap[tmp]; !ok {
-			pthCountMap[tmp] = 1
-			result = result + OSPathListSeparator + NormalizePath(v)
-		} else {
-			continue
-		}
-	}
-	return pthCountMap, strings.TrimPrefix(result, OSPathListSeparator)
-}
-
-func AppendToPathList(src, value string) string {
-	if len(value) == 0 {
-		return src
-	}
-	if src == value {
-		return src
-	}
-	if len(src) == 0 {
-		return value
-	}
-	if strings.Contains(src, value) {
-		return src
-	}
-	if strings.Contains(value, src) {
-		return value
-	}
-	srcListMap, result := NormalizePathListWithMap(src)
-	valueList := strings.Split(NormalizePathList(value), OSPathListSeparator)
-	if strings.Contains(value, PathListSeparator) {
-		for _, v := range valueList {
-			if len(v) == 0 {
-				continue
-			}
-			tmp := NormalizePath(v)
-			if osNoPrefix() == "windows" {
-				tmp = strings.ToUpper(tmp)
-			}
-			if _, ok := srcListMap[tmp]; ok {
-				continue
-			} else {
-				result = result + OSPathListSeparator + v
-			}
-		}
-	} else {
-		result = result + OSPathListSeparator + NormalizePath(value)
-	}
-	return strings.TrimPrefix(result, OSPathListSeparator)
 }
 
 func FillEnviron(profileDir ...string) Environ {

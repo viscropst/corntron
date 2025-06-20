@@ -6,7 +6,6 @@ import (
 	"errors"
 	"flag"
 	"io"
-	"os"
 	"strings"
 )
 
@@ -76,5 +75,5 @@ func appendCmd(from io.Reader, output string) error {
 	if err != nil {
 		return err
 	}
-	return internal.IOToFile(from, output, nil, os.O_APPEND|os.O_RDWR)
+	return internal.IOToFile(from, output, nil, internal.FSAppendFlag())
 }

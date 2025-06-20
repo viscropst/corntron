@@ -5,7 +5,6 @@ import (
 	"corntron/internal/log"
 	"errors"
 	"flag"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -32,6 +31,7 @@ type unArchiveFlags struct {
 	SourceFile   string
 	RemoveSrc    bool
 	BaseDir      string
+	LogicPath    internal.UnarLogicPath
 }
 
 func unarchiveFlags(cmdName string) *unArchiveFlags {
@@ -75,6 +75,21 @@ func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
 	return strings.Split(f.IncludeFiles, ","), nil
 }
 
+func (f unArchiveFlags) UnarFlags() internal.UnarchiveFlag {
+	result := internal.UnarchiveFlag{
+		SourceFile: f.SourceFile,
+		OutputPath: f.OutputPath,
+		BaseDir:    f.BaseDir,
+	}
+	switch f.Name() {
+	case UntarCmdName:
+		result.LogicType = internal.UnTar
+	case UnzipCmdName:
+		result.LogicType = internal.UnZip
+	}
+	return result
+}
+
 func UnzipCmd(args []string) error {
 	return UnArchiveCmd(UnzipCmdName, args)
 }
@@ -90,30 +105,17 @@ func UnArchiveCmd(cmdName string, args []string) error {
 		return err
 	}
 	internal.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", flags.SourceFile, "to", flags.OutputPath)
-	srcFile, err := os.Open(flags.SourceFile)
+	srcFile, err := internal.Open(flags.SourceFile)
 	if err != nil {
 		return err
 	}
-	err = unarchive(srcFile, flags, includes...)
+	err = internal.Unarchive(srcFile, flags.UnarFlags(), includes...)
 	if err != nil {
 		return err
 	}
 	internal.CloseFileAndFinishBar(srcFile, nil)
 	if flags.RemoveSrc {
-		return os.RemoveAll(internal.NormalizePath(srcFile.Name()))
+		return internal.Remove(internal.NormalizePath(srcFile.Name()))
 	}
 	return nil
-}
-
-func unarchive(srcFile *os.File, flags *unArchiveFlags, includes ...string) error {
-	switch flags.Name() {
-	case UntarCmdName:
-		return internal.UnTarFromFileWithBaseDir(
-			srcFile, flags.OutputPath, flags.BaseDir, includes...)
-	case UnzipCmdName:
-		return internal.UnZipFromFileWithBaseDir(
-			srcFile, flags.OutputPath, flags.BaseDir, includes...)
-	default:
-		return errors.New("unknown command")
-	}
 }

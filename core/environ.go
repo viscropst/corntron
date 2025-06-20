@@ -23,5 +23,3 @@ func environMapping(key string) string {
 	}
 	return result
 }
-
-const PathPlaceHolder = "+{PATH}"

@@ -15,8 +15,7 @@ func (c *Core) prepareCornConfig(corn CornsEnvConfig) (*CornsEnvConfig, error) {
 	scope := c.ComposeRtEnv()
 	tmpCorn := corn.Copy()
 	tmpCorn.RePrepareScope()
-	tmpCorn.ModifyEnv("PATH",
-		internal.AppendToPathList(corn.Env["PATH"], scope.Env["PATH"]))
+	tmpCorn.EnvPath = corn.EnvPath.AppendList(scope.EnvPath)
 	tmpCorn.AppendEnvs(scope.Env)
 	if !corn.MetaOnly {
 		bootstrapDir := filepath.Join(currentCornDir, corn.DirName)

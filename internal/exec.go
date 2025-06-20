@@ -26,7 +26,6 @@ func (c *Exec) prepareCmd() (*exec.Cmd, error) {
 		Dir:    c.WorkDir,
 	}
 	cmd.Path = NormalizePath(c.Exec)
-	c.Env["PATH"] = AppendToPath(c.Env["PATH"])
 	if pth, _ := filepath.Split(c.Exec); pth == "" {
 		var err0 error
 		cmd.Path, err0 = GetExecPath(cmd.Path, c.Env["PATH"])

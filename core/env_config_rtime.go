@@ -43,7 +43,6 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 	}
 	c.PrepareScope()
 	env := make(map[string]string)
-	env["PATH"] = c.Env["PATH"]
 	for k, v := range c.Env {
 		if k == "PATH" {
 			continue
@@ -52,6 +51,7 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 	}
 	for _, command := range mirrorExec {
 		c0 := command.SetEnv(env)
+		c0.EnvPath = c.EnvPath
 		if !c0.CanRunning() {
 			continue
 		}

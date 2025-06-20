@@ -5,7 +5,6 @@ import (
 	"corntron/internal/log"
 	"errors"
 	"flag"
-	"os"
 )
 
 const WgetCmdID = "wgt"
@@ -22,8 +21,7 @@ func wgetFlags() *flag.FlagSet {
 }
 
 func WgetCmd(args []string) error {
-	wd, _ := os.Getwd()
-	dst := wd
+	dst := internal.GetWorkDir()
 	if len(args) > 1 {
 		dst = internal.NormalizePath(args[1])
 	}

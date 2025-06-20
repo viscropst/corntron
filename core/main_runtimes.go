@@ -9,17 +9,17 @@ import (
 
 func (c Core) ComposeRtEnv() *ValueScope {
 	c.Prepare()
-	pthValue := ""
+	pthValue := PathListBuilder()
 	for _, config := range c.RuntimesEnv {
 		config.RePrepareScope()
 		mirrorEnv := config.UnwrapMirrorsEnv(c.Config.UnwrapMirrorType())
 		for k, v := range mirrorEnv {
 			mirrorEnv[k] = config.Expand(v)
 		}
-		pthValue = internal.AppendToPathList(pthValue, config.Env["PATH"])
+		pthValue = pthValue.Append(config.Env["PATH"])
 		c.AppendEnvs(config.Env).AppendEnvs(mirrorEnv)
 	}
-	c.Env["PATH"] = pthValue
+	c.EnvPath = pthValue
 	return c.ValueScope
 }
 
@@ -32,7 +32,7 @@ func (c Core) ProcessRtMirror(ifResume bool) error {
 		config := runtime.Copy()
 		config.PrepareScope()
 		config.AppendEnvs(c.Env)
-		config.Vars["pth_environ"] = c.Environ["PATH"]
+		config.Vars["pth_environ"] = c.EnvironPath.String()
 		err := config.ExecuteMirrors(mirrorType)
 		if err != nil {
 			err = fmt.Errorf(RtIdentifier+" mirror[%s]:%s", mirrorType, err.Error())
@@ -49,7 +49,7 @@ func (c Core) ProcessRtConfig(ifResume bool) error {
 		config := runtime.Copy()
 		config.PrepareScope()
 		config.AppendEnvs(c.Env)
-		config.Vars["pth_environ"] = c.Environ["PATH"]
+		config.Vars["pth_environ"] = c.EnvironPath.String()
 		err := config.ExecuteConfig()
 		if err != nil {
 			err = fmt.Errorf("%s config: %s", config.ID, err.Error())
@@ -78,7 +78,7 @@ func (c Core) ProcessRtBootstrap(ifResume bool) error {
 		_ = internal.Mkdir(bootstrapDir)
 		config.PrepareScope()
 		config.AppendEnvs(c.Env)
-		config.Vars["pth_environ"] = c.Environ["PATH"]
+		config.Vars["pth_environ"] = c.EnvironPath.String()
 		err := config.ExecuteBootstrap()
 		if err != nil {
 			_ = internal.Remove(bootstrapDir)

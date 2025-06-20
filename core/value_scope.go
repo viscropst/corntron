@@ -10,6 +10,7 @@ type VarMap = map[string]string
 type ValueScope struct {
 	scopeReady bool
 	Top        *ValueScope       `toml:"-"`
+	EnvPath    PathList          `toml:"-"`
 	Vars       VarMap            `toml:"vars"`
 	Env        VarMap            `toml:"envs"`
 	EnvByPlat  map[string]VarMap `toml:"envs_by_plat"`
@@ -171,6 +172,9 @@ func (v *ValueScope) expandEnvs(src VarMap) VarMap {
 		if tmp := v.resolveFn(tmpKeyFunc, tmpVal); len(tmp) > 0 {
 			tmpVal = tmp
 		}
+		if tmpKey == "PATH" {
+			v.EnvPath = v.EnvPath.Append(tmpVal)
+		}
 		return tmpKey, tmpVal
 	}
 	return appendMap(src, v.Env, modifier)
@@ -190,6 +194,10 @@ func (v *ValueScope) expandVars(src VarMap) VarMap {
 }
 
 func (v *ValueScope) prepareEnvs() {
+	if v.EnvPath == nil {
+		v.EnvPath = PathListBuilder()
+	}
+
 	v.Env = v.expandEnvs(v.Env)
 
 	v.Env = v.expandEnvs(v.EnvByPlat[internal.OS()])
@@ -197,6 +205,10 @@ func (v *ValueScope) prepareEnvs() {
 	v.Env = v.expandEnvs(v.EnvByPlat[internal.Arch()])
 
 	v.Env = v.expandEnvs(v.EnvByPlat[internal.Platform()])
+
+	if p, ok := v.Env["PATH"]; ok {
+		v.EnvPath = PathListBuilder(p)
+	}
 
 }
 

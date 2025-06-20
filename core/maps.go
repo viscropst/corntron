@@ -20,6 +20,9 @@ func appendMap[value any](from, to map[string]value,
 		} else {
 			tmpKey, tmpVal = proc[0](tmpKey, tmpOrig, tmpOrig)
 		}
+		if len(tmpKey) == 0 {
+			continue
+		}
 
 		result[tmpKey] = tmpVal
 	}
