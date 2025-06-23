@@ -7,4 +7,4 @@ ssh -T git@e.coding.net
 [ ! -d $repowrok ] && exit 1
 cd $repowrok
 echo Start push to cnb.cool
-git push --mirror https://cnb:eUolNKX1HosfJEn1072ds8r8RxFgit@cnb.cool/viscropst/corntron.git
+git push --mirror https://cnb:eUolNKX1HosfJEn1072ds8r8RxF@cnb.cool/viscropst/corntron.git
