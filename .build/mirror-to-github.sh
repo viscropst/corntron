@@ -9,4 +9,4 @@ cd $repowrok
 echo Start push to Github
 ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 ssh -T git@github.com
-git push --mirror git@github.com:viscropst/corntron.git
+git push --mirror git@github.com:viscropst/corntron.git --force

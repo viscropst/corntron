@@ -17,3 +17,4 @@ chmod 600 ~/.ssh/${id_name}
 [ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts
 git config --global user.email "viscropst@petalmail.com"
 git config --global user.name "viscropst"
+git config --global receive.denyDeleteCurrent ignore

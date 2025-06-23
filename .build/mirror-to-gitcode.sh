@@ -9,4 +9,4 @@ cd $repowrok
 echo Start push to GitCode
 ssh-keyscan -t rsa gitcode.com >> ~/.ssh/known_hosts
 ssh -T git@gitcode.com
-git push --mirror git@gitcode.com:viscropst/corntron.git
+git push --mirror git@gitcode.com:viscropst/corntron.git --force
