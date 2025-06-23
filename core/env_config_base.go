@@ -131,6 +131,10 @@ func (c *envConfig) executeCommand(command Command) error {
 	if c.Top != nil {
 		command.Top = c.Top
 	}
+	if c.Env == nil {
+		c.Env = make(map[string]string)
+	}
+	c.Env["PATH"] = c.EnvPath.String()
 	cmd := command.
 		Prepare(c.Vars).
 		SetEnv(c.Env)

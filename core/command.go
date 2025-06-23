@@ -2,6 +2,7 @@ package core
 
 import (
 	"corntron/internal"
+	"corntron/internal/log"
 	"path/filepath"
 	"strings"
 )
@@ -64,8 +65,10 @@ func (c *Command) SetEnv(environ map[string]string) *Command {
 		} else if !ok && len(v) > 0 {
 			c.Env[k] = c.Expand(v)
 		}
-		if ok && k == "PATH" {
+		if ok && k == "PATH" && len(c.EnvPath) == 0 {
 			c.EnvPath = PathListBuilder(c.Expand(v))
+		} else if ok && k == "PATH" && len(c.EnvPath) > 0 {
+			c.EnvPath = c.EnvPath.AppendList(PathListBuilder(c.Expand(v)))
 		}
 	}
 	return c
@@ -122,6 +125,8 @@ func (c *Command) Execute(vars ...map[string]string) error {
 	if c.WithEnviron {
 		command.Env = appendMap(c.Env, internal.GetEnvironMap())
 	}
+
+	LogCLI(log.DebugLevel).Printf("Execute command with PATH: %s", c.EnvPath.String())
 
 	if c.withAttr {
 		command.WithWaiting = c.withWaiting

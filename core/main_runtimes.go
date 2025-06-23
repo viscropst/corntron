@@ -33,6 +33,7 @@ func (c Core) ProcessRtMirror(ifResume bool) error {
 		config.PrepareScope()
 		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.EnvironPath.String()
+		config.EnvPath = runtime.EnvPath.AppendList(c.EnvironPath)
 		err := config.ExecuteMirrors(mirrorType)
 		if err != nil {
 			err = fmt.Errorf(RtIdentifier+" mirror[%s]:%s", mirrorType, err.Error())
@@ -50,6 +51,7 @@ func (c Core) ProcessRtConfig(ifResume bool) error {
 		config.PrepareScope()
 		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.EnvironPath.String()
+		config.EnvPath = runtime.EnvPath.AppendList(c.EnvironPath)
 		err := config.ExecuteConfig()
 		if err != nil {
 			err = fmt.Errorf("%s config: %s", config.ID, err.Error())
@@ -79,6 +81,7 @@ func (c Core) ProcessRtBootstrap(ifResume bool) error {
 		config.PrepareScope()
 		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.EnvironPath.String()
+		config.EnvPath = c.EnvPath.AppendList(c.EnvironPath)
 		err := config.ExecuteBootstrap()
 		if err != nil {
 			_ = internal.Remove(bootstrapDir)
