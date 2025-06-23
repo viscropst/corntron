@@ -5,6 +5,7 @@ import (
 	"corntron/internal/log"
 	"encoding/json"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -49,6 +50,28 @@ var fnMaps = map[string]func(args ...string) string{
 		src = strings.ReplaceAll(src, internal.PathSeparator, argReplace("/#os/"))
 		src = strings.ReplaceAll(src, internal.PathListSeparator, internal.OSPathListSeparator)
 		return strings.Trim(src, internal.OSPathListSeparator)
+	},
+	"split-elem": func(args ...string) string {
+		origin := args[0]
+		funcArgs := strings.Split(args[1], ",")
+		if len(funcArgs) == 0 && funcArgs[0] == "" {
+			internal.LogCLI(log.PanicLevel).Println("empty string while doing split-elem")
+		}
+		if len(funcArgs) < 2 {
+			internal.LogCLI(log.PanicLevel).Println("not enough args while doing split-elem")
+		}
+		splitStr := funcArgs[0]
+		elemNum, err := strconv.Atoi(funcArgs[1])
+		if err != nil {
+			internal.LogCLI(log.PanicLevel).Println("error while doing split-elem:", err)
+			return origin
+		}
+		splitList := strings.Split(origin, splitStr)
+		if len(splitList) < elemNum {
+			internal.LogCLI(log.PanicLevel).Println("out of range while doing split-elem")
+			return origin
+		}
+		return splitList[elemNum-1]
 	},
 	"webreq": func(args ...string) string {
 		origin := args[0]
