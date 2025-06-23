@@ -207,7 +207,7 @@ func (v *ValueScope) prepareEnvs() {
 	v.Env = v.expandEnvs(v.EnvByPlat[internal.Platform()])
 
 	if p, ok := v.Env["PATH"]; ok {
-		v.EnvPath = PathListBuilder(p)
+		v.EnvPath = v.EnvPath.Append(p)
 	}
 
 }
