@@ -2,7 +2,13 @@ $:
   api_trigger_vscode:
     clouddev:
       docker:
-        build: .ide/Dockerfile
+        build: 
+          dockerfile: .ide/Dockerfile
+          by:
+            - .ide/extensions.json
+            - .ide/languagepacks.json
+            - .ide/user.argv.json
+
       services:
         - vscode
       stages:
