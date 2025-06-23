@@ -31,6 +31,7 @@ type CmdFlag struct {
 	RuntimeBase      string
 	EditorBase       string
 	RunningBase      string
+	MirrorType       string
 	PassToCornConfig bool
 }
 
@@ -58,6 +59,7 @@ func (f CmdFlag) Prepare(actions map[string]CmdAction) *CmdFlag {
 	result.host.StringVar(&result.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")
 	result.host.StringVar(&result.EditorBase, "corn-base", "", "/path/to/your/<corns profiles folder>")
 	result.host.StringVar(&result.EnvDirname, "env-dirname", "", "<folder name of env files to store>")
+	result.host.StringVar(&result.MirrorType, "mirror-type", "", "mirror type, default is without mirror")
 	return result
 }
 

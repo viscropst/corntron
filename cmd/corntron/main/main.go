@@ -7,6 +7,7 @@ import (
 	"corntron/internal/log"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -24,8 +25,13 @@ func main() {
 
 	flags := cliFlags{}.Init()
 	errLogger := cmdcontron.CliLog(log.ErrorLevel)
-	if !strings.HasSuffix(os.Args[0], "debug") {
+	_, selfFile := filepath.Split(os.Args[0])
+	selfName := strings.TrimSuffix(selfFile, filepath.Ext(selfFile))
+	if !strings.HasSuffix(selfName, "debug") {
 		log.CLIOutputLevel = log.InfoLevel
+	}
+	if strings.HasPrefix(selfName, "__debug") && log.CLIOutputLevel != log.DebugLevel {
+		log.CLIOutputLevel = log.DebugLevel
 	}
 	cmdcontron.CliLog(log.DebugLevel).Println(os.Args, "len:", len(os.Args))
 	for i, v := range os.Args {
@@ -41,6 +47,7 @@ func main() {
 
 	runningBase, confBase := action.BeforeLoad(flags.CmdFlag)
 	coreConfig := corntron.LoadCoreConfigWithRuningBase(runningBase, confBase...)
+	coreConfig.MirrorType = flags.MirrorType
 
 	err = action.BeforeCore(&coreConfig)
 	if err != nil {
