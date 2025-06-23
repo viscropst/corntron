@@ -47,8 +47,9 @@ func main() {
 
 	runningBase, confBase := action.BeforeLoad(flags.CmdFlag)
 	coreConfig := corntron.LoadCoreConfigWithRuningBase(runningBase, confBase...)
-	coreConfig.MirrorType = flags.MirrorType
-
+	if len(flags.MirrorType) == 0 {
+		coreConfig.MirrorType = flags.MirrorType
+	}
 	err = action.BeforeCore(&coreConfig)
 	if err != nil {
 		errLogger.Println("error before load core", err)
