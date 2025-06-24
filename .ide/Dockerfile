@@ -2,7 +2,7 @@ FROM golang:bookworm as build
  
 # install vscode and extension
 RUN curl -fsSL https://code-server.dev/install.sh | sh &&\
-    code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans &&\
+    code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans@1.101.0 &&\
     code-server --install-extension tamasfe.even-better-toml &&\
     code-server --install-extension golang.go &&\
     code-server --install-extension tencent-cloud.coding-copilot &&\
