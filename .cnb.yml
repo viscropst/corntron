@@ -12,3 +12,5 @@ $:
       stages:
         - name: ready
           type: vscode:go
+        - name: go_mod_tidy
+          script: go mod tidy
