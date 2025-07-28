@@ -111,15 +111,15 @@ func WgetGhCmd(args []string) error {
 	if downloadUrlStr == "" {
 		return errors.New("no asset found")
 	}
+	if flags.IsConcatDomain {
+		downloadUrlStr = strings.TrimSpace(downloadUrlStr) + "/" + downloadUrlStr
+	}
 	downloadUrl, err := url.Parse(downloadUrlStr)
 	if err != nil {
 		return err
 	}
 	if len(flags.Domain) > 0 {
 		downloadUrl.Host = flags.Domain
-	}
-	if flags.IsConcatDomain {
-		downloadUrl.Path = strings.TrimSpace(downloadUrlStr)
 	}
 	return internal.HttpRequestFile(downloadUrl.String(), flags.Output)
 }
