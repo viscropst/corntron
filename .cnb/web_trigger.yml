@@ -1,8 +1,4 @@
 branch:
-  - reg: "$rel-"
-    buttons:
-      - name: 重新构建tag
-        event: web_trigger_rebuild_tag
   - reg: "main"
     buttons:
       - name: 重新构建
