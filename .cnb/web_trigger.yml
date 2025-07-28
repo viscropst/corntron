@@ -1,5 +1,5 @@
 branch:
-  - reg: "rel-*"
+  - reg: "$rel-"
     buttons:
       - name: 重新构建
         event: web_trigger_rebuild_tag
