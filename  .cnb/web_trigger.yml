@@ -1,6 +1,6 @@
-# .cnb/web_trigger.yml
 branch:
-  - buttons:
+  - reg: "^main$"
+    buttons:
       - name: 重新构建
-        description: 按钮描述
+        description: 重新构建二进制文件
         event: web_trigger_rebuild
