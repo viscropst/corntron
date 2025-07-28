@@ -74,6 +74,29 @@ $:
   tag_push:
     - *release-rel-tag
     - *release-binary
+  web_trigger_rebuild_tag:
+    - docker:
+        image: golang:alpine
+        volumes:
+          - main:/root/.cache/go-build:copy-on-write
+      stages:
+        - name: build-binaries
+          script: sh .build/build-binaries.sh
+        - name: changelog
+          image: cnbcool/changelog
+          exports:
+            latestChangeLog: LATEST_CHANGE_LOG
+        - name: git release
+          type: git:release
+          options:
+            tag: ${CNB_BRANCH}
+            description: ${LATEST_CHANGE_LOG}
+        - name: push-binaries
+          image: cnbcool/attachments:latest
+          settings:
+            attachments:
+              - "./out/*/*.*"
+
 "main":
   push:
     - *release-staging
