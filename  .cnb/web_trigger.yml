@@ -1,6 +1,5 @@
 branch:
-  - reg: "^main$"
+  - reg: "main"
     buttons:
       - name: 重新构建
-        description: 重新构建二进制文件
         event: web_trigger_rebuild
