@@ -27,7 +27,7 @@
       image: cnbcool/attachments:latest
       settings:
         attachments:
-          - ".out/*/*.*"
+          - "./out/*/*.*"
 
 $:
   vscode:
