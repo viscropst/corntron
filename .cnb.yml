@@ -52,6 +52,20 @@
         attachments:
           - "./out/*/*.*"
 
+.release-binary-manual: &release-binary-manual
+  docker:
+    image: golang:alpine
+    volumes:
+      - main:/root/.cache/go-build:copy-on-write
+  stages:
+    - name: build-binaries
+      script: sh .build/build-binaries.sh
+    - name: push-binaries
+      image: cnbcool/attachments:latest
+      settings:
+        attachments:
+          - "./out/*/*.*"
+
 $:
   vscode:
     - docker:
@@ -68,6 +82,7 @@ $:
           type: vscode:go
         - name: go_mod_tidy
           script: go mod tidy
+    
 
 "rel-*":
   tag_push:
@@ -79,4 +94,4 @@ $:
     - *release-binary
   web_trigger_rebuild:
     - *release-staging
-    - *release-binary
+    - *release-binary-manual
