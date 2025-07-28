@@ -28,6 +28,7 @@
         - ".build/*-binaries.sh"
       options:
         tag: staging
+        preRelease: true
         description: staging release
 
 .release-binary: &release-binary
@@ -49,8 +50,9 @@
         - ".build/*-binaries.sh"
       image: cnbcool/attachments:latest
       settings:
+        tag: staging
         attachments:
-          - "./out/*/*.*"
+          - "./out/*/*"
 
 $:
   vscode:
