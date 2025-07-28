@@ -1,3 +1,34 @@
+.release-binary: &release-binary
+  docker:
+    image: golang:alpine
+    volumes:
+      - main:/root/.cache/go-build:copy-on-write
+  stages:
+    - name: build-binaries
+      ifModify: 
+        - "**/*.go"
+        - "go.mod"
+        - ".build/*-binaries.sh"
+      script: sh .build/build-binaries.sh
+    - name: git release
+      type: git:release
+      ifModify: 
+        - "**/*.go"
+        - "go.mod"
+        - ".build/*-binaries.sh"
+      options:
+        tag: staging
+        description: staging release
+    - name: push-binaries
+      ifModify:
+        - "**/*.go"
+        - "go.mod"
+        - ".build/*-binaries.sh"
+      image: cnbcool/attachments:latest
+      settings:
+        attachments:
+          - ".out/*/*.*"
+
 $:
   vscode:
     - docker:
@@ -14,3 +45,10 @@ $:
           type: vscode:go
         - name: go_mod_tidy
           script: go mod tidy
+
+"rel-*":
+  tag_push:
+    - *release-binary
+"main":
+  push:
+    - *release-binary
