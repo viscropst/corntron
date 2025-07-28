@@ -94,7 +94,7 @@ $:
             description: staging release
         - name: push-binaries
           image: cnbcool/attachments:latest
-          tag: staging
           settings:
+            tag: staging
             attachments:
               - "./out/*/*"
