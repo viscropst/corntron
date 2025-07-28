@@ -39,7 +39,7 @@ func ghGetFlags() *ghGetFlagSet {
 	result.StringVar(&result.ArticaftName, "name", "", "the name of the github articaft")
 	result.StringVar(&result.Output, "out", "", "the path of output")
 	result.StringVar(&result.ApiDomain, "api-domain", "api.github.com", "the api domain of github")
-	result.BoolVar(&result.IsConcatDomain, "is-contact", false, "is domain need to concat original")
+	result.BoolVar(&result.IsConcatDomain, "is-concat", false, "is domain need to concat original")
 	return result
 }
 
