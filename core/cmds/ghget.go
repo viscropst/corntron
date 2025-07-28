@@ -121,5 +121,6 @@ func WgetGhCmd(args []string) error {
 	if len(flags.Domain) > 0 && !flags.IsConcatDomain {
 		downloadUrl.Host = flags.Domain
 	}
+	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrl.String(), "with tag", release.TagName)
 	return internal.HttpRequestFile(downloadUrl.String(), flags.Output)
 }
