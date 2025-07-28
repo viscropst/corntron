@@ -114,6 +114,7 @@ func WgetGhCmd(args []string) error {
 	if flags.IsConcatDomain {
 		downloadUrlStr = strings.TrimSpace(flags.Domain) + "/" + downloadUrlStr
 	}
+	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Raw URL from", downloadUrlStr)
 	downloadUrl, err := url.Parse(downloadUrlStr)
 	if err != nil {
 		return err
@@ -121,6 +122,6 @@ func WgetGhCmd(args []string) error {
 	if len(flags.Domain) > 0 && !flags.IsConcatDomain {
 		downloadUrl.Host = flags.Domain
 	}
-	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrl.String(), "with tag", release.TagName)
+	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Final URL is ", downloadUrl.String())
 	return internal.HttpRequestFile(downloadUrl.String(), flags.Output)
 }
