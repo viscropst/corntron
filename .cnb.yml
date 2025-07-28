@@ -1,3 +1,35 @@
+.release-rel-tag: &release-rel-tag
+  stages:
+    - name: changelog
+      image: cnbcool/changelog
+      ifModify: 
+        - "**/*.go"
+        - "go.mod"
+        - ".build/*-binaries.sh"
+      exports:
+        latestChangeLog: LATEST_CHANGE_LOG
+    - name: git release
+      type: git:release
+      ifModify: 
+        - "**/*.go"
+        - "go.mod"
+        - ".build/*-binaries.sh"
+      options:
+        tag: ${CNB_BRANCH}
+        description: ${LATEST_CHANGE_LOG}
+
+.release-staging: &release-staging
+  stages:
+    - name: git release
+      type: git:release
+      ifModify: 
+        - "**/*.go"
+        - "go.mod"
+        - ".build/*-binaries.sh"
+      options:
+        tag: staging
+        description: staging release
+
 .release-binary: &release-binary
   docker:
     image: golang:alpine
@@ -10,15 +42,6 @@
         - "go.mod"
         - ".build/*-binaries.sh"
       script: sh .build/build-binaries.sh
-    - name: git release
-      type: git:release
-      ifModify: 
-        - "**/*.go"
-        - "go.mod"
-        - ".build/*-binaries.sh"
-      options:
-        tag: staging
-        description: staging release
     - name: push-binaries
       ifModify:
         - "**/*.go"
@@ -48,7 +71,12 @@ $:
 
 "rel-*":
   tag_push:
+    - *release-rel-tag
     - *release-binary
 "main":
   push:
+    - *release-staging
+    - *release-binary
+  web_trigger_rebuild:
+    - *release-staging
     - *release-binary

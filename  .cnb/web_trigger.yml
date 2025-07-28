@@ -1,0 +1,6 @@
+# .cnb/web_trigger.yml
+branch:
+  - buttons:
+      - name: 重新构建
+        description: 按钮描述
+        event: web_trigger_rebuild
