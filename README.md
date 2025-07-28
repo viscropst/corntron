@@ -193,7 +193,7 @@ FOO_VAL="bar"
 
 ## How to use corntron?
 You can integrate corntron into your program by using the `corntron` package.
-Or you can use the prebuilt `corntron` command to run a corntron program.
+Or you can use the prebuilt [`corntron` command](https://cnb.cool/viscropst/corntron/-/releases) to run a corntron program.
 
 ## How to build corntron command?
 You can build corntron by using the `go build cmd/corntron/main.go` command.
