@@ -47,6 +47,14 @@
         - "go.mod"
         - ".build/*-binaries.sh"
       script: sh .build/build-binaries.sh
+    - name: remove release
+      image: docker.cnb.cool/cnb/plugins/cnbcool/release-clean:latest
+      settings:
+        filter: "TAGNAME_PREFIX=staging"
+        debug: false
+    - name: remove tag
+      image: alpine/git:latest
+      script: git push origin :refs/tags/staging
     - name: git release
       type: git:release
       ifModify: 
@@ -101,6 +109,11 @@ $:
       stages:
         - name: build-binaries
           script: sh .build/build-binaries.sh
+        - name: remove release
+          image: docker.cnb.cool/cnb/plugins/cnbcool/release-clean:latest
+          settings:
+            filter: "TAGNAME_PREFIX=staging"
+            debug: false
         - name: remove tag
           image: alpine/git:latest
           script: git push origin :refs/tags/staging
