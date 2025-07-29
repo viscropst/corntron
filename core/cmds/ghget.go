@@ -112,7 +112,7 @@ func WgetGhCmd(args []string) error {
 		return errors.New("no asset found")
 	}
 	if flags.IsConcatDomain {
-		downloadUrlStr = strings.TrimSpace(flags.Domain) + "/" + downloadUrlStr
+		downloadUrlStr = "https://" + strings.TrimSpace(flags.Domain) + "/" + downloadUrlStr
 	}
 	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Raw URL from", downloadUrlStr)
 	downloadUrl, err := url.Parse(downloadUrlStr)
