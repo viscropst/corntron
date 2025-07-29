@@ -101,6 +101,9 @@ $:
       stages:
         - name: build-binaries
           script: sh .build/build-binaries.sh
+        - name: remove tag
+          image: alpine/git:latest
+          script: git push origin :refs/tags/staging
         - name: git release
           type: git:release
           options:
