@@ -74,7 +74,7 @@ FOO_VAL="#{foo:rp(oo=qq)}"
 # The content structure of the each element is same as the `exec` element of corn config file.
 [[config_exec]]
 ```
-The corn config file is a corntron environment config file that is used to running a program or command. 
+The corn config file is a corntron environment config file that is used to running a program or command. [Here](https://cnb.cool/viscropst/corntron_env_registry/-/tree/main/corns) is the example.
 ```toml
 # This is a corn config file.
 
@@ -156,7 +156,7 @@ replaces=["?"," World"]
 # The structure of `exec_by_plat.<os>-<arch>` is the same as `exec` structure in corn evrironment config.
 [exec_by_plat.windows-amd64]
 ```
-The runtime environment config file is used to define a runtime environment for a corntron program (a corn config file or interactive commandline).
+The runtime environment config file is a corntron environment config file that used to define a runtime environment for a corntron program (a corn config file or interactive commandline).[Here](https://cnb.cool/viscropst/corntron_env_registry/-/tree/main/runtimes) is the example.
 ```toml
 # This is a corntron runtime environment config file.
 
@@ -196,5 +196,4 @@ You can integrate corntron into your program by using the `corntron` package.
 Or you can use the prebuilt [`corntron` command](https://cnb.cool/viscropst/corntron/-/releases) to run a corntron program.
 
 ## How to build corntron command?
-You can build corntron by using the `go build cmd/corntron/main.go` command.
-Or you can use the `go install github.com/viscropst/corntron/cmd/corntron` command.
+You can build corntron by using the `go build <source path>/cmd/corntron/main` command.
