@@ -104,12 +104,12 @@ $:
         - name: git release
           type: git:release
           options:
-            tag: staging
+            tag: main
             preRelease: true
             description: staging release
         - name: push-binaries
           image: cnbcool/attachments:latest
           settings:
-            tag: staging
+            tag: main
             attachments:
               - "./out/*/*"
