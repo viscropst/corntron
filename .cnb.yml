@@ -1,4 +1,33 @@
+.staging-build: &staging-build
+  - name: build-binaries
+    script: sh .build/build-binaries.sh
+  - name: remove release
+    image: docker.cnb.cool/cnb/plugins/cnbcool/release-clean:latest
+    settings:
+      filter: "TAGNAME_PREFIX=staging"
+      debug: false
+  - name: remove tag
+    image: alpine/git:latest
+    script: git push origin :refs/tags/staging
+  - name: git release
+    type: git:release
+    options:
+      tag: staging
+      preRelease: true
+      description: staging release
+  - name: push-binaries
+    
+    image: cnbcool/attachments:latest
+    settings:
+      tag: staging
+      attachments:
+        - "./out/*/*"
+
 .release-rel-tag: &release-rel-tag
+  docker:
+    image: golang:alpine
+    volumes:
+      - main:/root/.cache/go-build:copy-on-write
   stages:
     - name: build-binaries
       ifModify: 
@@ -40,41 +69,11 @@
     image: golang:alpine
     volumes:
       - main:/root/.cache/go-build:copy-on-write
-  stages:
-    - name: build-binaries
-      ifModify: 
-        - "**/*.go"
-        - "go.mod"
-        - ".build/*-binaries.sh"
-      script: sh .build/build-binaries.sh
-    - name: remove release
-      image: docker.cnb.cool/cnb/plugins/cnbcool/release-clean:latest
-      settings:
-        filter: "TAGNAME_PREFIX=staging"
-        debug: false
-    - name: remove tag
-      image: alpine/git:latest
-      script: git push origin :refs/tags/staging
-    - name: git release
-      type: git:release
-      ifModify: 
-        - "**/*.go"
-        - "go.mod"
-        - ".build/*-binaries.sh"
-      options:
-        tag: staging
-        preRelease: true
-        description: staging release
-    - name: push-binaries
-      ifModify:
-        - "**/*.go"
-        - "go.mod"
-        - ".build/*-binaries.sh"
-      image: cnbcool/attachments:latest
-      settings:
-        tag: staging
-        attachments:
-          - "./out/*/*"
+  ifModify:
+    - "**/*.go"
+    - "go.mod"
+    - ".build/*-binaries.sh"
+  stages: *staging-build
 
 $:
   vscode:
@@ -106,26 +105,4 @@ $:
         image: golang:alpine
         volumes:
           - main:/root/.cache/go-build:copy-on-write
-      stages:
-        - name: build-binaries
-          script: sh .build/build-binaries.sh
-        - name: remove release
-          image: docker.cnb.cool/cnb/plugins/cnbcool/release-clean:latest
-          settings:
-            filter: "TAGNAME_PREFIX=staging"
-            debug: false
-        - name: remove tag
-          image: alpine/git:latest
-          script: git push origin :refs/tags/staging
-        - name: git release
-          type: git:release
-          options:
-            tag: staging
-            preRelease: true
-            description: staging release
-        - name: push-binaries
-          image: cnbcool/attachments:latest
-          settings:
-            tag: staging
-            attachments:
-              - "./out/*/*"
+      stages: *staging-build
