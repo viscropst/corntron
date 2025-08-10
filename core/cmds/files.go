@@ -8,10 +8,12 @@ import (
 
 const CopyCmdID = "cp"
 const MoveCmdID = "mv"
+const RemoveCmdID = "rf"
 
 func init() {
 	AppendCmd(CmdName(CopyCmdID), CpCmd)
 	AppendCmd(CmdName(MoveCmdID), MvCmd)
+	AppendCmd(CmdName(RemoveCmdID), RemoveFileCmd)
 }
 
 func CpCmd(args []string) error {
@@ -59,6 +61,14 @@ func MvCmd(args []string) error {
 	if err := internal.CopyToFile(statSrc, dst); err != nil {
 		return err
 	}
-	_ = internal.Remove(src)
-	return nil
+	return internal.Remove(src)
+}
+
+func RemoveFileCmd(args []string) error {
+	if len(args) < 1 {
+		return errors.New("i-rf correct usage was: i-rf dir [options]")
+	}
+	file := internal.NormalizePath(args[0])
+	internal.LogCLI(log.InfoLevel).Println("i-rf", ":", "Removing File", file)
+	return internal.Remove(file)
 }
