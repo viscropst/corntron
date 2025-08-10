@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"corntron/internal"
+	"corntron/internal/log"
 	"errors"
 	"strings"
 )
@@ -21,6 +22,7 @@ func CpCmd(args []string) error {
 		return errors.New(
 			"i-cp correct usage was: i-cp src dst [options]")
 	}
+	src := internal.NormalizePath(args[0])
 	statSrc, _ := internal.StatPath(args[0])
 	if statSrc == nil {
 		return errors.New("i-cp: src is not exists")
@@ -33,6 +35,7 @@ func CpCmd(args []string) error {
 		return errors.New("i-cp: dst type mismatch with src")
 	}
 
+	internal.LogCLI(log.InfoLevel).Println("i-cp", ":", "Copying", src, "to", dst)
 	exclude := make([]string, 0)
 	if len(args) > 2 && strings.HasPrefix(args[2], "-ex:") {
 		exclude = append(exclude, strings.TrimPrefix(args[2], "-ex:"))
@@ -58,6 +61,7 @@ func MvCmd(args []string) error {
 		return errors.New("i-mv: dst type mismatch with src")
 	}
 
+	internal.LogCLI(log.InfoLevel).Println("i-mv", ":", "Moving", src, "to", dst)
 	if err := internal.CopyToFile(statSrc, dst); err != nil {
 		return err
 	}
