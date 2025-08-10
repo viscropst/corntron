@@ -68,21 +68,25 @@ func copyToFile(from os.FileInfo, to string, excludes ...string) error {
 					return nil
 				}
 
-				rel, _ := filepath.Rel(to, path)
+				rel, _ := filepath.Rel(from.Name(), path)
 				dstFull := filepath.Join(to, rel)
 				if len(excludes) > 0 && rel == excludes[0] {
+					return nil
+				}
+				if stat, _ := StatPath(dstFull); stat != nil && stat.IsDir() {
 					return nil
 				}
 				if i.IsDir() {
 					return os.Mkdir(dstFull, os.ModeDir|defaultMod)
 				} else {
-					return copyToFile(i, dstFull)
+					stat, _ := StatPath(path)
+					return copyToFile(stat, dstFull)
 				}
 			})
 	}
 	fileSrc, _ := os.Open(from.Name())
+	defer CloseFileAndFinishBar(fileSrc, nil)
 	bar := pb.Default.Start64(from.Size())
-	defer CloseFileAndFinishBar(fileSrc, bar)
 	err := ioToFile(fileSrc, to, defaultMod, bar)
 	if err != nil {
 		return err
