@@ -58,11 +58,7 @@ func CopyToFile(from os.FileInfo, to string, excludes ...string) error {
 }
 
 func copyToFile(from os.FileInfo, to string, excludes ...string) error {
-	if !from.IsDir() {
-		fileSrc, _ := os.Open(from.Name())
-		bar := pb.Default.Start64(from.Size())
-		return ioToFile(fileSrc, to, defaultMod, bar)
-	} else {
+	if from.IsDir() {
 		if from == nil {
 			_ = os.Mkdir(to, os.ModeDir|defaultMod)
 		}
@@ -84,6 +80,14 @@ func copyToFile(from os.FileInfo, to string, excludes ...string) error {
 				}
 			})
 	}
+	fileSrc, _ := os.Open(from.Name())
+	bar := pb.Default.Start64(from.Size())
+	defer CloseFileAndFinishBar(fileSrc, bar)
+	err := ioToFile(fileSrc, to, defaultMod, bar)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func CloseFileAndFinishBar(file io.Closer, bar *pb.ProgressBar) {
