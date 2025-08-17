@@ -8,7 +8,7 @@ RUN curl -fsSL https://ghproxy.net/https://raw.githubusercontent.com/cdr/code-se
     code-server --install-extension tencent-cloud.coding-copilot &&\
     echo done
 
-RUN sed -i "s@http://deb.debian.org/debian@http://mirrors.cloud.tencent.com/debian@g" /etc/apt/sources.list.d/debian.sources \
+RUN sed -i "s@http://deb.debian.org/debian@http://mirrors.cloud.tencent.com/debian@g" /etc/apt/sources.list.d/debian.sources && \
     apt-get update && \
     apt-get install -y --no-install-recommends git openssh-server openssh-client && \
     rm -rf /var/lib/apt/lists/*
