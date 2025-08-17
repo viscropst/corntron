@@ -83,14 +83,14 @@
       image: tencentcom/git-sync:latest
       settings:
         target_url: git@github.com:viscropst/corntron.git
-        auth-type: ssh
-        ssh-key: ${SSH_PRIVATE_KEY}
+        auth_type: ssh
+        ssh_key: ${SSH_PRIVATE_KEY}
     - name: sync-to-gitcode
       image: tencentcom/git-sync:latest
       settings:
         target_url: git@gitcode.com:viscropst/corntron.git
-        auth-type: ssh
-        ssh-key: ${SSH_PRIVATE_KEY}
+        auth_type: ssh
+        ssh_key: ${SSH_PRIVATE_KEY}
       
 $:
   push:
