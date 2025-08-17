@@ -1,5 +1,5 @@
 #!/bin/sh
-go env -w GOPROXY=https://goproxy.cn,direct
+go env -w GOPROXY=https://mirrors.cloud.tencent.com/go/,direct
 go mod tidy
 out_dir=$PWD/out
 mkdir -p ${out_dir}
