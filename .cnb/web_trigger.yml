@@ -1,6 +1,5 @@
 branch:
-  - reg: "main"
-    buttons:
+  - buttons:
       - name: 重新构建
         event: web_trigger_rebuild
   - buttons:
