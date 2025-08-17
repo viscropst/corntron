@@ -27,7 +27,9 @@
       tag: ${CI_REL_TAG}
       latest: ${CI_REL_LATEST}
       preRelease: ${CI_REL_PRE_RELEASE}
-      description: ${CI_REL_TAG} release ${LATEST_CHANGE_LOG}
+      description: |
+        # ${CI_REL_TAG} release
+        ${LATEST_CHANGE_LOG}
   - name: push-binaries
     image: cnbcool/attachments:latest
     settings:
