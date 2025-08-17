@@ -75,7 +75,26 @@
     - ".build/*-binaries.sh"
   stages: *staging-build
 
+.sync-codebase: &sync-codebase
+  imports:
+    - https://cnb.cool/viscropst/keystores/-/blob/main/corntron.env.yml
+  stages:
+    - name: sync-to-github
+      image: tencentcom/git-sync:latest
+      settings:
+        target_url: git@github.com:viscropst/corntron.git
+        auth-type: ssh
+        ssh-key: ${SSH_PRIVATE_KEY}
+    - name: sync-to-gitcode
+      image: tencentcom/git-sync:latest
+      settings:
+        target_url: git@gitcode.com:viscropst/corntron.git
+        auth-type: ssh
+        ssh-key: ${SSH_PRIVATE_KEY}
+      
 $:
+  push:
+   - *sync-codebase
   vscode:
     - docker:
         build: 
