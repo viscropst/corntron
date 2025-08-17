@@ -76,25 +76,17 @@
   stages: *staging-build
 
 .sync-codebase: &sync-codebase
+  docker:
+    image: alpine/git:latest
   imports:
     - https://cnb.cool/viscropst/keystores/-/blob/main/corntron.env.yml
   stages:
+    - name: preparing mirroring
+      script: sh .build/mirror-preparing.sh
     - name: sync-to-gitcode
-      image: tencentcom/git-sync:latest
-      settings:
-        target_url: git@gitcode.com:viscropst/corntron.git
-        push_tags: true
-        force: true
-        auth_type: ssh
-        ssh_key: ${SSH_PRIVATE_KEY}
+      script: sh .build/mirror-to-gitcode.sh
     - name: sync-to-github
-      image: tencentcom/git-sync:latest
-      settings:
-        target_url: git@github.com:viscropst/corntron.git
-        push_tags: true
-        force: true
-        auth_type: ssh
-        ssh_key: ${SSH_PRIVATE_KEY}
+      script: sh .build/mirror-to-github.sh
       
 $:
   push:
