@@ -24,7 +24,7 @@ A runtime is a set of environment variables and a set of configuration variables
 - `#{GOOS}-#{GOARCH}` directory contains current operating system and architecture specific binaries of corns and runtimes. 
 - `#{GOOS}-#{GOARCH}/corns` directory contains current operating system and architecture specific corns.
 - `#{GOOS}-#{GOARCH}/runtimes` directory contains current operating system and architecture specific runtimes.
-> [`GOOS`](https://github.com/golang/go/tree/master/src/internal/goos) and [`GOARCH`](https://github.com/golang/go/tree/master/src/internal/goarch) are defined by Go programming Language. These will be replaced by LLVM Triple style [`os`](https://github.com/llvm/llvm-project/blob/23d4756c4bfce06a98c9c03b24752d32760ac22b/llvm/include/llvm/TargetParser/Triple.h#L46) and [`arch`](https://github.com/llvm/llvm-project/blob/23d4756c4bfce06a98c9c03b24752d32760ac22b/llvm/include/llvm/TargetParser/Triple.h#L46) in the future.
+> [`GOOS`](https://github.com/golang/go/tree/master/src/internal/goos) and [`GOARCH`](https://github.com/golang/go/tree/master/src/internal/goarch) are defined by Go programming Language. These will be replaced by LLVM Triple style [`os`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L205) and [`arch`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L46) in the future.
 
 ## What content in a corntron environment config file?
 All corntron environment config files are extended TOML files.
