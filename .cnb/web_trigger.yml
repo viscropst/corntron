@@ -3,3 +3,6 @@ branch:
     buttons:
       - name: 重新构建
         event: web_trigger_rebuild
+  - buttons:
+      - name: 同步到其它平台
+        event: web_trigger_sync2other

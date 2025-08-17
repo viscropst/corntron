@@ -94,7 +94,9 @@
       
 $:
   push:
-   - *sync-codebase
+    - *sync-codebase
+  web_trigger_sync2other:
+    - *sync-codebase
   vscode:
     - docker:
         build: 
