@@ -7,11 +7,10 @@ id_name=id_rsa
 echo ${CI_PUBLIC_KEY} > ~/.ssh/${id_name}.pub
 echo public key was:
 cat ~/.ssh/${id_name}.pub
+chmod 600 ~/.ssh/${id_name}.pub
 
 echo ${CI_PRIVATE_KEY} | base64 -d > ~/.ssh/${id_name}
 echo private key was:
-# cat ~/.ssh/${id_name}
-# echo \n
 chmod 600 ~/.ssh/${id_name}
 
 [ ! -f ~/.ssh/known_hosts ] && touch ~/.ssh/known_hosts
