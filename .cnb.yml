@@ -77,8 +77,6 @@
       script: sh .build/mirror-to-github.sh
       
 $:
-  push:
-    - *sync-codebase
   web_trigger_sync2other:
     - *sync-codebase
   vscode:
@@ -111,6 +109,7 @@ $:
         CI_REL_STAGING: false
       stages: *release-build
   tag_push:
+    - *sync-codebase
     - *release-rel-tag
 
 "main":
