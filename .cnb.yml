@@ -14,15 +14,11 @@
       [ "${CI_REL_STAGING}" = "true" ]
     script: git push origin :refs/tags/${CI_REL_TAG}
   - name: changelog
-    if: |
-      [ "${CI_REL_STAGING}" = "false" ]
     image: cnbcool/changelog
     exports:
       latestChangeLog: LATEST_CHANGE_LOG
   - name: git release
     type: git:release
-    if: |
-      [ "${CI_REL_LATEST}" = "true" ]
     options:
       tag: ${CI_REL_TAG}
       latest: ${CI_REL_LATEST}
