@@ -170,7 +170,7 @@ var fnMaps = map[string]func(args ...string) string{
 		}
 		result, err := internal.HttpRequestBytes(url.String(), "GET")
 		if err != nil {
-			internal.LogCLI(log.ErrorLevel).Println("error while doing gh-latest-rel:", err)
+			internal.LogCLI(log.ErrorLevel).Println("error while doing gl-latest-rel:", err)
 			return origin
 		}
 		var glRelease struct {
