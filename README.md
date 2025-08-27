@@ -190,6 +190,7 @@ FOO_VAL="bar"
 - `ospth` is the function that used to convert a path to a operating system path.
 - `webreq` is the function that used to send a http request and replace to the response body string.
 - `gh-rel-ver` is the function that used to get the latest release version of a github repository.
+- `gl-rel-ver` is the function that used to get the latest release version of a gitlab repository.
 
 ## How to use corntron?
 You can integrate corntron into your program by using the `corntron` package.

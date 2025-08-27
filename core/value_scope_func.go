@@ -139,6 +139,49 @@ var fnMaps = map[string]func(args ...string) string{
 		}
 		return strings.TrimSpace(ghRelease.TagName)
 	},
+	"gl-rel-ver": func(args ...string) string {
+		origin := args[0]
+		funcArgs := strings.Split(args[1], ",")
+		if len(funcArgs) == 0 && funcArgs[0] == "" {
+			internal.LogCLI(log.PanicLevel).Println("empty owner and project while doing gl-latest-rel")
+		}
+		project := strings.Split(funcArgs[0], "/")
+		if len(project) < 2 {
+			internal.LogCLI(log.PanicLevel).Println("unknown fromat of owner and project while doing gl-latest-rel")
+		}
+		apiPath := "/projects/" + project[0] + "%2F" + project[1] + "/releases"
+		tagName := "latest"
+		if len(funcArgs) > 1 {
+			tagName = funcArgs[1]
+		}
+		if tagName == "latest" {
+			apiPath = apiPath + "/permalink/latest"
+		} else {
+			apiPath = apiPath + "/tags/" + tagName
+		}
+		domain := "gitlab.com"
+		if len(funcArgs) > 2 {
+			domain = funcArgs[2]
+		}
+		apiUrl := domain + "/api/v4" + apiPath
+		url, err := url.Parse("https://" + apiUrl)
+		if err != nil {
+			return origin
+		}
+		result, err := internal.HttpRequestBytes(url.String(), "GET")
+		if err != nil {
+			internal.LogCLI(log.ErrorLevel).Println("error while doing gh-latest-rel:", err)
+			return origin
+		}
+		var glRelease struct {
+			TagName string `json:"tag_name"`
+		}
+		err = json.Unmarshal(result, &glRelease)
+		if err != nil {
+			return origin
+		}
+		return strings.TrimSpace(glRelease.TagName)
+	},
 }
 
 const funcSeprator = ":"
