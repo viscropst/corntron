@@ -7,5 +7,5 @@ ssh -T git@e.coding.net
 [ ! -d $repowrok ] && exit 1
 cd $repowrok
 echo Start push to cnb.cool
-git remote add target https://cnb:01122V3QhHiQSHqIFUjwo5FG2aC@cnb.cool/viscropst/corntron.git
+git remote add target https://${CI_CNB_TOKEN}@cnb.cool/viscropst/corntron.git
 git push --mirror target --force
