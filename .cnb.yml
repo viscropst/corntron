@@ -35,7 +35,7 @@
 
 .release-rel-tag: &release-rel-tag
   docker:
-    image: golang:alpine
+    image: golang:1.20-alpine
     volumes:
       - main:/root/.cache/go-build:copy-on-write
   env:
@@ -47,7 +47,7 @@
 
 .release-staging: &release-staging
   docker:
-    image: golang:alpine
+    image: golang:1.20-alpine
     volumes:
       - main:/root/.cache/go-build:copy-on-write
   env:
@@ -97,7 +97,7 @@ $:
 "rel-*":
   web_trigger_rebuild:
     - docker:
-        image: golang:1.18-alpine
+        image: golang:1.20-alpine
         volumes:
           - main:/root/.cache/go-build:copy-on-write
       env:
@@ -116,7 +116,7 @@ $:
     - *release-staging
   web_trigger_rebuild:
     - docker:
-        image: golang:1.18-alpine
+        image: golang:1.20-alpine
         volumes:
           - main:/root/.cache/go-build:copy-on-write
       env:
