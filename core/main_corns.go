@@ -28,8 +28,8 @@ func (c *Core) prepareCornConfig(corn CornsEnvConfig) (*CornsEnvConfig, error) {
 				_ = internal.Remove(bootstrapDir)
 				newErr := errors.New(
 					"error while bootstrap " +
-						CornsIdentifier + "[" + corn.ID + "]:")
-				return nil, errors.Join(newErr, err)
+						CornsIdentifier + "[" + corn.ID + "]:" + err.Error())
+				return nil, newErr
 			}
 		}
 	}
@@ -37,8 +37,8 @@ func (c *Core) prepareCornConfig(corn CornsEnvConfig) (*CornsEnvConfig, error) {
 	err = tmpCorn.ExecuteConfig()
 	if err != nil {
 		newErr := errors.New("error while configure " +
-			CornsIdentifier + "[" + corn.ID + "]:")
-		return nil, errors.Join(newErr, err)
+			CornsIdentifier + "[" + corn.ID + "]:" + err.Error())
+		return nil, newErr
 	}
 
 	for _, depend := range corn.DependCorns {

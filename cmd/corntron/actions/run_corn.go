@@ -53,13 +53,13 @@ func (c *runCorn) Exec(core *corntron.Core) error {
 	err := core.ProcessRtBootstrap(true)
 	if err != nil {
 		newErr := errors.New("error while bootstrapping:" + err.Error())
-		cmdcontron.CliLog().Println(errors.Join(newErr, err))
+		cmdcontron.CliLog().Println(newErr)
 	}
 
 	err = core.ProcessRtMirror(true)
 	if err != nil {
 		newErr := errors.New("error while processing mirror:" + err.Error())
-		cmdcontron.CliLog().Println(errors.Join(newErr, err))
+		cmdcontron.CliLog().Println(newErr)
 	}
 
 	err = core.ProcessRtConfig(true)

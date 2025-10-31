@@ -40,8 +40,8 @@ func (c *Core) execCmd(command *Command, scope *ValueScope) error {
 	command.EnvPath = c.EnvironPath.AppendList(scope.EnvPath)
 	err := command.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
-		newErr := errors.New("error while executing")
-		return errors.Join(newErr, err)
+		newErr := errors.New("error while executing:" + err.Error())
+		return newErr
 	}
 	return nil
 }
