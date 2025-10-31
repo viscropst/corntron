@@ -8,9 +8,9 @@ RUN sed -i "s@http://deb.debian.org/debian@http://mirrors.cloud.tencent.com/debi
 # install vscode and extension
 RUN curl -fsSL https://ghproxy.net/https://raw.githubusercontent.com/cdr/code-server/main/install.sh | sh &&\
     code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans@1.101.0 &&\
-    code-server --install-extension tamasfe.even-better-toml &&\
-    code-server --install-extension golang.go &&\
-    code-server --install-extension tencent-cloud.coding-copilot &&\
+    code-server --install-extension tamasfe.even-better-toml@0.21.0 &&\
+    code-server --install-extension golang.go@0.50.0 &&\
+    code-server --install-extension tencent-cloud.coding-copilot@3.6.9917994 &&\
     echo done
 
 COPY .ide/languagepacks.json /root/.local/share/code-server/languagepacks.json
