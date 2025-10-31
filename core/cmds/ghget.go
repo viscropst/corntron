@@ -4,7 +4,6 @@ import (
 	"corntron/internal"
 	"corntron/internal/log"
 	"encoding/json"
-	"errors"
 	"flag"
 	"net/url"
 	"strings"
@@ -49,7 +48,7 @@ func (f *ghGetFlagSet) normalizeFlags(args []string) ([]string, error) {
 		return nil, err
 	}
 	if len(f.Owner) == 0 || len(f.Project) == 0 || len(f.ArticaftName) == 0 {
-		return nil, errors.New("owner, project and articaft name must be specified")
+		return nil, internal.Error("owner, project and articaft name must be specified")
 	}
 	if len(strings.TrimSpace(f.Domain)) == 0 {
 		f.Domain = "github.com"
@@ -73,7 +72,7 @@ func WgetGhCmd(args []string) error {
 		return err
 	}
 	if len(args) != 0 {
-		return errors.New("too many arguments")
+		return internal.Error("too many arguments")
 	}
 	apiUrl := flags.ApiDomain + "/repos/" + flags.Owner + "/" + flags.Project + "/releases"
 	if flags.Tag == "latest" {
@@ -98,7 +97,7 @@ func WgetGhCmd(args []string) error {
 		return err
 	}
 	if len(release.TagName) == 0 {
-		return errors.New("no release found")
+		return internal.Error("no release found")
 	}
 	downloadUrlStr := ""
 	for _, asset := range release.Assets {
@@ -109,7 +108,7 @@ func WgetGhCmd(args []string) error {
 	}
 	internal.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrlStr, "with tag", release.TagName)
 	if downloadUrlStr == "" {
-		return errors.New("no asset found")
+		return internal.Error("no asset found")
 	}
 	if flags.IsConcatDomain {
 		downloadUrlStr = "https://" + strings.TrimSpace(flags.Domain) + "/" + downloadUrlStr

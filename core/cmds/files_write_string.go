@@ -3,7 +3,6 @@ package cmds
 import (
 	"corntron/internal"
 	"corntron/internal/log"
-	"errors"
 	"flag"
 	"io"
 	"strings"
@@ -42,7 +41,7 @@ func (f *writeStringFlagSet) normalizeFlags(args []string) (io.Reader, error) {
 	}
 	output := internal.NormalizePath(f.OutputPath)
 	if len(output) == 0 {
-		return nil, errors.New("no output file specified")
+		return nil, internal.Error("no output file specified")
 	}
 	f.OutputPath = output
 	content := strings.TrimSpace(f.Content)

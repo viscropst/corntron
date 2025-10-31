@@ -2,7 +2,6 @@ package core
 
 import (
 	"corntron/internal"
-	"errors"
 	"path/filepath"
 	"strings"
 )
@@ -46,7 +45,7 @@ func (c *CornsEnvConfig) initCornVars() {
 func LoadCornEnv(name string, base envConfig, altPath ...string) (CornsEnvConfig, error) {
 	result := CornsEnvConfig{}
 	if base.coreConfig == nil {
-		return result, errors.New("could not loading the env wihout core config")
+		return result, internal.Error("could not loading the env wihout core config")
 	}
 	result.envConfig = base
 	result.ID = CornsIdentifier + "_" + name

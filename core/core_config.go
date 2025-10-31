@@ -3,7 +3,6 @@ package core
 import (
 	"corntron/internal"
 	"corntron/internal/log"
-	"errors"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -87,7 +86,7 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 	}
 
 	if len(config) == 0 {
-		errFmt.Err = errors.New("could not load config by empty name")
+		errFmt.Err = internal.Error("could not load config by empty name")
 		return &errFmt
 	}
 
@@ -98,7 +97,7 @@ func loadConfigRegular(config string, value interface{}, altBases ...string) err
 		basePath = internal.GetSelfPath()
 	}
 	if len(basePath) == 0 {
-		return errors.New("could not load workdir")
+		return internal.Error("could not load workdir")
 	}
 	tomlFilename := filepath.Join(basePath, config+".toml")
 	if strings.HasSuffix(config, CornConfigExt) {

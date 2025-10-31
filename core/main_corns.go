@@ -2,7 +2,6 @@ package core
 
 import (
 	"corntron/internal"
-	"errors"
 	"path/filepath"
 )
 
@@ -26,9 +25,9 @@ func (c *Core) prepareCornConfig(corn CornsEnvConfig) (*CornsEnvConfig, error) {
 			err = tmpCorn.ExecuteBootstrap()
 			if err != nil {
 				_ = internal.Remove(bootstrapDir)
-				newErr := errors.New(
-					"error while bootstrap " +
-						CornsIdentifier + "[" + corn.ID + "]:" + err.Error())
+				newErr := internal.Error(
+					"error while bootstrap ",
+					CornsIdentifier, "[", corn.ID, "]:", err.Error())
 				return nil, newErr
 			}
 		}
@@ -36,8 +35,8 @@ func (c *Core) prepareCornConfig(corn CornsEnvConfig) (*CornsEnvConfig, error) {
 
 	err = tmpCorn.ExecuteConfig()
 	if err != nil {
-		newErr := errors.New("error while configure " +
-			CornsIdentifier + "[" + corn.ID + "]:" + err.Error())
+		newErr := internal.Error("error while configure ",
+			CornsIdentifier, "[", corn.ID, "]:", err.Error())
 		return nil, newErr
 	}
 
@@ -55,8 +54,8 @@ func (c *Core) prepareCornConfig(corn CornsEnvConfig) (*CornsEnvConfig, error) {
 func (c *Core) prepareCorn(name string) (*CornsEnvConfig, error) {
 	corn, ok := c.CornsEnv[name]
 	if !ok {
-		return nil, errors.New("could not found the " +
-			CornsIdentifier + " named " + name)
+		return nil, internal.Error("could not found the ",
+			CornsIdentifier, " named ", name)
 	}
 	return c.prepareCornConfig(corn)
 }
@@ -69,9 +68,9 @@ func (c *Core) ExecCornConfig(cornConfig CornsEnvConfig, isWaiting bool, args ..
 	scope := c.ComposeCornEnv(corn)
 	cmd := &corn.Exec
 	if !cmd.CanRunning() {
-		return errors.New(
-			"Cannot running this corn(named:" +
-				cornConfig.ID + ") on current platform")
+		return internal.Error(
+			"Cannot running this corn(named:",
+			cornConfig.ID, ") on current platform")
 	}
 	cmd.Args = append(cmd.Args, args...)
 	cmd.GlobalWaiting = isWaiting
@@ -81,8 +80,8 @@ func (c *Core) ExecCornConfig(cornConfig CornsEnvConfig, isWaiting bool, args ..
 func (c *Core) ExecCorn(name string, isWaiting bool, args ...string) error {
 	corn, ok := c.CornsEnv[name]
 	if !ok {
-		return errors.New("could not found the " +
-			CornsIdentifier + " named " + name)
+		return internal.Error("could not found the ",
+			CornsIdentifier, " named ", name)
 	}
 	return c.ExecCornConfig(corn, isWaiting, args...)
 }

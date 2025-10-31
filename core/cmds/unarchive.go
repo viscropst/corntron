@@ -3,7 +3,6 @@ package cmds
 import (
 	"corntron/internal"
 	"corntron/internal/log"
-	"errors"
 	"flag"
 	"path/filepath"
 	"strings"
@@ -52,14 +51,14 @@ func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
 	}
 	src := internal.NormalizePath(f.SourceFile)
 	if len(src) == 0 {
-		return nil, errors.New("no source file specified")
+		return nil, internal.Error("no source file specified")
 	}
 	srcStat, _ := internal.StatPath(src)
 	if srcStat == nil {
-		return nil, errors.New("source file does not exist")
+		return nil, internal.Error("source file does not exist")
 	}
 	if srcStat.IsDir() {
-		return nil, errors.New("source file is a directory")
+		return nil, internal.Error("source file is a directory")
 	}
 	f.SourceFile = src
 	out := internal.NormalizePath(f.OutputPath)

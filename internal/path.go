@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -25,7 +24,7 @@ func GetExecPath(execStr string, pathList string) (string, error) {
 	if err != nil {
 		errBuilder := strings.Builder{}
 		errBuilder.WriteString("exec argument invalid: the command could not found")
-		return execStr, errors.New(errBuilder.String())
+		return execStr, Error(errBuilder.String())
 	} else {
 		return path, nil
 	}

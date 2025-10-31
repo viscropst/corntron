@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -31,7 +30,7 @@ func HttpRequest(url string, others ...string) (io.ReadCloser, int64, error) {
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		resultByte, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		return nil, 0, errors.New(string(resultByte))
+		return nil, 0, Error(string(resultByte))
 	}
 	return resp.Body, resp.ContentLength, nil
 }

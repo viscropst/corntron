@@ -2,7 +2,6 @@ package core
 
 import (
 	"corntron/internal"
-	"errors"
 )
 
 type Core struct {
@@ -40,7 +39,7 @@ func (c *Core) execCmd(command *Command, scope *ValueScope) error {
 	command.EnvPath = c.EnvironPath.AppendList(scope.EnvPath)
 	err := command.SetEnv(scope.Env).Execute(scope.Vars)
 	if err != nil {
-		newErr := errors.New("error while executing:" + err.Error())
+		newErr := internal.Error("error while executing:" + err.Error())
 		return newErr
 	}
 	return nil

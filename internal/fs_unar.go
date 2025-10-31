@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"os"
 )
 
@@ -29,6 +28,6 @@ func Unarchive(srcFile *os.File, flags UnarchiveFlag, includes ...string) error 
 		return UnZipFromFileWithBaseDir(
 			srcFile, flags.OutputPath, flags.BaseDir, includes...)
 	default:
-		return errors.New("unknown command")
+		return Error("unknown command")
 	}
 }

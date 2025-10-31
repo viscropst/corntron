@@ -1,7 +1,7 @@
 package core
 
 import (
-	"errors"
+	"corntron/internal"
 	"path/filepath"
 )
 
@@ -88,7 +88,7 @@ func (c *RtEnvConfig) initRtVars() {
 func LoadRtEnv(name string, base envConfig) (RtEnvConfig, error) {
 	result := RtEnvConfig{}
 	if base.coreConfig == nil {
-		return result, errors.New("could not loading the env wihout core config")
+		return result, internal.Error("could not loading the env wihout core config")
 	}
 	result.envConfig = base
 	result.ID = RtIdentifier + "_" + name

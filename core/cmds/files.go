@@ -3,7 +3,6 @@ package cmds
 import (
 	"corntron/internal"
 	"corntron/internal/log"
-	"errors"
 	"strings"
 )
 
@@ -19,20 +18,20 @@ func init() {
 
 func CpCmd(args []string) error {
 	if len(args) < 2 {
-		return errors.New(
+		return internal.Error(
 			"i-cp correct usage was: i-cp src dst [options]")
 	}
 	src := internal.NormalizePath(args[0])
 	statSrc, _ := internal.StatPath(args[0])
 	if statSrc == nil {
-		return errors.New("i-cp: src is not exists")
+		return internal.Error("i-cp: src is not exists")
 	}
 
 	dst := internal.NormalizePath(args[1])
 	statDst, _ := internal.StatPath(dst)
 	if statDst != nil &&
 		statDst.Mode().Type() != statSrc.Mode().Type() {
-		return errors.New("i-cp: dst type mismatch with src")
+		return internal.Error("i-cp: dst type mismatch with src")
 	}
 
 	internal.LogCLI(log.InfoLevel).Println("i-cp", ":", "Copying", src, "to", dst)
@@ -45,20 +44,20 @@ func CpCmd(args []string) error {
 
 func MvCmd(args []string) error {
 	if len(args) < 2 {
-		return errors.New(
+		return internal.Error(
 			"i-mv correct usage was: i-mv src dst [options]")
 	}
 	src := internal.NormalizePath(args[0])
 	statSrc, _ := internal.StatPath(src)
 	if statSrc == nil {
-		return errors.New("i-mv: src is not exists")
+		return internal.Error("i-mv: src is not exists")
 	}
 
 	dst := internal.NormalizePath(args[1])
 	statDst, _ := internal.StatPath(dst)
 	if statDst != nil &&
 		statDst.Mode().Type() != statSrc.Mode().Type() {
-		return errors.New("i-mv: dst type mismatch with src")
+		return internal.Error("i-mv: dst type mismatch with src")
 	}
 
 	internal.LogCLI(log.InfoLevel).Println("i-mv", ":", "Moving", src, "to", dst)
@@ -70,7 +69,7 @@ func MvCmd(args []string) error {
 
 func RemoveFileCmd(args []string) error {
 	if len(args) < 1 {
-		return errors.New("i-rf correct usage was: i-rf dir [options]")
+		return internal.Error("i-rf correct usage was: i-rf dir [options]")
 	}
 	file := internal.NormalizePath(args[0])
 	internal.LogCLI(log.InfoLevel).Println("i-rf", ":", "Removing File", file)

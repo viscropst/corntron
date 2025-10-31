@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"errors"
 	"io/fs"
 	"os"
 
@@ -16,7 +15,7 @@ func LoadTomlFile(tomlFilename string, value interface{}) *fs.PathError {
 	stat, _ := StatPath(tomlFilename)
 	if stat == nil || !stat.Mode().IsRegular() {
 		errFmt.Path = tomlFilename
-		errFmt.Err = errors.New("could not stat that file")
+		errFmt.Err = Error("could not stat that file")
 		return &errFmt
 	}
 
