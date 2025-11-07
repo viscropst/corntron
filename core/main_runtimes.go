@@ -66,12 +66,19 @@ func (c Core) ProcessRtConfig(ifResume bool) error {
 func (c Core) ProcessRtBootstrap(ifResume bool) error {
 	c.Prepare()
 	currentRtDir := c.Config.RtWithRunningDir()
-	if internal.IfFolderNotExists(currentRtDir) {
-		_ = internal.Mkdir(currentRtDir)
+	if len(c.RuntimesEnv) == 0 {
+		LogCLI(log.InfoLevel).Println("there is no runtimes to bootstrap,skip it")
+		return nil
 	}
 
 	for _, runtime := range c.RuntimesEnv {
 		config := runtime.Copy()
+		if runtime.IsCommonPlatform {
+			currentRtDir = c.Config.RuntimeDir()
+		}
+		if internal.IfFolderNotExists(currentRtDir) {
+			_ = internal.Mkdir(currentRtDir)
+		}
 		bootstrapDir := filepath.Join(currentRtDir,
 			config.DirName)
 		if !internal.IfFolderNotExists(bootstrapDir) {

@@ -8,6 +8,9 @@ import (
 func (c *Core) prepareCornConfig(corn CornsEnvConfig) (*CornsEnvConfig, error) {
 	var err error
 	currentCornDir := c.Config.CornWithRunningDir()
+	if corn.IsCommonPlatform {
+		currentCornDir = c.Config.CornDir()
+	}
 	if internal.IfFolderNotExists(currentCornDir) {
 		_ = internal.Mkdir(currentCornDir)
 	}
