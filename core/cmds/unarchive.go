@@ -97,12 +97,76 @@ func UntarCmd(args []string) error {
 	return UnArchiveCmd(UntarCmdName, args)
 }
 
+func detectCompressionFormat(filePath string, format string) (bool, error) {
+	file, err := internal.Open(filePath)
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+
+	buffer := make([]byte, 512)
+	_, err = file.Read(buffer)
+	if err != nil {
+		return false, err
+	}
+
+	switch format {
+	case "zip":
+		// ZIP format: Magic number 0x50 0x4B 0x03 0x04
+		return len(buffer) > 3 && buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04, nil
+	case "tar":
+		// TAR format: Magic number at offset 257
+		return len(buffer) > 257 && string(buffer[257:262]) == "ustar", nil
+	case "gz":
+		// GZIP format: Magic number 0x1F 0x8B
+		return len(buffer) > 1 && buffer[0] == 0x1F && buffer[1] == 0x8B, nil
+	case "xz":
+		// XZ format: Magic number 0xFD 0x37 0x7A 0x58 0x5A 0x00
+		return len(buffer) > 5 && buffer[0] == 0xFD && buffer[1] == 0x37 && buffer[2] == 0x7A && buffer[3] == 0x58 && buffer[4] == 0x5A && buffer[5] == 0x00, nil
+	case "bz2":
+		// BZIP2 format: Magic number 0x42 0x5A
+		return len(buffer) > 1 && buffer[0] == 0x42 && buffer[1] == 0x5A, nil
+	default:
+		return false, nil
+	}
+}
+
 func UnArchiveCmd(cmdName string, args []string) error {
 	flags := unarchiveFlags(cmdName)
 	includes, err := flags.normalizeFlags(args)
 	if err != nil {
 		return err
 	}
+
+	// Detect file format
+	var isValid bool
+	switch cmdName {
+	case UnzipCmdName:
+		// i-uzip only supports ZIP format
+		isValid, err = detectCompressionFormat(flags.SourceFile, "zip")
+		if err != nil {
+			return err
+		}
+		if !isValid {
+			return internal.Error("file format does not match expected ZIP format")
+		}
+	case UntarCmdName:
+		// i-utar supports TAR, GZ, XZ, BZ2 and nested formats (tar.gz, tar.xz, tar.bz2)
+		isValid, err = detectCompressionFormat(flags.SourceFile, "tar")
+		if err != nil {
+			return err
+		}
+		if !isValid {
+			// Check for compressed formats
+			isGz, _ := detectCompressionFormat(flags.SourceFile, "gz")
+			isXz, _ := detectCompressionFormat(flags.SourceFile, "xz")
+			isBz2, _ := detectCompressionFormat(flags.SourceFile, "bz2")
+			if !isGz && !isXz && !isBz2 {
+				return internal.Error("file format does not match expected TAR, GZ, XZ, or BZ2 format")
+			}
+		}
+	}
+
 	internal.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", flags.SourceFile, "to", flags.OutputPath)
 	srcFile, err := internal.Open(flags.SourceFile)
 	if err != nil {
