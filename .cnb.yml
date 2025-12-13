@@ -73,6 +73,8 @@
       script: sh .build/mirror-to-gitcode.sh
     - name: sync-to-github
       script: sh .build/mirror-to-github.sh
+    - name: sync-to-codeberg
+      script: sh .build/mirror-to-codeberg.sh
       
 $:
   web_trigger_sync2other:
