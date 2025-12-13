@@ -16,7 +16,7 @@
   - name: changelog
     image: cnbcool/changelog
     exports:
-      latestChangeLog: LATEST_CHANGE_LOG
+      latestChangeLog: LATEST_CHANGELOG
   - name: git release
     type: git:release
     options:
@@ -25,13 +25,18 @@
       preRelease: ${CI_REL_PRE_RELEASE}
       description: |
         # ${CI_REL_TAG} release
-        ${LATEST_CHANGE_LOG}
+        ${LATEST_CHANGELOG}
   - name: push-binaries
     image: cnbcool/attachments:latest
     settings:
       tag: ${CI_REL_TAG}
       attachments:
         - "./out/*/*"
+  - name: push-binaries-to-codeberg
+    image: alpine/git:latest
+    imports:
+      - https://cnb.cool/viscropst/keystores/-/blob/main/corntron.env.yml
+    script: sh .build/push-binaries-codeberg.sh
 
 .release-rel-tag: &release-rel-tag
   docker:
