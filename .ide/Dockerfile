@@ -1,13 +1,12 @@
-FROM golang:bookworm as build
+ARG ALPINE_VERSION=3.23
+ARG VERSION=4.107.0
+FROM golang:alpine${ALPINE_VERSION} AS infra
 
-RUN sed -i "s@http://deb.debian.org/debian@http://mirrors.cloud.tencent.com/debian@g" /etc/apt/sources.list.d/debian.sources && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends git openssh-server openssh-client && \
-    rm -rf /var/lib/apt/lists/*
+FROM docker.cnb.cool/viscropst/coder-alpine/base:${ALPINE_VERSION}-${VERSION} as ide
+COPY --from=infra --link /usr/local/go /usr/local/
 
 # install vscode and extension
-RUN curl -fsSL https://ghproxy.net/https://raw.githubusercontent.com/cdr/code-server/main/install.sh | sh &&\
-    code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans@1.101.0 &&\
+RUN code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans@1.101.0 &&\
     code-server --install-extension tamasfe.even-better-toml@0.21.2 &&\
     code-server --install-extension golang.go@0.50.0 &&\
     code-server --install-extension tencent-cloud.coding-copilot@3.6.9917994 &&\
