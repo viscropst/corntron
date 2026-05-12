@@ -39,7 +39,7 @@ func main() {
 	}
 
 	action, err := flags.Parse()
-	defer cmdcontron.CliExit(err, err != nil && (!cmdcontron.IsInTerminal()))
+	defer cmdcontron.CliExit(err, !cmdcontron.IsInTerminal())
 	if err != nil {
 		errLogger.Println(err)
 		return
@@ -68,7 +68,4 @@ func main() {
 		errLogger.Println(err.Error())
 		return
 	}
-
-	os.Exit(0)
-
 }

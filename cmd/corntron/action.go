@@ -48,5 +48,7 @@ func CliExit(err error, forceWait bool) {
 	}
 	if err != nil {
 		os.Exit(1)
+	} else {
+		os.Exit(0)
 	}
 }
