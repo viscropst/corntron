@@ -6,9 +6,9 @@ FROM docker.cnb.cool/viscropst/coder-alpine/base:${ALPINE_VERSION}-${VERSION} as
 COPY --from=infra --link /usr/local/go /usr/local/
 
 # install vscode and extension
-RUN code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans@1.101.0 &&\
+RUN code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans@1.106.0 &&\
     code-server --install-extension tamasfe.even-better-toml@0.21.2 &&\
-    code-server --install-extension golang.go@0.50.0 &&\
+    code-server --install-extension golang.go@0.52.2 &&\
     code-server --install-extension tencent-cloud.coding-copilot@4.3.20019762 &&\
     echo done
 
