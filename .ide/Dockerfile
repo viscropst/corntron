@@ -9,7 +9,7 @@ COPY --from=infra --link /usr/local/go /usr/local/
 RUN code-server --install-extension ms-ceintl.vscode-language-pack-zh-hans@1.101.0 &&\
     code-server --install-extension tamasfe.even-better-toml@0.21.2 &&\
     code-server --install-extension golang.go@0.50.0 &&\
-    code-server --install-extension tencent-cloud.coding-copilot@3.6.9917994 &&\
+    code-server --install-extension tencent-cloud.coding-copilot@4.3.20019762 &&\
     echo done
 
 COPY .ide/languagepacks.json /root/.local/share/code-server/languagepacks.json
