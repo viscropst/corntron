@@ -1,5 +1,5 @@
 ARG ALPINE_VERSION=3.23
-ARG VERSION=4.107.0
+ARG VERSION=coder4.107.0
 FROM golang:alpine${ALPINE_VERSION} AS infra
 
 FROM docker.cnb.cool/viscropst/coder-alpine/base:${ALPINE_VERSION}-${VERSION} as ide
