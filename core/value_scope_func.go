@@ -35,6 +35,10 @@ func argReplace(s string) string {
 	return fcs[0]
 }
 
+func funcAgentName(name string) string {
+	return "(with internal function " + name + ")"
+}
+
 const fnQuotting = "()"
 
 var fnMaps = map[string]func(args ...string) string{
@@ -125,9 +129,9 @@ var fnMaps = map[string]func(args ...string) string{
 		if err != nil {
 			return origin
 		}
-		result, err := internal.HttpRequestBytes(url.String(), "GET")
+		result, err := internal.HttpRequestBytesWithAgentSuffix(url.String(), funcAgentName("gh-rel-ver"), "GET")
 		if err != nil {
-			internal.LogCLI(log.ErrorLevel).Println("error while doing gh-latest-rel:", err)
+			internal.LogCLI(log.ErrorLevel).Println("error while doing gh-rel-ver:", err)
 			return origin
 		}
 		var ghRelease struct {
@@ -143,11 +147,11 @@ var fnMaps = map[string]func(args ...string) string{
 		origin := args[0]
 		funcArgs := strings.Split(args[1], ",")
 		if len(funcArgs) == 0 && funcArgs[0] == "" {
-			internal.LogCLI(log.PanicLevel).Println("empty owner and project while doing gl-latest-rel")
+			internal.LogCLI(log.PanicLevel).Println("empty owner and project while doing gl-rel-ver")
 		}
 		project := strings.Split(funcArgs[0], "/")
 		if len(project) < 2 {
-			internal.LogCLI(log.PanicLevel).Println("unknown fromat of owner and project while doing gl-latest-rel")
+			internal.LogCLI(log.PanicLevel).Println("unknown fromat of owner and project while doing gl-rel-ver")
 		}
 		apiPath := "/projects/" + project[0] + "%2F" + project[1] + "/releases"
 		tagName := "latest"
@@ -168,9 +172,9 @@ var fnMaps = map[string]func(args ...string) string{
 		if err != nil {
 			return origin
 		}
-		result, err := internal.HttpRequestBytes(url.String(), "GET")
+		result, err := internal.HttpRequestBytesWithAgentSuffix(url.String(), funcAgentName("gl-rel-ver"), "GET")
 		if err != nil {
-			internal.LogCLI(log.ErrorLevel).Println("error while doing gl-latest-rel:", err)
+			internal.LogCLI(log.ErrorLevel).Println("error while doing gl-rel-ver:", err)
 			return origin
 		}
 		var glRelease struct {

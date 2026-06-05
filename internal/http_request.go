@@ -2,14 +2,39 @@ package internal
 
 import (
 	"io"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/cheggaaa/pb/v3"
 )
 
-func HttpRequest(url string, others ...string) (io.ReadCloser, int64, error) {
-	client := http.DefaultClient
+const (
+	selfUserAgent = "CorntronHttpClient/1.0"
+)
+
+func HttpDefaultClient() *http.Client {
+	result := http.DefaultClient
+	dialer := net.Dialer{
+		Timeout:   30 * time.Second,
+		KeepAlive: 30 * time.Second,
+	}
+	transport := http.Transport{
+		Proxy:                 http.ProxyFromEnvironment,
+		DialContext:           dialer.DialContext,
+		ForceAttemptHTTP2:     true,
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+	result.Transport = &transport
+	return result
+}
+
+func HttpRequestWithAgentSuffix(url string, agentSuffix string, others ...string) (io.ReadCloser, int64, error) {
+	client := HttpDefaultClient()
 	var req *http.Request
 	method := "GET"
 	var body io.Reader
@@ -23,6 +48,11 @@ func HttpRequest(url string, others ...string) (io.ReadCloser, int64, error) {
 	if err != nil {
 		return nil, 0, err
 	}
+	agent := selfUserAgent
+	if len(agentSuffix) > 0 {
+		agent = agent + " " + agentSuffix
+	}
+	req.Header.Set("User-Agent", agent)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, 0, err
@@ -35,8 +65,21 @@ func HttpRequest(url string, others ...string) (io.ReadCloser, int64, error) {
 	return resp.Body, resp.ContentLength, nil
 }
 
+func HttpRequest(url string, others ...string) (io.ReadCloser, int64, error) {
+	return HttpRequestWithAgentSuffix(url, "", others...)
+}
+
 func HttpRequestBytes(url string, others ...string) ([]byte, error) {
 	resp, _, err := HttpRequest(url, others...)
+	defer CloseFileAndFinishBar(resp, nil)
+	if err != nil {
+		return nil, err
+	}
+	return io.ReadAll(resp)
+}
+
+func HttpRequestBytesWithAgentSuffix(url string, agentSuffix string, others ...string) ([]byte, error) {
+	resp, _, err := HttpRequestWithAgentSuffix(url, agentSuffix, others...)
 	defer CloseFileAndFinishBar(resp, nil)
 	if err != nil {
 		return nil, err
@@ -54,6 +97,16 @@ func HttpRequestString(url string, others ...string) (string, error) {
 
 func HttpRequestFile(url, filename string, others ...string) error {
 	resp, len, err := HttpRequest(url, others...)
+	if err != nil {
+		return err
+	}
+	defer CloseFileAndFinishBar(resp, nil)
+	bar := pb.Default.Start64(len)
+	return IOToFile(resp, filename, bar)
+}
+
+func HttpRequestFileWithAgentSuffix(url, agentSuffix, filename string, others ...string) error {
+	resp, len, err := HttpRequestWithAgentSuffix(url, agentSuffix, others...)
 	if err != nil {
 		return err
 	}

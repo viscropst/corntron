@@ -81,7 +81,7 @@ func WgetGhCmd(args []string) error {
 		apiUrl = apiUrl + "/tags/" + flags.Tag
 	}
 	internal.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Getting latest version of", flags.ArticaftName, "from", apiUrl)
-	result, err := internal.HttpRequestBytes("https://"+apiUrl, "GET")
+	result, err := internal.HttpRequestBytesWithAgentSuffix("https://"+apiUrl, AgentName(WgetGhCmdID), "GET")
 	if err != nil {
 		return err
 	}
@@ -122,5 +122,5 @@ func WgetGhCmd(args []string) error {
 		downloadUrl.Host = flags.Domain
 	}
 	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Final URL is ", downloadUrl.String())
-	return internal.HttpRequestFile(downloadUrl.String(), flags.Output)
+	return internal.HttpRequestFileWithAgentSuffix(downloadUrl.String(), AgentName(WgetCmdID) , flags.Output)
 }

@@ -6,6 +6,10 @@ func CmdName(name string) string {
 	return InternalCmdPrefix + name
 }
 
+func AgentName(name string) string {
+	return "(with command " + CmdName(name) + ")"
+}
+
 type Command func(args []string) error
 
 var Commnads map[string]Command

@@ -34,5 +34,5 @@ func WgetCmd(args []string) error {
 			" correct usage was: " + WgetCmdID + " src [options]")
 	}
 	internal.LogCLI(log.InfoLevel).Println(WgetCmdName+":", "Downloading", dst, "from", srcURL)
-	return internal.HttpRequestFile(srcURL, dst)
+	return internal.HttpRequestFileWithAgentSuffix(srcURL, AgentName(WgetCmdID), dst)
 }
