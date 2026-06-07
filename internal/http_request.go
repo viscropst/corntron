@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	selfUserAgent = "CorntronHttpClient/1.0"
+	selfUserAgent = "CorntronHttpClient/"
 )
 
 func HttpDefaultClient() *http.Client {
@@ -48,10 +48,8 @@ func HttpRequestWithAgentSuffix(url string, agentSuffix string, others ...string
 	if err != nil {
 		return nil, 0, err
 	}
-	agent := selfUserAgent
-	if len(agentSuffix) > 0 {
-		agent = agent + " " + agentSuffix
-	}
+
+	agent := selfUserAgent + AgentVersionInfo(agentSuffix)
 	req.Header.Set("User-Agent", agent)
 	resp, err := client.Do(req)
 	if err != nil {

@@ -7,7 +7,7 @@ func CmdName(name string) string {
 }
 
 func AgentName(name string) string {
-	return "(with command " + CmdName(name) + ")"
+	return "with command " + CmdName(name)
 }
 
 type Command func(args []string) error

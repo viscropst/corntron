@@ -36,7 +36,7 @@ func argReplace(s string) string {
 }
 
 func funcAgentName(name string) string {
-	return "(with internal function " + name + ")"
+	return "with function " + name
 }
 
 const fnQuotting = "()"

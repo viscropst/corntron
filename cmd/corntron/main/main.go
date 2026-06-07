@@ -24,7 +24,13 @@ type cliFlags struct {
 }
 
 func (f cliFlags) Init() *cliFlags {
-	f.actions = actions.ActionMap()
+	f.actions = make(map[string]cmdcorntron.CmdAction)
+	for k, v := range actions.ActionMap() {
+		if k == "run-selfcontained-config" {
+			continue
+		}
+		f.actions[k] = v
+	}
 	f.CmdFlag = cmdcorntron.CmdFlag{}.Prepare()
 	f.Host.BoolVar(&f.NoWaiting, "no-waiting", false, "executing cryptron without waiting")
 	f.Host.StringVar(&f.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")
@@ -34,7 +40,7 @@ func (f cliFlags) Init() *cliFlags {
 	f.Host.StringVar(&f.ConfigBase, "cfg-base", "", "/path/to/your/<corntron config folder>")
 	f.Host.StringVar(&f.RunningBase, "running-base", "", "/path/to/your/<corntron running folder>")
 	f.Host.Usage = func() {
-		cmdcorntron.CliLog().Println(path.Base(f.Host.Name()) + " [options] <actions> [args]")
+		cmdcorntron.CliLog().Println(path.Base(f.Host.Name()) + " " + cmdcorntron.Version() + " [options] <actions> [args]")
 		actKeys := make([]string, 0)
 		for k := range f.actions {
 			actKeys = append(actKeys, k)
@@ -65,10 +71,10 @@ func (f *cliFlags) Parse() (cmdcorntron.CmdAction, error) {
 }
 
 func main() {
-
 	flags := cliFlags{}.Init()
 	_, selfFile := filepath.Split(os.Args[0])
 	selfName := strings.TrimSuffix(selfFile, filepath.Ext(selfFile))
+	cmdcorntron.CliLog(log.InfoLevel).Println(selfName, "version:", cmdcorntron.Version())
 	if !strings.HasSuffix(selfName, "debug") {
 		log.CLIOutputLevel = log.InfoLevel
 	}

@@ -18,7 +18,7 @@ type cliFlags struct {
 func (f cliFlags) Init() *cliFlags {
 	actionsMap := make(map[string]cmdcorntron.CmdAction)
 	for k, v := range actions.ActionMap() {
-		if k == "run-corn" {
+		if k != "run-cmd" {
 			continue
 		}
 		actionsMap[k] = v
@@ -31,6 +31,7 @@ func main() {
 	flags := cliFlags{}.Init()
 	_, selfFile := filepath.Split(os.Args[0])
 	selfName := strings.TrimSuffix(selfFile, filepath.Ext(selfFile))
+	cmdcorntron.CliLog(log.InfoLevel).Println(selfName, "version: ", cmdcorntron.Version())
 	if !strings.HasSuffix(selfName, "debug") {
 		log.CLIOutputLevel = log.InfoLevel
 	}

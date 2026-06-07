@@ -3,6 +3,8 @@ go env -w GOPROXY=https://mirrors.cloud.tencent.com/go/,direct
 go mod tidy
 out_dir=$PWD/out
 mkdir -p ${out_dir}
+version="${BUILD_VERSION}"
+[ -z "$version" ] && version="staging"
 binaries="corntron"
 os="windows \
 linux \
@@ -33,7 +35,8 @@ for sys in $os; do
             mkdir -p $out_dir
             echo "output file:" $out_dir/$bin/$file_name
             echo "build binary:" $bin
-            CGO_ENABLED=0 go build -o $out_dir/$bin/$file_name $PWD/cmd/$bin/main || exit 1
+            
+            CGO_ENABLED=0 go build -ldflags "-X corntron/internal.Version="${version} -o $out_dir/$bin/$file_name $PWD/cmd/$bin/main || exit 1
         done
     done
 done
