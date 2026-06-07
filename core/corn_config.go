@@ -13,12 +13,13 @@ func LoadCornConfigFile(tomlPath string, base envConfig) (CornsEnvConfig, error)
 	if base.coreConfig == nil {
 		return result, internal.Error("could not load the env without core config")
 	}
-
-	pth, file := filepath.Split(tomlPath)
 	loadPath := filepath.Join(
 		base.coreConfig.CornDir(), result.envDirname)
+	pth, file := filepath.Split(tomlPath)
 	if len(pth) == 0 {
 		loadPath = base.coreConfig.CurrentWorkDir
+	} else if len(pth) > 0 {
+		loadPath = pth
 	}
 	err := loadConfigRegular(file, &result, loadPath)
 	if err != nil {
