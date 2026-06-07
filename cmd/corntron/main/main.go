@@ -24,7 +24,6 @@ func (f cliFlags) Init() *cliFlags {
 func main() {
 
 	flags := cliFlags{}.Init()
-	errLogger := cmdcontron.CliLog(log.ErrorLevel)
 	_, selfFile := filepath.Split(os.Args[0])
 	selfName := strings.TrimSuffix(selfFile, filepath.Ext(selfFile))
 	if !strings.HasSuffix(selfName, "debug") {
@@ -39,9 +38,8 @@ func main() {
 	}
 
 	action, err := flags.Parse()
-	defer cmdcontron.CliExit(err, !cmdcontron.IsInTerminal())
 	if err != nil {
-		errLogger.Println(err)
+		cmdcontron.ErrorLog(err)
 		return
 	}
 
@@ -52,20 +50,20 @@ func main() {
 	}
 	err = action.BeforeCore(&coreConfig)
 	if err != nil {
-		errLogger.Println("error before load core", err)
+		cmdcontron.ErrorLog(err, "error before load core")
 		return
 	}
 
 	var core corntron.Core
 	core, err = corntron.LoadCore(coreConfig)
 	if err != nil {
-		errLogger.Println("error while load core", err)
+		cmdcontron.ErrorLog(err, "error while load core")
 		return
 	}
 
 	err = action.Exec(&core)
 	if err != nil {
-		errLogger.Println(err.Error())
+		cmdcontron.ErrorLog(err)
 		return
 	}
 }
