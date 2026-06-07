@@ -3,7 +3,7 @@ go env -w GOPROXY=https://mirrors.cloud.tencent.com/go/,direct
 go mod tidy
 out_dir=$PWD/out
 mkdir -p ${out_dir}
-version="${BUILD_VERSION}"
+version="${CI_REL_TAG#rel-}"
 [ -z "$version" ] && version="staging"
 binaries="corntron"
 os="windows \
