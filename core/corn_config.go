@@ -16,7 +16,7 @@ func LoadCornConfigFile(tomlPath string, base envConfig) (CornsEnvConfig, error)
 
 	pth, file := filepath.Split(tomlPath)
 	loadPath := filepath.Join(
-		result.coreConfig.CornDir(), result.envDirname)
+		base.coreConfig.CornDir(), result.envDirname)
 	if len(pth) == 0 {
 		loadPath = base.coreConfig.CurrentWorkDir
 	}
