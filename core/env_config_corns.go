@@ -42,15 +42,11 @@ func (c *CornsEnvConfig) initCornVars() {
 	}
 }
 
-func InitCornEnv(src *CornsEnvConfig, name string, base envConfig) (CornsEnvConfig, error) {
+func InitCornEnv(src *CornsEnvConfig, name string) (CornsEnvConfig, error) {
 	if src == nil {
 		return CornsEnvConfig{}, internal.Error("could not initialize the env without src")
 	}
 	result := *src
-	if base.coreConfig == nil {
-		return result, internal.Error("could not loading the env wihout core config from base")
-	}
-	result.envConfig = base
 	result.ID = CornsIdentifier + "_" + name
 	result.envName = name
 	if strings.HasSuffix(name, CornConfigExt) {

@@ -13,6 +13,7 @@ func LoadCornConfigFile(tomlPath string, base envConfig) (CornsEnvConfig, error)
 	if base.coreConfig == nil {
 		return result, internal.Error("could not load the env without core config")
 	}
+	result.envConfig = base
 	loadPath := filepath.Join(
 		base.coreConfig.CornDir(), result.envDirname)
 	pth, file := filepath.Split(tomlPath)
@@ -25,7 +26,7 @@ func LoadCornConfigFile(tomlPath string, base envConfig) (CornsEnvConfig, error)
 	if err != nil {
 		return result, err
 	}
-	return InitCornEnv(&result, file, base)
+	return InitCornEnv(&result, file)
 }
 
 func LoadCornConfigReader(name string, reader io.Reader, base envConfig) (CornsEnvConfig, error) {
@@ -39,9 +40,10 @@ func LoadCornConfigReader(name string, reader io.Reader, base envConfig) (CornsE
 	if base.coreConfig == nil {
 		return result, internal.Error("could not loading the env without core config")
 	}
+	result.envConfig = base
 	err := internal.LoadTomlReader(reader, &result)
 	if err != nil {
 		return result, err
 	}
-	return InitCornEnv(&result, name, base)
+	return InitCornEnv(&result, name)
 }

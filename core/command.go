@@ -97,6 +97,8 @@ func (c *Command) Prepare(vars ...map[string]string) *Command {
 	}
 	if len(c.EnvPath) > 0 {
 		c.EnvPath = PathListBuilder(c.Expand(c.EnvPath.String()))
+	} else if p, ok := c.Env["PATH"]; len(c.EnvPath) == 0 && ok {
+		c.EnvPath = PathListBuilder(c.Expand(p))
 	}
 	return c
 }
@@ -126,7 +128,7 @@ func (c *Command) Execute(vars ...map[string]string) error {
 		command.Env = appendMap(c.Env, internal.GetEnvironMap())
 	}
 
-	LogCLI(log.DebugLevel).Printf("Execute command with PATH: %s", c.EnvPath.String())
+	LogCLI(log.DebugLevel).Printf("Execute %s command with PATH: %s", c.Exec, c.EnvPath.String())
 
 	if c.withAttr {
 		command.WithWaiting = c.withWaiting

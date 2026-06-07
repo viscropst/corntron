@@ -116,6 +116,14 @@ func (c *envConfig) ExecuteBootstrap() error {
 		if !v.CanRunning() {
 			continue
 		}
+		if v.Env == nil {
+			v.Env = make(map[string]string)
+		}
+		v.EnvPath = EnvironPathList().AppendList(c.EnvPath)
+		if p, ok := v.Env["PATH"]; ok {
+			v.EnvPath = v.EnvPath.Append(v.Expand(p))
+		}
+		v.Env["PATH"] = v.EnvPath.String()
 		bootstraps = append(bootstraps, v)
 	}
 	for _, command := range bootstraps {
