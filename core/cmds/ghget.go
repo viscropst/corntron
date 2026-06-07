@@ -1,8 +1,6 @@
 package cmds
 
 import (
-	"corntron/internal"
-	"corntron/internal/log"
 	"encoding/json"
 	"flag"
 	"net/url"
@@ -48,16 +46,16 @@ func (f *ghGetFlagSet) normalizeFlags(args []string) ([]string, error) {
 		return nil, err
 	}
 	if len(f.Owner) == 0 || len(f.Project) == 0 || len(f.ArticaftName) == 0 {
-		return nil, internal.Error("owner, project and articaft name must be specified")
+		return nil, cmdError("owner, project and articaft name must be specified")
 	}
 	if len(strings.TrimSpace(f.Domain)) == 0 {
 		f.Domain = "github.com"
 	}
 	if len(strings.TrimSpace(f.Tag)) == 0 {
-		f.Tag = "latest"
+		f.Tag = ""
 	}
 	if len(f.Output) == 0 {
-		f.Output = internal.GetWorkDir()
+		f.Output = GetWorkDir()
 	}
 	if len(strings.TrimSpace(f.ApiDomain)) == 0 {
 		f.ApiDomain = "api.github.com"
@@ -72,16 +70,16 @@ func WgetGhCmd(args []string) error {
 		return err
 	}
 	if len(args) != 0 {
-		return internal.Error("too many arguments")
+		return cmdError("too many arguments")
 	}
 	apiUrl := flags.ApiDomain + "/repos/" + flags.Owner + "/" + flags.Project + "/releases"
-	if flags.Tag == "latest" {
+	if len(flags.Tag) == 0 {
 		apiUrl = apiUrl + "/latest"
 	} else {
 		apiUrl = apiUrl + "/tags/" + flags.Tag
 	}
-	internal.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Getting latest version of", flags.ArticaftName, "from", apiUrl)
-	result, err := internal.HttpRequestBytesWithAgentSuffix("https://"+apiUrl, AgentName(WgetGhCmdID), "GET")
+	LogInfo(WgetGhCmdName, ":", "Getting latest version of", flags.ArticaftName, "from", apiUrl)
+	result, err := HttpRequestBytesWithAgentSuffix("https://"+apiUrl, AgentName(WgetGhCmdID), "GET")
 	if err != nil {
 		return err
 	}
@@ -97,7 +95,7 @@ func WgetGhCmd(args []string) error {
 		return err
 	}
 	if len(release.TagName) == 0 {
-		return internal.Error("no release found")
+		return cmdError("no release found")
 	}
 	downloadUrlStr := ""
 	for _, asset := range release.Assets {
@@ -106,14 +104,14 @@ func WgetGhCmd(args []string) error {
 			break
 		}
 	}
-	internal.LogCLI(log.InfoLevel).Println(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrlStr, "with tag", release.TagName)
+	LogInfo(WgetGhCmdName, ":", "Downloading", flags.ArticaftName, "from", downloadUrlStr, "with tag", release.TagName)
 	if downloadUrlStr == "" {
-		return internal.Error("no asset found")
+		return cmdError("no asset found")
 	}
 	if flags.IsConcatDomain {
 		downloadUrlStr = "https://" + strings.TrimSpace(flags.Domain) + "/" + downloadUrlStr
 	}
-	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Raw URL from", downloadUrlStr)
+	LogDebug(WgetGhCmdName, ":", "Raw URL from", downloadUrlStr)
 	downloadUrl, err := url.Parse(downloadUrlStr)
 	if err != nil {
 		return err
@@ -121,6 +119,6 @@ func WgetGhCmd(args []string) error {
 	if len(flags.Domain) > 0 && !flags.IsConcatDomain {
 		downloadUrl.Host = flags.Domain
 	}
-	internal.LogCLI(log.DebugLevel).Println(WgetGhCmdName, ":", "Final URL is ", downloadUrl.String())
-	return internal.HttpRequestFileWithAgentSuffix(downloadUrl.String(), AgentName(WgetCmdID) , flags.Output)
+	LogDebug(WgetGhCmdName, ":", "Final URL is ", downloadUrl.String())
+	return HttpRequestFileWithAgentSuffix(downloadUrl.String(), AgentName(WgetCmdID), flags.Output)
 }

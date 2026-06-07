@@ -42,10 +42,13 @@ func (c *CornsEnvConfig) initCornVars() {
 	}
 }
 
-func LoadCornEnv(name string, base envConfig, altPath ...string) (CornsEnvConfig, error) {
-	result := CornsEnvConfig{}
+func InitCornEnv(src *CornsEnvConfig, name string, base envConfig) (CornsEnvConfig, error) {
+	if src == nil {
+		return CornsEnvConfig{}, internal.Error("could not initialize the env without src")
+	}
+	result := *src
 	if base.coreConfig == nil {
-		return result, internal.Error("could not loading the env wihout core config")
+		return result, internal.Error("could not loading the env wihout core config from base")
 	}
 	result.envConfig = base
 	result.ID = CornsIdentifier + "_" + name
@@ -54,16 +57,6 @@ func LoadCornEnv(name string, base envConfig, altPath ...string) (CornsEnvConfig
 		result.envName = name[:len(name)-len(CornConfigExt)]
 	}
 	result.initCornVars()
-
-	loadPath := filepath.Join(
-		result.coreConfig.CornDir(), result.envDirname)
-	if len(altPath) > 0 {
-		loadPath = altPath[0]
-	}
-	err := loadConfigRegular(name, &result, loadPath)
-	if err != nil {
-		return result, err
-	}
 
 	if result.DirName == "" {
 		result.DirName = result.envName

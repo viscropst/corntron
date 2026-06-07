@@ -1,8 +1,6 @@
 package cmds
 
 import (
-	"corntron/internal"
-	"corntron/internal/log"
 	"flag"
 	"path/filepath"
 	"strings"
@@ -30,7 +28,7 @@ type unArchiveFlags struct {
 	SourceFile   string
 	RemoveSrc    bool
 	BaseDir      string
-	LogicPath    internal.UnarLogicPath
+	LogicPath    UnArchiveLogicPath
 }
 
 func unarchiveFlags(cmdName string) *unArchiveFlags {
@@ -49,19 +47,19 @@ func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	src := internal.NormalizePath(f.SourceFile)
+	src := NormalizeFilePath(f.SourceFile)
 	if len(src) == 0 {
-		return nil, internal.Error("no source file specified")
+		return nil, cmdError("no source file specified")
 	}
-	srcStat, _ := internal.StatPath(src)
+	srcStat, _ := StatFilePath(src)
 	if srcStat == nil {
-		return nil, internal.Error("source file does not exist")
+		return nil, cmdError("source file does not exist")
 	}
 	if srcStat.IsDir() {
-		return nil, internal.Error("source file is a directory")
+		return nil, cmdError("source file is a directory")
 	}
 	f.SourceFile = src
-	out := internal.NormalizePath(f.OutputPath)
+	out := NormalizeFilePath(f.OutputPath)
 	if len(out) == 0 {
 		out = filepath.Dir(src)
 	}
@@ -74,17 +72,17 @@ func (f *unArchiveFlags) normalizeFlags(args []string) ([]string, error) {
 	return strings.Split(f.IncludeFiles, ","), nil
 }
 
-func (f unArchiveFlags) UnarFlags() internal.UnarchiveFlag {
-	result := internal.UnarchiveFlag{
+func (f unArchiveFlags) UnarFlags() UnArchiveFlag {
+	result := UnArchiveFlag{
 		SourceFile: f.SourceFile,
 		OutputPath: f.OutputPath,
 		BaseDir:    f.BaseDir,
 	}
 	switch f.Name() {
 	case UntarCmdName:
-		result.LogicType = internal.UnTar
+		result.LogicType = UnArchiveTar
 	case UnzipCmdName:
-		result.LogicType = internal.UnZip
+		result.LogicType = UnArchiveZip
 	}
 	return result
 }
@@ -98,7 +96,7 @@ func UntarCmd(args []string) error {
 }
 
 func detectCompressionFormat(filePath string, format string) (bool, error) {
-	file, err := internal.Open(filePath)
+	file, err := OpenFile(filePath)
 	if err != nil {
 		return false, err
 	}
@@ -148,7 +146,7 @@ func UnArchiveCmd(cmdName string, args []string) error {
 			return err
 		}
 		if !isValid {
-			return internal.Error("file format does not match expected ZIP format")
+			return cmdError("file format does not match expected ZIP format")
 		}
 	case UntarCmdName:
 		// i-utar supports TAR, GZ, XZ, BZ2 and nested formats (tar.gz, tar.xz, tar.bz2)
@@ -162,23 +160,23 @@ func UnArchiveCmd(cmdName string, args []string) error {
 			isXz, _ := detectCompressionFormat(flags.SourceFile, "xz")
 			isBz2, _ := detectCompressionFormat(flags.SourceFile, "bz2")
 			if !isGz && !isXz && !isBz2 {
-				return internal.Error("file format does not match expected TAR, GZ, XZ, or BZ2 format")
+				return cmdError("file format does not match expected TAR, GZ, XZ, or BZ2 format")
 			}
 		}
 	}
 
-	internal.LogCLI(log.InfoLevel).Println(cmdName, ":", "Unarchiving", flags.SourceFile, "to", flags.OutputPath)
-	srcFile, err := internal.Open(flags.SourceFile)
+	LogInfo(cmdName, ":", "Unarchiving", flags.SourceFile, "to", flags.OutputPath)
+	srcFile, err := OpenFile(flags.SourceFile)
 	if err != nil {
 		return err
 	}
-	err = internal.Unarchive(srcFile, flags.UnarFlags(), includes...)
+	err = UnArchiveFile(srcFile, flags.UnarFlags(), includes...)
 	if err != nil {
 		return err
 	}
-	internal.CloseFileAndFinishBar(srcFile, nil)
+	CloseFileAndFinishBar(srcFile, nil)
 	if flags.RemoveSrc {
-		return internal.Remove(internal.NormalizePath(srcFile.Name()))
+		return RemoveFileAndFolders(NormalizeFilePath(srcFile.Name()))
 	}
 	return nil
 }

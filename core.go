@@ -2,6 +2,9 @@ package corntron
 
 import (
 	"corntron/core"
+	"corntron/internal"
+	"errors"
+	"io"
 	"io/fs"
 	"path/filepath"
 	"strings"
@@ -25,6 +28,10 @@ func LoadCoreConfig(altBases ...string) core.MainConfig {
 }
 
 type Core = core.Core
+
+type MainConfig = core.MainConfig
+
+const CornsIdentifier = core.CornsIdentifier
 
 func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	result := Core{
@@ -87,7 +94,7 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 			configName := strings.TrimSuffix(info.Name(), ".toml")
 			tmpEnv := core.BaseEnv(coreConfig, envDirName)
 			tmpEnv.Top = result.ValueScope
-			env, envErr := core.LoadCornEnv(configName, tmpEnv)
+			env, envErr := core.LoadCornConfigFile(configName, tmpEnv)
 			if envErr != nil {
 				return envErr
 			}
@@ -100,4 +107,40 @@ func LoadCore(coreConfig core.MainConfig, altNames ...string) (Core, error) {
 	}
 
 	return result, nil
+}
+
+func LoadCornConfigFile(src *Core, fileName string) (*core.CornsEnvConfig, error) {
+	if len(fileName) == 0 {
+		return nil, internal.Error("cannot load corn config file without fileName")
+	}
+	if src == nil {
+		return nil, internal.Error("cannot load corn config file without core config")
+	}
+	tmpEnv := core.BaseEnv(src.Config)
+	tmpEnv.Top = src.ValueScope
+
+	config, err := core.LoadCornConfigFile(fileName, tmpEnv)
+	if err != nil {
+		newErr := errors.New("error while loading corn config:" + err.Error())
+		return nil, newErr
+	}
+	return &config, nil
+}
+
+func LoadCornConfigReader(src *Core, name string, reader io.Reader) (*core.CornsEnvConfig, error) {
+	if reader == nil {
+		return nil, internal.Error("cannot load corn config file without reader")
+	}
+	if src == nil {
+		return nil, internal.Error("cannot load corn config file without core config")
+	}
+	tmpEnv := core.BaseEnv(src.Config)
+	tmpEnv.Top = src.ValueScope
+
+	config, err := core.LoadCornConfigReader(name, reader, tmpEnv)
+	if err != nil {
+		newErr := errors.New("error while loading corn config:" + err.Error())
+		return nil, newErr
+	}
+	return &config, nil
 }

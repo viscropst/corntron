@@ -1,8 +1,6 @@
 package cmds
 
 import (
-	"corntron/internal"
-	"corntron/internal/log"
 	"flag"
 )
 
@@ -20,9 +18,9 @@ func wgetFlags() *flag.FlagSet {
 }
 
 func WgetCmd(args []string) error {
-	dst := internal.GetWorkDir()
+	dst := GetWorkDir()
 	if len(args) > 1 {
-		dst = internal.NormalizePath(args[1])
+		dst = NormalizeFilePath(args[1])
 	}
 	srcURL := args[0]
 	if len(args) > 1 {
@@ -30,9 +28,9 @@ func WgetCmd(args []string) error {
 		tmp.Parse(args[1:])
 	}
 	if len(args) < 1 {
-		return internal.Error(
+		return cmdError(
 			" correct usage was: " + WgetCmdID + " src [options]")
 	}
-	internal.LogCLI(log.InfoLevel).Println(WgetCmdName+":", "Downloading", dst, "from", srcURL)
-	return internal.HttpRequestFileWithAgentSuffix(srcURL, AgentName(WgetCmdID), dst)
+	LogInfo(WgetCmdName+":", "Downloading", dst, "from", srcURL)
+	return HttpRequestFileWithAgentSuffix(srcURL, AgentName(WgetCmdID), dst)
 }

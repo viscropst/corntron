@@ -2,23 +2,66 @@ package main
 
 import (
 	"corntron"
-	cmdcontron "corntron/cmd/corntron"
+	cmdcorntron "corntron/cmd/corntron"
 	"corntron/cmd/corntron/actions"
+	"corntron/core"
 	"corntron/internal/log"
+	"errors"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
 
 type cliFlags struct {
-	*cmdcontron.CmdFlag
+	*cmdcorntron.CmdFlag
+	actions     map[string]cmdcorntron.CmdAction
+	NoWaiting   bool
+	EnvDirname  string
+	RuntimeBase string
+	EditorBase  string
 }
 
 func (f cliFlags) Init() *cliFlags {
-	actions := actions.ActionMap()
-	f.CmdFlag = cmdcontron.CmdFlag{}.Prepare(actions)
+	f.actions = actions.ActionMap()
+	f.CmdFlag = cmdcorntron.CmdFlag{}.Prepare()
+	f.Host.BoolVar(&f.NoWaiting, "no-waiting", false, "executing cryptron without waiting")
+	f.Host.StringVar(&f.RuntimeBase, "rt-base", "", "/path/to/your/<runtime profiles folder>")
+	f.Host.StringVar(&f.EditorBase, "corn-base", "", "/path/to/your/<corns profiles folder>")
+	f.Host.StringVar(&f.EnvDirname, "env-dirname", "", "<folder name of env files to store>")
+	f.Host.StringVar(&f.MirrorType, "mirror-type", "", "mirror type, default is without mirror")
+	f.Host.StringVar(&f.ConfigBase, "cfg-base", "", "/path/to/your/<corntron config folder>")
+	f.Host.StringVar(&f.RunningBase, "running-base", "", "/path/to/your/<corntron running folder>")
+	f.Host.Usage = func() {
+		cmdcorntron.CliLog().Println(path.Base(f.Host.Name()) + " [options] <actions> [args]")
+		actKeys := make([]string, 0)
+		for k := range f.actions {
+			actKeys = append(actKeys, k)
+		}
+		cmdcorntron.CliLog().Printf("actions was: %v \n", actKeys)
+		cmdcorntron.CliLog().Println("options has:")
+		f.Host.PrintDefaults()
+		cmdcorntron.CliExit(nil, !cmdcorntron.IsInTerminal())
+	}
 	return &f
+}
+
+func (f *cliFlags) Parse() (cmdcorntron.CmdAction, error) {
+	info, err := f.CmdFlag.Parse()
+	if err != nil {
+		return nil, err
+	}
+	idxArgAct := info.Index
+	if fileArg := info.Args[idxArgAct]; strings.HasSuffix(fileArg, core.CornConfigExt) {
+		action := f.actions["run-"+core.CornsIdentifier+"-config"]
+		info.Index = idxArgAct - 1
+		return action, action.ParseArg(*info)
+	}
+	if action, ok := f.actions[info.Args[idxArgAct]]; ok {
+		return action, action.ParseArg(*info)
+	}
+	return nil, errors.New("invalid action,use '-help' for actions")
 }
 
 func main() {
@@ -32,14 +75,14 @@ func main() {
 	if strings.HasPrefix(selfName, "__debug") && log.CLIOutputLevel != log.DebugLevel {
 		log.CLIOutputLevel = log.DebugLevel
 	}
-	cmdcontron.CliLog(log.DebugLevel).Println(os.Args, "len:", len(os.Args))
+	cmdcorntron.CliLog(log.DebugLevel).Println(os.Args, "len:", len(os.Args))
 	for i, v := range os.Args {
-		cmdcontron.CliLog(log.DebugLevel).Println("arg", i, "was", v, "url value", url.QueryEscape(v), "len", len(v))
+		cmdcorntron.CliLog(log.DebugLevel).Println("arg", i, "was", v, "url value", url.QueryEscape(v), "len", len(v))
 	}
 
 	action, err := flags.Parse()
 	if err != nil {
-		cmdcontron.ErrorLog(err)
+		cmdcorntron.ErrorLog(err)
 		return
 	}
 
@@ -50,20 +93,20 @@ func main() {
 	}
 	err = action.BeforeCore(&coreConfig)
 	if err != nil {
-		cmdcontron.ErrorLog(err, "error before load core")
+		cmdcorntron.ErrorLog(err, "error before load core")
 		return
 	}
 
 	var core corntron.Core
 	core, err = corntron.LoadCore(coreConfig)
 	if err != nil {
-		cmdcontron.ErrorLog(err, "error while load core")
+		cmdcorntron.ErrorLog(err, "error while load core")
 		return
 	}
 
 	err = action.Exec(&core)
 	if err != nil {
-		cmdcontron.ErrorLog(err)
+		cmdcorntron.ErrorLog(err)
 		return
 	}
 }

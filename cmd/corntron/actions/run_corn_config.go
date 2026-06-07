@@ -3,7 +3,6 @@ package actions
 import (
 	"corntron"
 	cmdcontron "corntron/cmd/corntron"
-	"corntron/core"
 	"errors"
 	"flag"
 	"os"
@@ -28,7 +27,7 @@ func init() {
 }
 
 func (c *runCornConfig) ActionName() string {
-	return "run-" + core.CornsIdentifier + "-config"
+	return "run-" + corntron.CornsIdentifier + "-config"
 }
 
 func (c *runCornConfig) ParseArg(info cmdcontron.FlagInfo) error {
@@ -68,7 +67,7 @@ func (c *runCornConfig) BeforeLoad(flags *cmdcontron.CmdFlag) (string, []string)
 	return c.BaseAction.BeforeLoad(flags)
 }
 
-func (c *runCornConfig) BeforeCore(coreConfig *core.MainConfig) error {
+func (c *runCornConfig) BeforeCore(coreConfig *corntron.MainConfig) error {
 	coreConfig.WithCorn = true
 	return nil
 }
@@ -92,14 +91,11 @@ func (c *runCornConfig) Exec(inCore *corntron.Core) error {
 		cmdcontron.CliLog().Println(newErr)
 	}
 
-	tmpEnv := core.BaseEnv(inCore.Config)
-	tmpEnv.Top = inCore.ValueScope
-
-	config, err := core.LoadCornConfig(c.fileName, tmpEnv)
+	config, err := corntron.LoadCornConfigFile(inCore, c.fileName)
 	if err != nil {
 		newErr := errors.New("error while loading corn config:" + err.Error())
 		return newErr
 	}
 
-	return inCore.ExecCornConfig(config, c.globalWaiting, c.args...)
+	return inCore.ExecCornConfig(*config, c.globalWaiting, c.args...)
 }

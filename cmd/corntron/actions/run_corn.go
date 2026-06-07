@@ -3,7 +3,6 @@ package actions
 import (
 	"corntron"
 	cmdcontron "corntron/cmd/corntron"
-	"corntron/core"
 	"errors"
 	"os"
 )
@@ -20,7 +19,7 @@ func init() {
 }
 
 func (c *runCorn) ActionName() string {
-	return "run-" + core.CornsIdentifier
+	return "run-" + corntron.CornsIdentifier
 }
 
 func (c *runCorn) ParseArg(info cmdcontron.FlagInfo) error {
@@ -39,7 +38,7 @@ func (c *runCorn) ParseArg(info cmdcontron.FlagInfo) error {
 	return nil
 }
 
-func (c *runCorn) BeforeCore(coreConfig *core.MainConfig) error {
+func (c *runCorn) BeforeCore(coreConfig *corntron.MainConfig) error {
 	coreConfig.WithCorn = true
 	return nil
 }

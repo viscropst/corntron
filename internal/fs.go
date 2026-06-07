@@ -16,6 +16,8 @@ func FSAppendFlag() int {
 	return fsAppend
 }
 
+type ProgressBar = *pb.ProgressBar
+
 func IOToFile(from io.Reader, to string, bar *pb.ProgressBar, flags ...int) error {
 	return ioToFile(from, NormalizePath(to), defaultMod, bar, flags...)
 }
@@ -27,7 +29,9 @@ func flagIsEqual(a, b int) bool {
 	return a&b != 0
 }
 
-func ioToFile(from io.Reader, to string, mod os.FileMode, bar *pb.ProgressBar, flags ...int) error {
+type FileMode = os.FileMode
+
+func ioToFile(from io.Reader, to string, mod FileMode, bar *pb.ProgressBar, flags ...int) error {
 	if mod == 0 {
 		mod = defaultMod
 	}
@@ -53,11 +57,13 @@ func ioToFile(from io.Reader, to string, mod os.FileMode, bar *pb.ProgressBar, f
 	return err
 }
 
-func CopyToFile(from os.FileInfo, to string, excludes ...string) error {
+type FileInfo = os.FileInfo
+
+func CopyToFile(from FileInfo, to string, excludes ...string) error {
 	return copyToFile(from, NormalizePath(to), excludes...)
 }
 
-func copyToFile(from os.FileInfo, to string, excludes ...string) error {
+func copyToFile(from FileInfo, to string, excludes ...string) error {
 	if from.IsDir() {
 		if from == nil {
 			_ = os.Mkdir(to, os.ModeDir|defaultMod)
@@ -103,7 +109,7 @@ func CloseFileAndFinishBar(file io.Closer, bar *pb.ProgressBar) {
 	}
 }
 
-func copyFromFile(file io.Reader, to string, fileInfo os.FileInfo) error {
+func copyFromFile(file io.Reader, to string, fileInfo FileInfo) error {
 	if fileInfo == nil {
 		fileInfo = file.(fs.FileInfo)
 	}
@@ -146,8 +152,10 @@ func IfFolderNotExists(path string) bool {
 	return !stat.IsDir()
 }
 
+type FileStatInfo = statInfo
+
 type statInfo struct {
-	os.FileInfo
+	FileInfo
 	name string
 }
 
@@ -158,13 +166,15 @@ func (i statInfo) Name() string {
 	return i.name
 }
 
-func toStatInfo(stat os.FileInfo, path string) *statInfo {
+func toStatInfo(stat FileInfo, path string) *statInfo {
 	result := statInfo{
 		FileInfo: stat,
 		name:     path,
 	}
 	return &result
 }
+
+type File = *os.File
 
 func (i statInfo) Open(flag ...int) (*os.File, error) {
 	if len(flag) == 0 {

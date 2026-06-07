@@ -2,20 +2,45 @@ package core
 
 import (
 	"corntron/internal"
+	"io"
 	"path/filepath"
 )
 
 const CornConfigExt = ".toml.corn"
 
-func LoadCornConfig(tomlPath string, base envConfig) (CornsEnvConfig, error) {
+func LoadCornConfigFile(tomlPath string, base envConfig) (CornsEnvConfig, error) {
 	result := CornsEnvConfig{}
 	if base.coreConfig == nil {
 		return result, internal.Error("could not load the env without core config")
 	}
 
 	pth, file := filepath.Split(tomlPath)
+	loadPath := filepath.Join(
+		result.coreConfig.CornDir(), result.envDirname)
 	if len(pth) == 0 {
-		return LoadCornEnv(file, base, base.coreConfig.CurrentWorkDir)
+		loadPath = base.coreConfig.CurrentWorkDir
 	}
-	return LoadCornEnv(file, base, pth)
+	err := loadConfigRegular(file, &result, loadPath)
+	if err != nil {
+		return result, err
+	}
+	return InitCornEnv(&result, file, base)
+}
+
+func LoadCornConfigReader(name string, reader io.Reader, base envConfig) (CornsEnvConfig, error) {
+	result := CornsEnvConfig{}
+	if len(name) == 0 {
+		return result, internal.Error("could not loading the env without name")
+	}
+	if reader == nil {
+		return result, internal.Error("could not loading the env without reader")
+	}
+	if base.coreConfig == nil {
+		return result, internal.Error("could not loading the env without core config")
+	}
+	err := internal.LoadTomlReader(reader, &result)
+	if err != nil {
+		return result, err
+	}
+	return InitCornEnv(&result, name, base)
 }

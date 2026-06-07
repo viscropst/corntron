@@ -3,7 +3,6 @@ package actions
 import (
 	"corntron"
 	cmdcontron "corntron/cmd/corntron"
-	ct_core "corntron/core"
 	"corntron/internal/log"
 	"errors"
 	"os"
@@ -62,7 +61,7 @@ func (c *runCmd) ParseArg(info cmdcontron.FlagInfo) error {
 	return nil
 }
 
-func (c *runCmd) BeforeCore(coreConfig *ct_core.MainConfig) error {
+func (c *runCmd) BeforeCore(coreConfig *corntron.MainConfig) error {
 	return nil
 }
 

@@ -1,14 +1,13 @@
 package corntron
 
 import (
-	"corntron/core"
 	"corntron/internal"
 	internalLog "corntron/internal/log"
 	"log"
 )
 
 func CliLog(levels ...internal.LogLevel) *log.Logger {
-	return core.LogCLI(levels...)
+	return internal.LogCLI(levels...)
 }
 
 var errorLogger = CliLog(internalLog.ErrorLevel)

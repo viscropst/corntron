@@ -2,7 +2,6 @@ package corntron
 
 import (
 	"corntron"
-	"corntron/core"
 	"os"
 )
 
@@ -10,7 +9,7 @@ type CmdAction interface {
 	ActionName() string
 	ParseArg(info FlagInfo) error
 	BeforeLoad(flags *CmdFlag) (string, []string)
-	BeforeCore(coreConfig *core.MainConfig) error
+	BeforeCore(coreConfig *corntron.MainConfig) error
 	Exec(core *corntron.Core) error
 }
 
@@ -24,7 +23,7 @@ func (b BaseAction) ParseArg(info FlagInfo) error {
 	return nil
 }
 
-func (b BaseAction) BeforeCore(flags *CmdFlag, coreConfig *core.MainConfig) error {
+func (b BaseAction) BeforeCore(flags *CmdFlag, coreConfig *corntron.MainConfig) error {
 	return nil
 }
 
