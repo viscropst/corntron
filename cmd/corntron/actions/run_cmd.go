@@ -47,8 +47,10 @@ func (c *runCmd) ParseArg(info cmdcontron.FlagInfo) error {
 	if len(c.Execute) == 0 {
 		errBuilder := strings.Builder{}
 		errBuilder.WriteString("exec argument invalid: usage ")
-		errBuilder.WriteString(info.CmdName + " ")
-		errBuilder.WriteString(info.Name + " ")
+		errBuilder.WriteString(info.CmdName)
+		errBuilder.WriteString(" ")
+		errBuilder.WriteString(info.Name)
+		errBuilder.WriteString(" ")
 		errBuilder.WriteString("<command>")
 		return errors.New(errBuilder.String())
 	}
