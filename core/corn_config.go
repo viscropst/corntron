@@ -4,6 +4,7 @@ import (
 	"corntron/internal"
 	"io"
 	"path/filepath"
+	"strings"
 )
 
 const CornConfigExt = ".toml.corn"
@@ -14,10 +15,12 @@ func LoadCornConfigFile(tomlPath string, base envConfig) (CornsEnvConfig, error)
 		return result, internal.Error("could not load the env without core config")
 	}
 	result.envConfig = base
+	pth, file := filepath.Split(tomlPath)
+	hasSuffixFile := strings.HasSuffix(file, ".toml") ||
+		strings.HasSuffix(file, ".toml.corn")
 	loadPath := filepath.Join(
 		base.coreConfig.CornDir(), result.envDirname)
-	pth, file := filepath.Split(tomlPath)
-	if len(pth) == 0 {
+	if len(pth) == 0 && hasSuffixFile {
 		loadPath = base.coreConfig.CurrentWorkDir
 	} else if len(pth) > 0 {
 		loadPath = pth
