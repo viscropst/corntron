@@ -12,11 +12,13 @@ func (c Core) ComposeRtEnv() *ValueScope {
 	pthValue := PathListBuilder()
 	for _, config := range c.RuntimesEnv {
 		config.RePrepareScope()
+		LogCLI(log.DebugLevel).Println("Processing runtime environment:", config.ID)
 		mirrorEnv := config.UnwrapMirrorsEnv(c.Config.UnwrapMirrorType())
 		for k, v := range mirrorEnv {
 			mirrorEnv[k] = config.Expand(v)
 		}
 		pthValue = pthValue.Append(config.Env["PATH"])
+		LogCLI(log.DebugLevel).Println("PATH List Was:",config.Env["PATH"])
 		c.AppendEnvs(config.Env).AppendEnvs(mirrorEnv)
 	}
 	c.EnvPath = pthValue
