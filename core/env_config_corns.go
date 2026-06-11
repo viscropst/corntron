@@ -44,7 +44,7 @@ func (c *CornsEnvConfig) initCornVars() {
 	}
 
 	if len(mirrorVar) > 0 {
-		c.AppendVars(mirrorVar)
+		c.AppendVarsByNew(mirrorVar)
 	}
 
 }

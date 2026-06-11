@@ -251,13 +251,13 @@ func (v *ValueScope) AppendVars(varToAdd map[string]string) *ValueScope {
 
 func (c *ValueScope) AppendVarsByNew(src map[string]string) {
 	filter := func(k, a, b string) string {
-		if a == b {
+		if len(b) == 0 {
 			return c.Expand(a)
 		}
-		if a == "" {
-			return c.Expand(b)
-		} else {
+		if a == b {
 			return c.Expand(a)
+		} else {
+			return c.Expand(b)
 		}
 	}
 	c.Vars = modifyMapByMap(src, c.Vars, filter)

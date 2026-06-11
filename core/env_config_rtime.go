@@ -86,7 +86,7 @@ func (c *RtEnvConfig) initRtVars() {
 	}
 
 	if len(mirrorVar) > 0 {
-		c.AppendVars(mirrorVar)
+		c.AppendVarsByNew(mirrorVar)
 	}
 }
 
@@ -101,13 +101,13 @@ func LoadRtEnv(name string, base envConfig) (RtEnvConfig, error) {
 	if result.DirName == "" {
 		result.DirName = name
 	}
-	result.initRtVars()
 	loadPath := filepath.Join(
 		result.coreConfig.RuntimeDir(), result.envDirname)
 	err := loadConfigRegular(name, &result, loadPath)
 	if err != nil {
 		return result, err
 	}
+	result.initRtVars()
 	for idx := range result.BootstrapExec {
 		result.BootstrapExec[idx].Top = &result.ValueScope
 	}
