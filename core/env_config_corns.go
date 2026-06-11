@@ -19,6 +19,7 @@ type CornsEnvConfig struct {
 func (c *CornsEnvConfig) initCornVars() {
 	coreConfig := c.coreConfig
 	vars := make(map[string]string)
+	mirrorVar := make(map[string]string)
 
 	if coreConfig != nil {
 		baseDir := coreConfig.CornDir()
@@ -30,6 +31,7 @@ func (c *CornsEnvConfig) initCornVars() {
 		if c.IsCommonPlatform {
 			vars[CornsIdentifier+"_dir"] = baseDir
 		}
+		mirrorVar = c.UnwrapMirrorsVar(coreConfig.UnwrapMirrorType())
 	}
 	if c.Top != nil {
 		c.Top.AppendVars(vars)
@@ -40,6 +42,11 @@ func (c *CornsEnvConfig) initCornVars() {
 	if len(c.envName) > 0 {
 		c.AppendVar(CornsIdentifier+"_name", c.envName)
 	}
+
+	if len(mirrorVar) > 0 {
+		c.AppendVars(mirrorVar)
+	}
+
 }
 
 func InitCornEnv(src *CornsEnvConfig, name string) (CornsEnvConfig, error) {

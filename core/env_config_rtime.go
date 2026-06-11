@@ -65,6 +65,7 @@ func (c *RtEnvConfig) ExecuteMirrors(mirrorType MirrorType) error {
 
 func (c *RtEnvConfig) initRtVars() {
 	vars := make(map[string]string)
+	mirrorVar := make(map[string]string)
 
 	if coreConfig := c.coreConfig; coreConfig != nil {
 		baseDir := coreConfig.RuntimeDir()
@@ -72,6 +73,7 @@ func (c *RtEnvConfig) initRtVars() {
 			RtIdentifier + "_dir":   coreConfig.RtWithRunningDir(),
 			RtIdentifier + "_cache": filepath.Join(baseDir, c.CacheDir),
 		}
+		mirrorVar = c.UnwrapMirrorsVar(coreConfig.UnwrapMirrorType())
 	}
 	if c.Top != nil {
 		c.Top.AppendVars(vars)
@@ -83,6 +85,9 @@ func (c *RtEnvConfig) initRtVars() {
 		c.AppendVar(RtIdentifier+"_name", c.envName)
 	}
 
+	if len(mirrorVar) > 0 {
+		c.AppendVars(mirrorVar)
+	}
 }
 
 func LoadRtEnv(name string, base envConfig) (RtEnvConfig, error) {

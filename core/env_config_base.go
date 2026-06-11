@@ -60,12 +60,13 @@ type envConfig struct {
 	ValueScope
 	envDirname       string
 	envName          string
-	ID               string    `toml:"-"`
-	CacheDir         string    `toml:"cache_dir"`
-	DirName          string    `toml:"dir_name"`
-	BootstrapExec    []Command `toml:"bootstrap_exec"`
-	IsCommonPlatform bool      `toml:"is_common_platform"`
-	ConfigExec       []Command `toml:"config_exec"`
+	ID               string                           `toml:"-"`
+	CacheDir         string                           `toml:"cache_dir"`
+	DirName          string                           `toml:"dir_name"`
+	BootstrapExec    []Command                        `toml:"bootstrap_exec"`
+	IsCommonPlatform bool                             `toml:"is_common_platform"`
+	ConfigExec       []Command                        `toml:"config_exec"`
+	MirrorVar        map[MirrorType]map[string]string `toml:"mirror_var"`
 }
 
 func (c envConfig) setCore(coreConfig MainConfig) envConfig {
@@ -89,6 +90,14 @@ func (c *envConfig) setCacheDirname(altCacheDirname ...string) {
 	if c.CacheDir == "" {
 		c.CacheDir = "_cache"
 	}
+}
+
+func (c *envConfig) UnwrapMirrorsVar(key MirrorType) map[string]string {
+	var result = make(map[string]string)
+	for k, v := range c.MirrorVar[key] {
+		result[k] = v
+	}
+	return result
 }
 
 func (c *envConfig) ExecuteConfig() error {
@@ -165,6 +174,7 @@ func (c envConfig) Copy(src ...envConfig) envConfig {
 		result.IsCommonPlatform = tmp.IsCommonPlatform
 		result.BootstrapExec = tmp.BootstrapExec
 		result.ConfigExec = tmp.ConfigExec
+		result.MirrorVar = tmp.MirrorVar
 	} else {
 		result.coreConfig = c.coreConfig
 		result.ValueScope = c.ValueScope
@@ -176,6 +186,7 @@ func (c envConfig) Copy(src ...envConfig) envConfig {
 		result.IsCommonPlatform = c.IsCommonPlatform
 		result.BootstrapExec = c.BootstrapExec
 		result.ConfigExec = c.ConfigExec
+		result.MirrorVar = c.MirrorVar
 	}
 	return result
 }
