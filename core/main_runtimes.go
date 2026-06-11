@@ -85,10 +85,9 @@ func (c Core) ProcessRtBootstrap(ifResume bool) error {
 			continue
 		}
 		_ = internal.Mkdir(bootstrapDir)
-		config.PrepareScope()
+		config.RePrepareScope()
 		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.EnvironPath.String()
-		config.EnvPath = c.EnvPath.AppendList(c.EnvironPath)
 		err := config.ExecuteBootstrap()
 		if err != nil {
 			_ = internal.Remove(bootstrapDir)
