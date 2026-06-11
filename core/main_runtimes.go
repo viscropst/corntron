@@ -18,7 +18,7 @@ func (c Core) ComposeRtEnv() *ValueScope {
 			mirrorEnv[k] = config.Expand(v)
 		}
 		pthValue = pthValue.Append(config.Env["PATH"])
-		LogCLI(log.DebugLevel).Println("PATH List Was:",config.Env["PATH"])
+		LogCLI(log.DebugLevel).Println("PATH List Was:", config.Env["PATH"])
 		c.AppendEnvs(config.Env).AppendEnvs(mirrorEnv)
 	}
 	c.EnvPath = pthValue
@@ -32,7 +32,8 @@ func (c Core) ProcessRtMirror(ifResume bool) error {
 	c.Prepare()
 	for _, runtime := range c.RuntimesEnv {
 		config := runtime.Copy()
-		config.PrepareScope()
+		config.RePrepareScope()
+		LogCLI(log.DebugLevel).Println("Mirror Executing runtime environment:", config.ID)
 		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.EnvironPath.String()
 		config.EnvPath = runtime.EnvPath.AppendList(c.EnvironPath)
@@ -51,6 +52,7 @@ func (c Core) ProcessRtConfig(ifResume bool) error {
 	for _, runtime := range c.RuntimesEnv {
 		config := runtime.Copy()
 		config.PrepareScope()
+		LogCLI(log.DebugLevel).Println("Configuring runtime environment:", config.ID)
 		config.AppendEnvs(c.Env)
 		config.Vars["pth_environ"] = c.EnvironPath.String()
 		config.EnvPath = runtime.EnvPath.AppendList(c.EnvironPath)
