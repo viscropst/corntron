@@ -17,14 +17,15 @@ func init() {
 
 type ghGetFlagSet struct {
 	*flag.FlagSet
-	Owner          string
-	Project        string
-	Domain         string
-	Tag            string
-	ArticaftName   string
-	Output         string
-	ApiDomain      string
-	IsConcatDomain bool
+	Owner             string
+	Project           string
+	Domain            string
+	Tag               string
+	ArticaftName      string
+	Output            string
+	ApiDomain         string
+	IsConcatDomain    bool
+	IsConcatApiDomain bool
 }
 
 func ghGetFlags() *ghGetFlagSet {
@@ -32,11 +33,12 @@ func ghGetFlags() *ghGetFlagSet {
 	result.StringVar(&result.Domain, "domain", "github.com", "the domain of github articafts")
 	result.StringVar(&result.Project, "project", "", "the project of the github articaft")
 	result.StringVar(&result.Owner, "owner", "", "the owner of the github articaft")
-	result.StringVar(&result.Tag, "tag", "latest", "the tag of the github articaft")
+	result.StringVar(&result.Tag, "tag", "", "the tag of the github articaft")
 	result.StringVar(&result.ArticaftName, "name", "", "the name of the github articaft")
 	result.StringVar(&result.Output, "out", "", "the path of output")
 	result.StringVar(&result.ApiDomain, "api-domain", "api.github.com", "the api domain of github")
 	result.BoolVar(&result.IsConcatDomain, "is-concat", false, "is domain need to concat original")
+	result.BoolVar(&result.IsConcatApiDomain, "is-concat-api", false, "is domain need to concat original")
 	return result
 }
 
@@ -59,6 +61,8 @@ func (f *ghGetFlagSet) normalizeFlags(args []string) ([]string, error) {
 	}
 	if len(strings.TrimSpace(f.ApiDomain)) == 0 {
 		f.ApiDomain = "api.github.com"
+	} else {
+		f.ApiDomain = strings.TrimSpace(f.ApiDomain)
 	}
 	return f.Args(), nil
 }
@@ -72,7 +76,12 @@ func WgetGhCmd(args []string) error {
 	if len(args) != 0 {
 		return cmdError("too many arguments")
 	}
-	apiUrl := flags.ApiDomain + "/repos/" + flags.Owner + "/" + flags.Project + "/releases"
+	apiUrl := flags.ApiDomain
+	if flags.IsConcatApiDomain {
+		apiUrl = flags.ApiDomain + "/https://api.github.com"
+	}
+	apiUrl = apiUrl + "/repos/" + flags.Owner + "/" + flags.Project + "/releases"
+
 	if len(flags.Tag) == 0 {
 		apiUrl = apiUrl + "/latest"
 	} else {
