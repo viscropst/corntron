@@ -12,6 +12,11 @@ func MkdirCmd(args []string) error {
 	if len(args) < 1 {
 		return cmdError("i-md correct usage was: i-md dir [options]")
 	}
+	_, err := StatFilePath(args[0])
+	if err == nil {
+		LogInfo("the", args[0], "is already created skipping.")
+		return nil
+	}
 	return MkDir(args[0])
 }
 
