@@ -32,11 +32,16 @@
       tag: ${CI_REL_TAG}
       attachments:
         - "./out/*/*"
-  - name: push-binaries-to-codeberg
+  # - name: push-binaries-to-codeberg
+  #   image: alpine/git:latest
+  #   imports:
+  #     - https://cnb.cool/viscropst/keystores/-/blob/main/corntron.env.yml
+  #   script: sh .build/push-binaries-codeberg.sh
+  - name: push-binaries-to-github
     image: alpine/git:latest
     imports:
       - https://cnb.cool/viscropst/keystores/-/blob/main/corntron.env.yml
-    script: sh .build/push-binaries-codeberg.sh
+    script: sh .build/push-binaries-github.sh
 
 .release-rel-tag: &release-rel-tag
   docker:
@@ -64,6 +69,7 @@
     - "**/*.go"
     - "go.mod"
     - ".build/*-binaries.sh"
+    - ".build/push-binaries-*.sh"
   stages: *release-build
 
 .sync-codebase: &sync-codebase
