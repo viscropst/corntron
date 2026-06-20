@@ -54,9 +54,9 @@ mirror_types = ["private","alternate-1"]
 with_corn = true
 
 # platform_dir defines binaries dir of corn and runtime environments
-# default as `windows_amd64` when OS is `windows` and architecture is `amd64`
+# default as `windows-amd64` when OS is `windows` and architecture is `amd64`
 [platform_dir]
-windows_amd64 = "bin_x64"
+windows-amd64 = "bin_x64"
 
 # profile_dir defines the $HOME or %USERPROFILE% when running by the corntron
 # default as your host's $HOME or %USERPROFILE% 
