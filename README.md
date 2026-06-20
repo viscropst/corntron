@@ -26,6 +26,42 @@ A runtime is a set of environment variables and a set of configuration variables
 - `#{GOOS}-#{GOARCH}/runtimes` directory contains current operating system and architecture specific runtimes.
 > [`GOOS`](https://github.com/golang/go/tree/master/src/internal/goos) and [`GOARCH`](https://github.com/golang/go/tree/master/src/internal/goarch) are defined by Go programming Language. These will be replaced by LLVM Triple style [`os`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L205) and [`arch`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L46) in the future.
 
+## What content in a corntron's main config (as is core.toml) file
+```toml
+# base_dir defines the path of the corntron's root dir
+# default as the dir of the corntron's executable file
+base_dir = ""
+
+# corn_dirname defines the folder name of corn environments and binaries
+# default as "corns" 
+runtime_dirname = ""
+
+# corn_dirname defines the folder name of corn environments and binaries
+# default as "corns" 
+corn_dirname = ""
+
+# mirror_types defines other mirror type than built-in mirror types
+# built-in mirror types are `cn`,`none`
+mirror_type = ""
+
+# mirror_types defines other mirror type than built-in mirror types
+# built-in mirror types are `cn`,`none`
+mirror_types = ["private","alternate-1"]
+
+# with_corn defines if this corntron base running the corn config
+# defaults as true
+with_corn = true
+
+# platform_dir defines binaries dir of corn and runtime environments
+# default as `windows_amd64` when OS is `windows` and architecture is `amd64`
+[platform_dir]
+windows_amd64 = "bin_x64"
+
+# profile_dir defines the $HOME or %USERPROFILE% when running by the corntron
+# default as your host's $HOME or %USERPROFILE% 
+profile_dir = "${current}"
+```
+
 ## What content in a corntron environment config file?
 All corntron environment config files are extended TOML files.
 Their structure is defined like the following TOML file.
@@ -39,6 +75,15 @@ is_common_platform = false
 # If empty,the dirname will be the same as the config file name.
 dir_name = "" 
 
+# `depend_runtimes` is a set of runtimes that current config depends on.
+# The value of `depend_runtimes` is a list of string.
+# The reference format is `[<registry>:]<runtime_name>[@<version>]`
+# The `<registry>` is dir or network address of the registry.
+# The `<version>` will be override the `#{corn_name}_spec_version` variable to pass the version to config.
+# The depend runtime config can export a set of `var` to use.
+# If the depend runtime are not configured, this config will not be executed.
+depend_runtimes = [""]
+
 # `vars` is a set of corntron variable.
 # It's used to store some key-value pairs that is not exposed to environment variables.
 # Can reference a variable or environment variable by `#{var_name}`.
@@ -50,6 +95,11 @@ foo="bar"
 # This is a key defined with built-in functions to setting the values.
 # If the built-in function is execution failed, the value will be the original value.
 "bar:rp(oo=qq)"="foo"
+
+# `mirror_vars.<mirror type>` is a set of corntron variable.
+# It's used to override the `vars` when corntron's current `mirror_type` matches.
+# The content of the each `<mirror_type>' as same as `vars` usage.
+[mirror_vars.cn]
 
 # `envs` is a set of corntron environment variables.
 # It's used to store some key-value pairs that is exposed to environment variables.
@@ -84,11 +134,11 @@ The corn config file is a corntron environment config file that is used to runni
 # Otherwise, the corn config is a normal corn config.
 meta_only = false
 
-# `depend_corns` is the set of corns that this corn depends on.
-# If the depend corns are not running, this corn will not be executed.
-# And the `vars` and `envs` of this corn will be merged with the `vars` and `envs` of the depend corns.
-# The value of `depend_corns` is a list of string.
-depend_corns = ["foo"]
+# `import_corns` is a set of corns that this corn imports.
+# If the import corns are not running, this corn will not be executed.
+# And the `vars` and `envs` of this corn will be merged with the `vars` and `envs` of the import corns.
+# The value of `import_corns` is a list of string.
+import_corns = ["foo"]
 
 # `exec` is the main execution command of a corn environment.
 [exec]
