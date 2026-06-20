@@ -40,7 +40,8 @@ runtime_dirname = ""
 # default as "corns" 
 corn_dirname = ""
 
-# mirror_types defines other mirror type than built-in mirror types
+# mirror_type defines the mirror type of current corntron use.
+# this mirror type is one of the built-in mirror types and `mirror_types` defined.
 # built-in mirror types are `cn`,`none`
 mirror_type = ""
 
