@@ -29,11 +29,11 @@ A runtime is a set of environment variables and a set of configuration variables
 ## What content in a corntron's main config (as is core.toml) file
 ```toml
 # base_dir defines the path of the corntron's root dir
-# default as the dir of the corntron's executable file
-base_dir = ""
+# default as the dir of the corntron's executable file without link as internal placeholder `${dp0}`
+base_dir = "${dp0}"
 
 # corn_dirname defines the folder name of corn environments and binaries
-# default as "corns" 
+# default as "runtimes" 
 runtime_dirname = ""
 
 # corn_dirname defines the folder name of corn environments and binaries
@@ -59,8 +59,10 @@ with_corn = true
 windows-amd64 = "bin_x64"
 
 # profile_dir defines the $HOME or %USERPROFILE% when running by the corntron
-# default as your host's $HOME or %USERPROFILE% 
-profile_dir = "${current}"
+# default as `${userprofile}` 
+# `${userprofile}` is an internal placeholder as your host's $HOME or %USERPROFILE%
+# `${currentdir}` is an internal placeholder as configure root's directory
+profile_dir = "${userprofile}"
 ```
 
 ## What content in a corntron environment config file?
