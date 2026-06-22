@@ -205,5 +205,7 @@ func BaseEnv(coreConfig MainConfig, altEnvDirname ...string) envConfig {
 	tmp.AppendVar(CornsIdentifier+"_home", filepath.Join(coreConfig.CornDir(), "_home"))
 	tmp.AppendVar(RtIdentifier+"_dirname", coreConfig.RuntimeDirName)
 	tmp.AppendVar(RtIdentifier+"_home", filepath.Join(coreConfig.RuntimeDir(), "_home"))
+	tmp.AppendVar(RtOldIdentifier+"_dirname", coreConfig.RuntimeDirName)
+	tmp.AppendVar(RtOldIdentifier+"_home", filepath.Join(coreConfig.RuntimeDir(), "_home"))
 	return tmp
 }

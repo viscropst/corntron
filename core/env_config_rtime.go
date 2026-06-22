@@ -12,6 +12,7 @@ type RtEnvConfig struct {
 }
 
 const RtIdentifier = "runtime"
+const RtOldIdentifier = "rt"
 
 func (c *RtEnvConfig) UnwrapMirrorsEnv(key MirrorType) map[string]string {
 	var result = make(map[string]string)
@@ -72,6 +73,8 @@ func (c *RtEnvConfig) initRtVars() {
 		vars = map[string]string{
 			RtIdentifier + "_dir":   coreConfig.RtWithRunningDir(),
 			RtIdentifier + "_cache": filepath.Join(baseDir, c.CacheDir),
+			RtOldIdentifier + "_dir":   coreConfig.RtWithRunningDir(),
+			RtOldIdentifier + "_cache": filepath.Join(baseDir, c.CacheDir),
 		}
 		mirrorVar = c.UnwrapMirrorsVar(coreConfig.UnwrapMirrorType())
 	}
