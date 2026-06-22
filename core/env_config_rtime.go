@@ -11,7 +11,7 @@ type RtEnvConfig struct {
 	MirrorExec map[MirrorType][]Command         `toml:"mirror_exec"`
 }
 
-const RtIdentifier = "rt"
+const RtIdentifier = "runtime"
 
 func (c *RtEnvConfig) UnwrapMirrorsEnv(key MirrorType) map[string]string {
 	var result = make(map[string]string)
