@@ -15,24 +15,31 @@ func init() {
 }
 
 func CpCmd(args []string) error {
+	if isNeedHelpAtFirst(args) {
+		LogInfo(CmdName(CopyCmdID), ": Copies a File or Folder")
+		LogInfo("usage was: " + CmdName(CopyCmdID) + " src dst")
+		LogInfo("src is required for source name or path of file and folder")
+		LogInfo("dst is required for source name or path of file and folder")
+		return nil
+	}
 	if len(args) < 2 {
 		return cmdError(
-			"i-cp correct usage was: i-cp src dst [options]")
+			CmdName(CopyCmdID) + " use -h or -help to get help")
 	}
 	src := NormalizeFilePath(args[0])
 	statSrc, _ := StatFilePath(args[0])
 	if statSrc == nil {
-		return cmdError("i-cp: src is not exists")
+		return cmdError(CmdName(CopyCmdID) + ": src is not exists")
 	}
 
 	dst := NormalizeFilePath(args[1])
 	statDst, _ := StatFilePath(dst)
 	if statDst != nil &&
 		statDst.Mode().Type() != statSrc.Mode().Type() {
-		return cmdError("i-cp: dst type mismatch with src")
+		return cmdError(CmdName(CopyCmdID) + ": dst type mismatch with src")
 	}
 
-	LogInfo("i-cp", ":", "Copying", src, "to", dst)
+	LogInfo(CmdName(CopyCmdID), ":", "Copying", src, "to", dst)
 	exclude := make([]string, 0)
 	if len(args) > 2 && strings.HasPrefix(args[2], "-ex:") {
 		exclude = append(exclude, strings.TrimPrefix(args[2], "-ex:"))
@@ -41,9 +48,16 @@ func CpCmd(args []string) error {
 }
 
 func MvCmd(args []string) error {
+	if isNeedHelpAtFirst(args) {
+		LogInfo(CmdName(MoveCmdID), ": Moves a File or Folder")
+		LogInfo("usage was: " + CmdName(MoveCmdID) + " src dst")
+		LogInfo("src is required for source name or path of file and folder")
+		LogInfo("dst is required for source name or path of file and folder")
+		return nil
+	}
 	if len(args) < 2 {
 		return cmdError(
-			"i-mv correct usage was: i-mv src dst [options]")
+			CmdName(MoveCmdID) + " use -h or -help to get help")
 	}
 	src := NormalizeFilePath(args[0])
 	statSrc, _ := StatFilePath(src)
@@ -55,10 +69,10 @@ func MvCmd(args []string) error {
 	statDst, _ := StatFilePath(dst)
 	if statDst != nil &&
 		statDst.Mode().Type() != statSrc.Mode().Type() {
-		return cmdError("i-mv: dst type mismatch with src")
+		return cmdError(CmdName(MoveCmdID) + ": dst type mismatch with src")
 	}
 
-	LogInfo("i-mv", ":", "Moving", src, "to", dst)
+	LogInfo(CmdName(MoveCmdID), ":", "Moving", src, "to", dst)
 	if err := CopyFile(statSrc, dst); err != nil {
 		return err
 	}
@@ -67,9 +81,22 @@ func MvCmd(args []string) error {
 
 func RemoveFileCmd(args []string) error {
 	if len(args) < 1 {
-		return cmdError("i-rf correct usage was: i-rf dir [options]")
+		return cmdError(CmdName(RemoveCmdID) + " use -h or -help to get help")
+	}
+	if isNeedHelpAtFirst(args) {
+		LogInfo(CmdName(RemoveCmdID), ": Removes a File")
+		LogInfo("usage was: " + CmdName(RemoveCmdID) + " file")
+		LogInfo("file is required for file name or path")
+		return nil
 	}
 	file := NormalizeFilePath(args[0])
-	LogInfo("i-rf", ":", "Removing File", file)
+	stat, _ := StatFilePath(file)
+	if stat == nil {
+		return cmdError(CmdName(RemoveCmdID) + ": file is not exists")
+	}
+	if stat.IsDir() {
+		return cmdErrors(CmdName(RemoveCmdID) + ": cannot remove a folder")
+	}
+	LogInfo(CmdName(RemoveCmdID), ":", "Removing File", file)
 	return RemoveFileAndFolders(file)
 }

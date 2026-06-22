@@ -13,8 +13,16 @@ const OSPathSeparator = string(os.PathSeparator)
 const OSPathListSeparator = string(os.PathListSeparator)
 
 func NormalizePath(src string) string {
-	result := filepath.Join(src)
+	result := filepath.Clean(src)
 	return strings.TrimSuffix(result, OSPathSeparator)
+}
+
+func JoinFilePath(paths ...string) string {
+	return NormalizePath(filepath.Join(paths...))
+}
+
+func BaseFileName(path string) string {
+	return filepath.Base(path)
 }
 
 func GetExecPath(execStr string, pathList string) (string, error) {

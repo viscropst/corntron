@@ -20,6 +20,17 @@ func cmdErrors(err ...string) cmdError {
 	return cmdError(msg)
 }
 
+func isNeedHelpAtFirst(args []string) bool {
+	if len(args) == 0 {
+		return true
+	}
+	firstArg := args[0]
+	if firstArg == "-h" || firstArg == "--help" || firstArg == "-help" {
+		return true
+	}
+	return false
+}
+
 var LogDebug = func(v ...any) {
 	internal.LogCLI(log.DebugLevel).Println(v...)
 }
@@ -91,3 +102,7 @@ var HttpRequestBytesWithAgentSuffix = func(url string, agentSuffix string, other
 var HttpRequestFileWithAgentSuffix = func(url, agentSuffix, filename string, others ...string) error {
 	return internal.HttpRequestFileWithAgentSuffix(url, agentSuffix, filename, others...)
 }
+
+var JoinFilePath = func(p ...string) string { return internal.JoinFilePath(p...) }
+
+var BaseFileName = func(src string) string { return internal.BaseFileName(src) }
