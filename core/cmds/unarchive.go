@@ -172,6 +172,7 @@ func UnArchiveCmd(cmdName string, args []string) error {
 	}
 	err = UnArchiveFile(srcFile, flags.UnarFlags(), includes...)
 	if err != nil {
+		CloseFileAndFinishBar(srcFile, nil)
 		return err
 	}
 	CloseFileAndFinishBar(srcFile, nil)

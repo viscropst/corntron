@@ -27,6 +27,7 @@ func UnZipFromFileWithBaseDir(src *os.File, dst string, baseDir string, include 
 		dstFile := filepath.Join(dst, fileName)
 		err = copyFromFile(tmp, dstFile, file.FileInfo())
 		if err != nil {
+			CloseFileAndFinishBar(tmp, nil)
 			return err
 		}
 		pbTotal.Increment()
