@@ -86,6 +86,7 @@ func (c *RtEnvConfig) initRtVars() {
 
 	if len(c.envName) > 0 {
 		c.AppendVar(RtIdentifier+"_name", c.envName)
+		c.AppendVar(RtOldIdentifier+"_name", c.envName)
 	}
 
 	if len(mirrorVar) > 0 {
