@@ -364,7 +364,7 @@ The built-in commands can be running by `exec`,`config_exec`,`mirror_exec`,`boot
 - `i-rd` is the command that used to a directory and files in directory.
 - `i-wgt` is the command that used to download a file from internet.
 - `i-ghgt` is the command that used to download a file from github release.
-- `i-utar` is the command that used to unarchive a `.tar`,`.tgz`,`.tar.xz`,`.tar.gz` or `.tar.bz2` file.
+- `i-utar` is the command that used to unarchive a `.tar`,`.tgz`,`.tar.xz`,`.tar.gz`,`.tar.zst`,`.tar.zstd`,`.tar.zstandard` or `.tar.bz2` file.
 - `i-uzip` is the command that used to unarchive a `.zip` file.
 - `i-wstr` is the command that used to write a string to a file.
 

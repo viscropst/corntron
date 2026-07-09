@@ -124,6 +124,8 @@ func detectCompressionFormat(filePath string, format string) (bool, error) {
 	case "bz2":
 		// BZIP2 format: Magic number 0x42 0x5A
 		return len(buffer) > 1 && buffer[0] == 0x42 && buffer[1] == 0x5A, nil
+	case "zst":
+		return len(buffer) > 3 && buffer[0] == 0x28 && buffer[1] == 0xB5 && buffer[2] == 0x2F && buffer[3] == 0xFD, nil
 	default:
 		return false, nil
 	}
@@ -159,7 +161,8 @@ func UnArchiveCmd(cmdName string, args []string) error {
 			isGz, _ := detectCompressionFormat(flags.SourceFile, "gz")
 			isXz, _ := detectCompressionFormat(flags.SourceFile, "xz")
 			isBz2, _ := detectCompressionFormat(flags.SourceFile, "bz2")
-			if !isGz && !isXz && !isBz2 {
+			isZst, _ := detectCompressionFormat(flags.SourceFile, "zstd")
+			if !isGz && !isXz && !isBz2 && !isZst {
 				return cmdError("file format does not match expected TAR, GZ, XZ, or BZ2 format")
 			}
 		}

@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"path/filepath"
 
+	"github.com/klauspost/compress/zstd"
 	"github.com/ulikunitz/xz"
 )
 
@@ -24,6 +25,9 @@ func TarReader(src fs.File) (*tar.Reader, error) {
 	}
 	if isBz2(st) {
 		return bz2Reader(src)
+	}
+	if isZst(st) {
+		return zstReader(src)
 	}
 	return tarFromReader(src)
 }
@@ -67,4 +71,17 @@ func isBz2(src fs.FileInfo) bool {
 func bz2Reader(src fs.File) (*tar.Reader, error) {
 	bz2Reader := bzip2.NewReader(src)
 	return tarFromReader(bz2Reader)
+}
+
+func isZst(src fs.FileInfo) bool {
+	ext := filepath.Ext(src.Name())
+	return ext == ".zst" || ext == ".zstd" || ext == ".zstandard"
+}
+
+func zstReader(src fs.File) (*tar.Reader, error) {
+	dec, err := zstd.NewReader(src)
+	if err != nil {
+		return nil, err
+	}
+	return tarFromReader(dec)
 }

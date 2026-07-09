@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.5.0
 	github.com/cheggaaa/pb/v3 v3.1.7
 	github.com/inconshreveable/mousetrap v1.1.0
+	github.com/klauspost/compress v1.17.9
 	github.com/mattn/go-isatty v0.0.20
 	github.com/rs/zerolog v1.34.0
 	github.com/ulikunitz/xz v0.5.12
