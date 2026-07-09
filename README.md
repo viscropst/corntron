@@ -17,7 +17,7 @@ A corn is a program that can be run with a set of arguments and a set of environ
 A runtime is a set of environment variables and a set of configuration variables.
 - It's defined by an extended TOML file.
 - Can be defined to prepare an environment for corn or interactive commandline.
-- Can be defined to prepare public tools (eg. jdk, mvn, python) for a corn or environment for interactive commandline.
+- Can be defined to prepare public tools (a set of tools for public use, eg. compilers, shells, language runtime,etc.) for a corn or interactive commandline.
 - Can be used to automatically do some work when you need mirror settings because of country-specific networking issues.
 
 ## What is directory structure?
