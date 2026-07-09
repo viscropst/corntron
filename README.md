@@ -134,14 +134,127 @@ FOO_VAL="#{foo:rp(oo=qq)}"
 # This is a set of corntron bootstrap exection commands.
 # It's used to prepare an environment for creating corn or runtime.
 # The execution order is the same as the order of the list.
-# The content structure of the each element is same as the `exec` element of corn config file. 
 [[bootstrap_exec]]
+# `exec` is the command name or the file path of a executable file.
+# built-in command name will be prefixed with `i-<command>` command name (eg. `i-utar`, `i-cp`).
+exec = "echo"
+
+# `args` is the set of arguments that will be passed to the executable file.
+# The value of `args` is a list of string.
+args = ["Hello World"]
+
+# `platform` is the operating system and architecture of the executable file.
+# The value of `platform` is a string.
+platform = "windows"
+
+# `work_dir` is the working directory of the executable file.
+# The value of `work_dir` is a string.
+work_dir = "."
+
+# `with_environ` is the flag that defines whether the environment variables will be passed to the executable file.
+# If `with_environ` is true, the environment variables will be passed to the executable file.
+# Otherwise, the environment variables will not be passed to the executable file.
+# The envrion is the current environment variables when you executing this corn config or intractive commands.
+with_environ = false
+
+# `with_no_waiting` is the flag that defines whether the corntron will wait for the execution of the executable file.
+# If `with_no_waiting` is true, the corntron will not wait for the execution of the executable file, 
+# And execute as a new process.
+# Otherwise, the corntron will wait for the execution of the executable file,
+# And execute as a child of the corntron process.
+with_no_waiting = true
+
+# `is_background` is the flag that defines whether the command will be executed in background.
+# The background is a process that will not showing the window.
+# If `is_background` is true, the command will be executed in background.
+# Otherwise, the command will be executed in foreground.
+is_background = false
+
+# `arg_str` is the set of arguments that will be passed to the executable file.
+# it will convert a string to a list of string append to `args`.
+[bootstrap_exec.arg_str]
+# src is the source string that will be converted to a list of string append to `args`.
+src="Hello?.Hi?"
+# `split_str` is the string that will be used to split the `src` string.
+split_str="."
+# `split_num` is the number of split string.
+split_num=1
+# `replaces` is the set of string that will be used to replace the `src` string.
+# the first element of `replaces` is the string that will be replaced by the second element of `replaces`.
+replaces=["?"," World"]
+
+# `exec.vars` is the set of corntron variables that used for this command only.
+# The value of `exec.vars` is a set of key-value pairs.
+# The usage of `exec.vars` is the same as `vars` in corntron environment config.
+[bootstrap_exec.vars]
+
+# `exec.envs` is the set of environment variables that will be passed to the executable file.
+# The value of `exec.envs` is a set of key-value pairs.
+# The usage of `exec.envs` is the same as `envs` in corntron environment config.
+[bootstrap_exec.envs]
 
 # This is a set of corntron configuration exection commands.
 # It's used to prepare an environment for corn or interactive commandline.
 # The execution order is the same as the order of the list.
-# The content structure of the each element is same as the `exec` element of corn config file.
 [[config_exec]]
+# `exec` is the command name or the file path of a executable file.
+# built-in command name will be prefixed with `i-<command>` command name (eg. `i-utar`, `i-cp`).
+exec = "echo"
+
+# `args` is the set of arguments that will be passed to the executable file.
+# The value of `args` is a list of string.
+args = ["Hello World"]
+
+# `platform` is the operating system and architecture of the executable file.
+# The value of `platform` is a string.
+platform = "windows"
+
+# `work_dir` is the working directory of the executable file.
+# The value of `work_dir` is a string.
+work_dir = "."
+
+# `with_environ` is the flag that defines whether the environment variables will be passed to the executable file.
+# If `with_environ` is true, the environment variables will be passed to the executable file.
+# Otherwise, the environment variables will not be passed to the executable file.
+# The envrion is the current environment variables when you executing this corn config or intractive commands.
+with_environ = false
+
+# `with_no_waiting` is the flag that defines whether the corntron will wait for the execution of the executable file.
+# If `with_no_waiting` is true, the corntron will not wait for the execution of the executable file, 
+# And execute as a new process.
+# Otherwise, the corntron will wait for the execution of the executable file,
+# And execute as a child of the corntron process.
+with_no_waiting = true
+
+# `is_background` is the flag that defines whether the command will be executed in background.
+# The background is a process that will not showing the window.
+# If `is_background` is true, the command will be executed in background.
+# Otherwise, the command will be executed in foreground.
+is_background = false
+
+# `arg_str` is the set of arguments that will be passed to the executable file.
+# it will convert a string to a list of string append to `args`.
+[config_exec.arg_str]
+# src is the source string that will be converted to a list of string append to `args`.
+src="Hello?.Hi?"
+# `split_str` is the string that will be used to split the `src` string.
+split_str="."
+# `split_num` is the number of split string.
+split_num=1
+# `replaces` is the set of string that will be used to replace the `src` string.
+# the first element of `replaces` is the string that will be replaced by the second element of `replaces`.
+replaces=["?"," World"]
+
+# `exec.vars` is the set of corntron variables that used for this command only.
+# The value of `exec.vars` is a set of key-value pairs.
+# The usage of `exec.vars` is the same as `vars` in corntron environment config.
+[config_exec.vars]
+
+# `exec.envs` is the set of environment variables that will be passed to the executable file.
+# The value of `exec.envs` is a set of key-value pairs.
+# The usage of `exec.envs` is the same as `envs` in corntron environment config.
+[config_exec.envs]
+
 ```
 The corn config file is a corntron environment config file that is used to running a program or command. [Here](https://cnb.cool/viscropst/corntron_env_registry/-/tree/main/corns) is the example.
 ```toml
