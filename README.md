@@ -1,7 +1,11 @@
 # Project corntron
 Running an extended TOML-defined environment with one or more extended TOML-defined configurations.  
 This source code is a reference implementation and prototype design of corntron. 
-It is licensed under Mulan PSL v2.
+It is licensed under Mulan PSL v2. 
+
+## How to use corntron?
+You can integrate corntron into your program by using the `corntron` package.
+Or you can use the prebuilt [`corntron` command](#about-prebuilt-corntron) to run a corntron program.
 
 ## What is a corn?
 A corn is a program that can be run with a set of arguments and a set of environment variables.
@@ -229,6 +233,7 @@ FOO_VAL="bar"
 ```
 
 ## What are built-in commands?
+The built-in commands can be running by `exec`,`config_exec`,`mirror_exec`,`bootstrap_exec`
 - `i-cp` is the command that used to copy a file or a directory.
 - `i-md` is the command that used to create a directory.
 - `i-mv` is the command that used to move a file or a directory.
@@ -246,9 +251,49 @@ FOO_VAL="bar"
 - `gh-rel-ver` is the function that used to get the latest release version of a github repository.
 - `gl-rel-ver` is the function that used to get the latest release version of a gitlab repository.
 
-## How to use corntron?
-You can integrate corntron into your program by using the `corntron` package.
-Or you can use the prebuilt [`corntron` command](https://cnb.cool/viscropst/corntron/-/releases) to run a corntron program.
+## About prebuilt `corntron`
+The prebuilt `corntron` is an executable file, that composing the corns and runtimes,executing a command or application by corn config in composed environment. Released at [here](https://cnb.cool/viscropst/corntron/-/releases).
+```
+corntron.exe --help
+INF corntron version: <tagged version of prebuilt>
+corntron.exe [options] <actions> [args]
+actions was: [run-corn-config run-cmd run-corn]
+options has:
+  -cfg-base string
+        /path/to/your/<corntron config folder>
+  -corn-base string
+        /path/to/your/<corns profiles folder>
+  -env-dirname string
+        <folder name of env files to store>
+  -mirror-type string
+        mirror type, default is without mirror
+  -no-waiting
+        executing cryptron without waiting
+  -rt-base string
+        /path/to/your/<runtime profiles folder>
+  -running-base string
+        /path/to/your/<corntron running folder>
+```
+Usage of `run-cmd`
+```
+run-cmd [command] [args of command]
+[command] is one of built-in comamnds and executable in `PATH` and absolute path of executable
+[args of command] are args of command
+if [command] and [args of command] are empty, will default to %COMPSPEC% or ${SHELL} or `/bin/sh`
+```
+Usage of `run-corn`
+```
+run-corn <corn config file name at corn config's env dirs,trimmed suffix `.toml`> [args of exec at corn config]
+```
+Usage of `run-corn-config`
+```
+INF corntron version: staging
+run-corn-config [option] <corn config file suffixed `.toml.corn`>
+Usage:
+  -dir-as-base
+        use the current corn file's dir as config base
+error: flag: help requested
+```
 
-## How to build corntron command?
+### How to build `corntron` command?
 You can build corntron by using the `go build <source path>/cmd/corntron/main` command.
