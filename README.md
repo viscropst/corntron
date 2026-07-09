@@ -21,10 +21,21 @@ A runtime is a set of environment variables and a set of configuration variables
 - Can be used to automatically do some work when you need mirror settings because of country-specific networking issues.
 
 ## What is directory structure?
+```
+corns
+- corns\_env
+-- corns\_env\*.toml
+runtimes
+- runtimes\_env
+-- runtimes\_env\*.toml
+#{OS}-#{ARCH}
+- #{OS}-#{ARCH}/corns
+- #{OS}-#{ARCH}/runtimes
+```
 - `corns` directory contains corn environments and the corn environment root for common platform.
-- `corns/_envs/<corn-name>.toml` contains corn configurations.
+- `corns/_env/<corn-name>.toml` contains corn configurations.
 - `runtimes` directory contains runtimes and the runtime environment root for common platform.
-- `runtimes/_envs/<runtime-name>.toml` directory contains runtimes config.
+- `runtimes/_env/<runtime-name>.toml` directory contains runtimes config.
 - `#{OS}-#{ARCH}` directory contains current operating system and architecture specific binaries of corns and runtimes,can be override by `[platform_dir]` of `core.toml`. 
 - `#{OS}-#{ARCH}/corns` directory contains current operating system and architecture specific corns.
 - `#{OS}-#{ARCH}/runtimes` directory contains current operating system and architecture specific runtimes.
