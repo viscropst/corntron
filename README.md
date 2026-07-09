@@ -253,8 +253,9 @@ The built-in commands can be running by `exec`,`config_exec`,`mirror_exec`,`boot
 
 ## About prebuilt `corntron`
 The prebuilt `corntron` is an executable file, that composing the corns and runtimes,executing a command or application by corn config in composed environment. Released at [here](https://cnb.cool/viscropst/corntron/-/releases).
+The artifact name of `corntron` command as `corntron_#{ARCH}.exe` for windows, `corntron_#{OS}_#{ARCH}` for others.
 ```
-corntron.exe --help
+corntron --help
 INF corntron version: <tagged version of prebuilt>
 corntron.exe [options] <actions> [args]
 actions was: [run-corn-config run-cmd run-corn]
