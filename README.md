@@ -272,9 +272,9 @@ corntron.exe [options] <actions> [args]
 actions was: [run-corn-config run-cmd run-corn]
 options has:
   -cfg-base string
-        /path/to/your/<corntron config folder>
+        /path/to/your/<corntron config folder> aka. base_dir of core.toml
   -corn-base string
-        /path/to/your/<corns profiles folder>
+        /path/to/your/<corns profiles folder>,for corn configs not in corntron conrig folder.
   -env-dirname string
         <folder name of env files to store>
   -mirror-type string
@@ -282,9 +282,9 @@ options has:
   -no-waiting
         executing cryptron without waiting
   -rt-base string
-        /path/to/your/<runtime profiles folder>
+        /path/to/your/<runtime profiles folder>,for runtrime configs not in corntron conrig folder.
   -running-base string
-        /path/to/your/<corntron running folder>
+        /path/to/your/<corntron running folder>,for spliting the executables of corntron configs out of corntron config folder.
 ```
 Usage of `run-cmd`
 ```
