@@ -21,16 +21,16 @@ A runtime is a set of environment variables and a set of configuration variables
 - `corns/_envs/<corn-name>.toml` contains corn configurations.
 - `runtimes` directory contains runtimes and the runtime environment root for common platform.
 - `runtimes/_envs/<runtime-name>.toml` directory contains runtimes config.
-- `#{GOOS}-#{GOARCH}` directory contains current operating system and architecture specific binaries of corns and runtimes. 
-- `#{GOOS}-#{GOARCH}/corns` directory contains current operating system and architecture specific corns.
-- `#{GOOS}-#{GOARCH}/runtimes` directory contains current operating system and architecture specific runtimes.
-> [`GOOS`](https://github.com/golang/go/tree/master/src/internal/goos) and [`GOARCH`](https://github.com/golang/go/tree/master/src/internal/goarch) are defined by Go programming Language. These will be replaced by LLVM Triple style [`os`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L205) and [`arch`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L46) in the future.
+- `#{OS}-#{ARCH}` directory contains current operating system and architecture specific binaries of corns and runtimes,can be override by `[platform_dir]` of `core.toml`. 
+- `#{OS}-#{ARCH}/corns` directory contains current operating system and architecture specific corns.
+- `#{OS}-#{ARCH}/runtimes` directory contains current operating system and architecture specific runtimes.
+> Current `OS` as [`GOOS`](https://github.com/golang/go/tree/master/src/internal/goos) and `ARCH` [`GOARCH`](https://github.com/golang/go/tree/master/src/internal/goarch) are defined by Go programming Language. These will be replaced by LLVM Triple style [`os`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L205) and [`arch`](https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/TargetParser/Triple.h#L46) in the future.
 
 ## What content in a corntron's main config (as is core.toml) file
 ```toml
 # base_dir defines the path of the corntron's root dir
 # default as the dir of the corntron's executable file without link as internal placeholder `${dp0}`
-base_dir = "${dp0}"
+base_dir = ""
 
 # corn_dirname defines the folder name of corn environments and binaries
 # default as "runtimes" 
@@ -54,15 +54,16 @@ mirror_types = ["private","alternate-1"]
 with_corn = true
 
 # platform_dir defines binaries dir of corn and runtime environments
-# default as `windows-amd64` when OS is `windows` and architecture is `amd64`
+# default as `<OS>-<Arch>` when OS is `windows` and architecture is `amd64`,the folder will be `windows-amd64`
 [platform_dir]
+#This is an example when you need to override them
 windows-amd64 = "bin_x64"
 
 # profile_dir defines the $HOME or %USERPROFILE% when running by the corntron
 # default as `${userprofile}` 
 # `${userprofile}` is an internal placeholder as your host's $HOME or %USERPROFILE%
 # `${currentdir}` is an internal placeholder as configure root's directory
-profile_dir = "${userprofile}"
+profile_dir = ""
 ```
 
 ## What content in a corntron environment config file?
